@@ -36,3 +36,11 @@ export const CATEGORIES: CategoryColor[] = [
     { name: 'Deep Work', color: '#6366F1' }, // Indigo
     { name: 'Health', color: '#10B981' }, // Emerald
 ]
+
+export interface Note {
+    id: string
+    title: string
+    content: string
+    createdAt: string
+    updatedAt: string
+}

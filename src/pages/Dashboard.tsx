@@ -51,7 +51,7 @@ export default function Dashboard() {
         await dbService.addTask({
             title: newTask.title,
             priority: newTask.priority,
-            category: newTask.category,
+            category: newTask.category || 'General',
             dueDate: newTask.due,
             notes: newTask.notes
         })

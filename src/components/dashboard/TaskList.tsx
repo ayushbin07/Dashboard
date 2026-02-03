@@ -24,12 +24,16 @@ export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
     const [title, setTitle] = useState('')
     const [priority, setPriority] = useState(false)
     const [dueDate, setDueDate] = useState('')
+    const [category, setCategory] = useState('Personal')
+
+    const CATEGORIES = ['Personal', 'Work', 'Health', 'Learning', 'Finance']
 
     const startAdd = () => {
         setEditingTask(null)
         setTitle('')
         setPriority(false)
         setDueDate('')
+        setCategory('Personal')
         setIsFormOpen(true)
     }
 
@@ -37,6 +41,7 @@ export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
         setEditingTask(task)
         setTitle(task.title)
         setPriority(task.priority || false)
+        setCategory(task.category || 'Personal')
         // Ensure dueDate is string for input
         let dueStr = ''
         if (task.dueDate instanceof Date) {
@@ -57,12 +62,14 @@ export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
                 ...editingTask,
                 title,
                 priority,
+                category,
                 dueDate: dueDate
             })
         } else {
             onAdd({
                 title,
                 priority,
+                category,
                 due: dueDate || undefined,
             })
         }
@@ -119,6 +126,26 @@ export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
                             autoFocus
                             className="bg-white dark:bg-gray-900 dark:text-white dark:border-gray-700"
                         />
+
+                        {/* Categories */}
+                        <div className="flex gap-2 flex-wrap">
+                            {CATEGORIES.map(cat => (
+                                <button
+                                    key={cat}
+                                    type="button"
+                                    onClick={() => setCategory(cat)}
+                                    className={cn(
+                                        "text-[10px] px-2 py-1 rounded-full border transition-all",
+                                        category === cat
+                                            ? "bg-[#0F5132] text-white border-[#0F5132]"
+                                            : "bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-gray-700 hover:border-gray-300"
+                                    )}
+                                >
+                                    {cat}
+                                </button>
+                            ))}
+                        </div>
+
                         <div className="flex gap-2">
                             <Button
                                 type="button"

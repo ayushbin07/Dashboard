@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Layout } from '@/components/layout/Layout'
 import { Onboarding } from '@/components/Onboarding'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
-import { authService } from '@/services/authService'
+import { authService, supabase } from '@/services/authService'
 import Dashboard from '@/pages/Dashboard'
 import Calendar from '@/pages/Calendar'
 import Tasks from '@/pages/Tasks'
@@ -39,8 +39,23 @@ function App() {
 
       // Check onboarding only if authenticated
       if (session) {
-        const onboardingComplete = localStorage.getItem('antigravity_onboarding_complete')
-        setShowOnboarding(!onboardingComplete)
+        // Check if user has completed onboarding by checking if they have a username in profile
+        // standard onboarding saves username to profile
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('id', session.user.id)
+          .single()
+
+        if (profile?.username) {
+          setShowOnboarding(false)
+          // Sync local storage just in case
+          localStorage.setItem('antigravity_onboarding_complete', 'true')
+        } else {
+          // Fallback to local storage or show onboarding
+          const localCompleted = localStorage.getItem('antigravity_onboarding_complete')
+          setShowOnboarding(!localCompleted)
+        }
       }
     } catch {
       setIsAuthenticated(false)

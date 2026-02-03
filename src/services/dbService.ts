@@ -1,8 +1,105 @@
 import { supabase } from './authService'
-import type { Task, Habit } from '@/types'
+import type { Task, Habit, Note } from '@/types'
 
 export const dbService = {
-    // --- TASKS ---
+    // ... (existing code) ...
+
+    // --- NOTES ---
+    async getNotes(): Promise<Note[]> {
+        const { data, error } = await supabase
+            .from('notes')
+            .select('*')
+            .order('updated_at', { ascending: false })
+
+        if (error) {
+            console.error('Error fetching notes:', error)
+            return []
+        }
+
+        return data.map(n => ({
+            id: n.id,
+            title: n.title,
+            content: n.content,
+            createdAt: n.created_at,
+            updatedAt: n.updated_at
+        }))
+    },
+
+    async addNote(title: string, content: string): Promise<Note | null> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return null
+
+        const { data, error } = await supabase
+            .from('notes')
+            .insert({
+                user_id: user.id,
+                title,
+                content
+            })
+            .select()
+            .single()
+
+        if (error) throw error
+
+        return {
+            id: data.id,
+            title: data.title,
+            content: data.content,
+            createdAt: data.created_at,
+            updatedAt: data.updated_at
+        }
+    },
+
+    async updateNote(id: string, title: string, content: string): Promise<void> {
+        const { error } = await supabase
+            .from('notes')
+            .update({
+                title,
+                content,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', id)
+
+        if (error) throw error
+    },
+
+    async deleteNote(id: string): Promise<void> {
+        const { error } = await supabase
+            .from('notes')
+            .delete()
+            .eq('id', id)
+
+        if (error) throw error
+    },
+
+    async resetData(): Promise<void> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Not authenticated')
+
+        // Delete all tasks
+        const { error: tasksError } = await supabase
+            .from('tasks')
+            .delete()
+            .eq('user_id', user.id)
+
+        if (tasksError) throw tasksError
+
+        // Delete all habits
+        const { error: habitsError } = await supabase
+            .from('habits')
+            .delete()
+            .eq('user_id', user.id)
+
+        if (habitsError) throw habitsError
+
+        // Delete all notes
+        const { error: notesError } = await supabase
+            .from('notes')
+            .delete()
+            .eq('user_id', user.id)
+
+        if (notesError) throw notesError
+    },
     async getTasks(): Promise<Task[]> {
         const { data, error } = await supabase
             .from('tasks')
@@ -235,24 +332,5 @@ export const dbService = {
         if (error) throw error
     },
 
-    async resetData(): Promise<void> {
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) throw new Error('Not authenticated')
 
-        // Delete all tasks
-        const { error: tasksError } = await supabase
-            .from('tasks')
-            .delete()
-            .eq('user_id', user.id)
-
-        if (tasksError) throw tasksError
-
-        // Delete all habits (history usually cascades)
-        const { error: habitsError } = await supabase
-            .from('habits')
-            .delete()
-            .eq('user_id', user.id)
-
-        if (habitsError) throw habitsError
-    }
 }

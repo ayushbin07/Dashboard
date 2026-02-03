@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import ReactMarkdown from 'react-markdown'
+import { dbService } from '@/services/dbService'
 
 interface Note {
     id: string
@@ -20,45 +21,53 @@ export default function Notes() {
     const [editTitle, setEditTitle] = useState('')
     const [editContent, setEditContent] = useState('')
     const [isPreview, setIsPreview] = useState(false)
+    const [loading, setLoading] = useState(true)
+
+    const fetchNotes = async () => {
+        try {
+            const fetchedNotes = await dbService.getNotes()
+            setNotes(fetchedNotes)
+            if (fetchedNotes.length > 0 && !selectedNote) {
+                // Only auto-select if nothing selected
+                // setSelectedNote(fetchedNotes[0]) 
+            }
+        } catch (error) {
+            console.error('Failed to fetch notes', error)
+        } finally {
+            setLoading(false)
+        }
+    }
 
     useEffect(() => {
-        const savedNotes = localStorage.getItem('notes')
-        if (savedNotes) {
-            const parsed = JSON.parse(savedNotes)
-            setNotes(parsed)
-            if (parsed.length > 0) {
-                setSelectedNote(parsed[0])
-            }
-        }
+        fetchNotes()
     }, [])
 
-    const saveNotes = (updatedNotes: Note[]) => {
-        setNotes(updatedNotes)
-        localStorage.setItem('notes', JSON.stringify(updatedNotes))
-    }
-
-    const createNewNote = () => {
-        const newNote: Note = {
-            id: Date.now().toString(),
-            title: 'Untitled Note',
-            content: '',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
+    const createNewNote = async () => {
+        try {
+            const newNote = await dbService.addNote('Untitled Note', '')
+            if (newNote) {
+                setNotes([newNote, ...notes])
+                setSelectedNote(newNote)
+                setEditTitle(newNote.title)
+                setEditContent(newNote.content)
+                setIsEditing(true)
+            }
+        } catch (error) {
+            console.error('Failed to create note', error)
         }
-        const updatedNotes = [newNote, ...notes]
-        saveNotes(updatedNotes)
-        setSelectedNote(newNote)
-        setEditTitle(newNote.title)
-        setEditContent(newNote.content)
-        setIsEditing(true)
     }
 
-    const deleteNote = (noteId: string) => {
-        const updatedNotes = notes.filter(n => n.id !== noteId)
-        saveNotes(updatedNotes)
-        if (selectedNote?.id === noteId) {
-            setSelectedNote(updatedNotes[0] || null)
-            setIsEditing(false)
+    const deleteNote = async (noteId: string) => {
+        try {
+            await dbService.deleteNote(noteId)
+            const updatedNotes = notes.filter(n => n.id !== noteId)
+            setNotes(updatedNotes)
+            if (selectedNote?.id === noteId) {
+                setSelectedNote(null) // Don't auto-select another to avoid confusion
+                setIsEditing(false)
+            }
+        } catch (error) {
+            console.error('Failed to delete note', error)
         }
     }
 
@@ -70,21 +79,27 @@ export default function Notes() {
         }
     }
 
-    const saveEdit = () => {
+    const saveEdit = async () => {
         if (selectedNote) {
-            const updatedNotes = notes.map(note =>
-                note.id === selectedNote.id
-                    ? {
-                        ...note,
-                        title: editTitle,
-                        content: editContent,
-                        updatedAt: new Date().toISOString()
-                    }
-                    : note
-            )
-            saveNotes(updatedNotes)
-            setSelectedNote({ ...selectedNote, title: editTitle, content: editContent })
-            setIsEditing(false)
+            try {
+                await dbService.updateNote(selectedNote.id, editTitle, editContent)
+
+                const updatedNotes = notes.map(note =>
+                    note.id === selectedNote.id
+                        ? {
+                            ...note,
+                            title: editTitle,
+                            content: editContent,
+                            updatedAt: new Date().toISOString()
+                        }
+                        : note
+                )
+                setNotes(updatedNotes)
+                setSelectedNote({ ...selectedNote, title: editTitle, content: editContent })
+                setIsEditing(false)
+            } catch (error) {
+                console.error('Failed to update note', error)
+            }
         }
     }
 
