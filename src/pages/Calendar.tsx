@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, X, Check } from 'lucide-react'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, isSameDay, isSameMonth } from 'date-fns'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { localService } from '@/services/localService'
+import { dbService } from '@/services/dbService'
 import type { Habit, Task } from '@/types'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -16,9 +16,21 @@ export default function Calendar() {
     const [hoveredDate, setHoveredDate] = useState<Date | null>(null)
     const location = useLocation()
 
+    const refreshData = async () => {
+        try {
+            const [fetchedHabits, fetchedTasks] = await Promise.all([
+                dbService.getHabits(),
+                dbService.getTasks()
+            ])
+            setHabits(fetchedHabits)
+            setTasks(fetchedTasks)
+        } catch (error) {
+            console.error('Failed to load calendar data', error)
+        }
+    }
+
     useEffect(() => {
-        setHabits(localService.getHabits())
-        setTasks(localService.getTasks())
+        refreshData()
 
         // Handle navigation from search
         const state = location.state as { selectedDate?: string | Date }
@@ -77,15 +89,20 @@ export default function Calendar() {
     }
 
     // Toggle habit for specific date
-    const toggleHabitForDate = (habitId: string, date: Date) => {
+    const toggleHabitForDate = async (habitId: string, date: Date) => {
         const dateKey = format(date, 'yyyy-MM-dd')
         const today = new Date().toISOString().split('T')[0]
+
+        const habit = habits.find(h => h.id === habitId)
+        if (!habit) return
+
+        // Check if currently completed for that date (local state logic)
+        const isCurrentlyCompleted = habit.history[dateKey] === true
 
         const updatedHabits = habits.map(habit => {
             if (habit.id !== habitId) return habit
 
             const newHistory = { ...habit.history }
-            const isCurrentlyCompleted = newHistory[dateKey] === true
 
             if (isCurrentlyCompleted) {
                 delete newHistory[dateKey]
@@ -104,7 +121,10 @@ export default function Calendar() {
         })
 
         setHabits(updatedHabits)
-        localService.saveHabits(updatedHabits)
+
+        // Sync with DB
+        await dbService.toggleHabit(habitId, dateKey, isCurrentlyCompleted)
+        refreshData()
     }
 
     // Get completed tasks for a specific date

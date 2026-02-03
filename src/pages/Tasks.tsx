@@ -1,52 +1,66 @@
 import { useState, useEffect } from 'react'
 import { Check } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { localService } from '@/services/localService'
+import { dbService } from '@/services/dbService'
 import type { Task, Habit } from '@/types'
 
 export default function Tasks() {
     const [tasks, setTasks] = useState<Task[]>([])
     const [habits, setHabits] = useState<Habit[]>([])
 
-    useEffect(() => {
-        setTasks(localService.getTasks())
-        setHabits(localService.getHabits())
-    }, [])
-
-    const toggleTask = (taskId: string) => {
-        const updatedTasks = tasks.map(task => {
-            if (task.id === taskId) {
-                return {
-                    ...task,
-                    status: (task.status === 'completed' ? 'pending' : 'completed') as 'pending' | 'completed'
-                }
-            }
-            return task
-        })
-        setTasks(updatedTasks)
-        localService.saveTasks(updatedTasks)
+    const refreshData = async () => {
+        try {
+            const [fetchedTasks, fetchedHabits] = await Promise.all([
+                dbService.getTasks(),
+                dbService.getHabits()
+            ])
+            setTasks(fetchedTasks)
+            setHabits(fetchedHabits)
+        } catch (error) {
+            console.error('Failed to load tasks data', error)
+        }
     }
 
-    const toggleHabit = (habitId: string) => {
-        const updatedHabits = habits.map(habit => {
-            if (habit.id === habitId) {
-                const newCompleted = !habit.completedToday
-                const dateKey = new Date().toISOString().split('T')[0]
+    useEffect(() => {
+        refreshData()
+    }, [])
 
+    const toggleTask = async (taskId: string) => {
+        // Optimistic update
+        const task = tasks.find(t => t.id === taskId)
+        if (!task) return
+
+        const updatedTasks = tasks.map(t => {
+            if (t.id === taskId) {
                 return {
-                    ...habit,
-                    completedToday: newCompleted,
-                    history: {
-                        ...habit.history,
-                        [dateKey]: newCompleted
-                    },
-                    streak: newCompleted ? habit.streak + 1 : Math.max(0, habit.streak - 1)
+                    ...t,
+                    status: (t.status === 'completed' ? 'pending' : 'completed') as 'pending' | 'completed'
                 }
             }
-            return habit
+            return t
+        })
+        setTasks(updatedTasks)
+
+        await dbService.toggleTask(taskId, task.status)
+        refreshData()
+    }
+
+    const toggleHabit = async (habitId: string) => {
+        // Optimistic update
+        const habit = habits.find(h => h.id === habitId)
+        if (!habit) return
+
+        const updatedHabits = habits.map(h => {
+            if (h.id === habitId) {
+                return { ...h, completedToday: !h.completedToday }
+            }
+            return h
         })
         setHabits(updatedHabits)
-        localService.saveHabits(updatedHabits)
+
+        const today = new Date().toISOString().split('T')[0]
+        await dbService.toggleHabit(habitId, today, habit.completedToday)
+        refreshData()
     }
 
     const pendingTasks = tasks.filter(t => t.status === 'pending')

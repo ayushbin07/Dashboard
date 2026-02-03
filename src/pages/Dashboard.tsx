@@ -6,7 +6,7 @@ import { HabitList } from '@/components/dashboard/HabitList'
 import { Reminders } from '@/components/dashboard/Reminders'
 import { Timer } from '@/components/dashboard/Timer'
 import { motion } from 'framer-motion'
-import { localService } from '@/services/localService'
+import { dbService } from '@/services/dbService'
 import type { Task, Habit } from '@/types'
 
 export default function Dashboard() {
@@ -14,26 +14,41 @@ export default function Dashboard() {
     const [habits, setHabits] = useState<Habit[]>([])
     const [loading, setLoading] = useState(true)
 
-    const refreshData = () => {
-        setTasks(localService.getTasks())
-        setHabits(localService.getHabits())
+    const refreshData = async () => {
+        try {
+            const [fetchedTasks, fetchedHabits] = await Promise.all([
+                dbService.getTasks(),
+                dbService.getHabits()
+            ])
+            setTasks(fetchedTasks)
+            setHabits(fetchedHabits)
+        } catch (error) {
+            console.error('Failed to load dashboard data', error)
+        }
     }
 
     useEffect(() => {
-        // Initial load
-        refreshData()
-        setLoading(false)
+        const loadInitial = async () => {
+            await refreshData()
+            setLoading(false)
+        }
+        loadInitial()
     }, [])
 
     // --- Task Handlers ---
-    const handleToggleTask = (id: string) => {
-        localService.toggleTask(id)
-        refreshData()
+    const handleToggleTask = async (id: string) => {
+        const task = tasks.find(t => t.id === id)
+        if (task) {
+            // Optimistic update
+            setTasks(prev => prev.map(t => t.id === id ? { ...t, status: t.status === 'pending' ? 'completed' : 'pending' } : t))
+
+            await dbService.toggleTask(id, task.status)
+            refreshData()
+        }
     }
 
     const handleAddTask = async (newTask: any) => {
-        // Adapt form data to service expectation
-        localService.addTask({
+        await dbService.addTask({
             title: newTask.title,
             priority: newTask.priority,
             category: newTask.category,
@@ -43,29 +58,37 @@ export default function Dashboard() {
         refreshData()
     }
 
-    const handleUpdateTask = (updatedTask: Task) => {
-        localService.updateTask(updatedTask)
+    const handleUpdateTask = async (updatedTask: Task) => {
+        await dbService.updateTask(updatedTask)
         refreshData()
     }
 
     // --- Habit Handlers ---
-    const handleToggleHabit = (id: string) => {
-        localService.toggleHabit(id)
+    const handleToggleHabit = async (id: string) => {
+        const habit = habits.find(h => h.id === id)
+        if (habit) {
+            const today = new Date().toISOString().split('T')[0]
+            // Optimistic update
+            setHabits(prev => prev.map(h => h.id === id ? { ...h, completedToday: !h.completedToday } : h))
+
+            await dbService.toggleHabit(id, today, habit.completedToday)
+            refreshData()
+        }
+    }
+
+    const handleAddHabit = async (title: string, category: string, priority: boolean, target: number, color: string) => {
+        await dbService.addHabit(title, category, priority, target, color)
         refreshData()
     }
 
-    const handleAddHabit = (title: string, category: string, priority: boolean, target: number, color: string) => {
-        localService.addHabit(title, category, priority, target, color)
+    const handleUpdateHabit = async (updatedHabit: Habit) => {
+        await dbService.updateHabit(updatedHabit)
         refreshData()
     }
 
-    const handleUpdateHabit = (updatedHabit: Habit) => {
-        localService.updateHabit(updatedHabit)
-        refreshData()
-    }
-
-    const handleDeleteHabit = (id: string) => {
-        localService.deleteHabit(id)
+    const handleDeleteHabit = async (id: string) => {
+        setHabits(prev => prev.filter(h => h.id !== id))
+        await dbService.deleteHabit(id)
         refreshData()
     }
 
