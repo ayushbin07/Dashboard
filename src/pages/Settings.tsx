@@ -1,21 +1,44 @@
 import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
-import { User, Palette, Bell, Database, ChevronRight, LogOut } from "lucide-react"
+import { Palette, Bell, Database, ChevronRight, LogOut } from "lucide-react"
 import { localService } from "@/services/localService"
 
 export default function Settings() {
-    const [name, setName] = useState(() => localStorage.getItem("antigravity_username") || "")
+    const [name, setName] = useState('')
+    const [avatar, setAvatar] = useState('👨‍💻')
     const [darkMode, setDarkMode] = useState(false)
     const [notifications, setNotifications] = useState(false)
+    const [isLoaded, setIsLoaded] = useState(false)
 
     useEffect(() => {
-        if (name) {
-            localStorage.setItem("antigravity_username", name)
+        const profile = localService.getUserProfile()
+        if (profile.name) setName(profile.name)
+        if (profile.avatar) setAvatar(profile.avatar)
+
+        setDarkMode(localService.getTheme() === 'dark')
+
+        setIsLoaded(true)
+    }, [])
+
+    const handleSaveProfile = () => {
+        if (!isLoaded) return
+        localService.saveUserProfile({ name, avatar })
+        // Optional: Trigger a custom event or reload to update header instantly if not using context
+        window.dispatchEvent(new Event('profile-updated'))
+    }
+
+    // Auto-save on change
+    useEffect(() => {
+        if (isLoaded) {
+            handleSaveProfile()
         }
-    }, [name])
+    }, [name, avatar, isLoaded])
+
+    const AVATARS = ['👨‍💻', '👩‍🚀', '🦁', '🐼', '⚡', '🤖', '🦊', '🦉']
 
     const handleExportData = () => {
         const data = {
@@ -43,139 +66,117 @@ export default function Settings() {
     }
 
     return (
-        <div
-            className="max-w-5xl mx-auto space-y-10 pb-20"
-        >
-            <div className="flex items-end justify-between">
-                <div>
-                    <h2 className="text-4xl font-bold tracking-tight text-gray-900">Settings</h2>
-                    <p className="text-gray-500 mt-2 text-lg">Manage your account and preferences.</p>
-                </div>
+        <div className="max-w-4xl mx-auto space-y-6 pb-20">
+            {/* Header */}
+            <div className="mb-2">
+                <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Settings</h2>
+                <p className="text-gray-500 dark:text-gray-400">Manage your account and preferences.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-                {/* Sidebar Navigation Styled Section (Visual Only for now as requested) */}
-                <div className="hidden md:block col-span-3 space-y-2">
-                    <nav className="flex flex-col gap-1 text-sm font-medium text-gray-600">
-                        <button className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-[#0F5132] text-white shadow-soft">
-                            <User size={18} />
-                            Profile
-                        </button>
-                        <button className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-100 transition-colors">
-                            <Palette size={18} />
-                            Appearance
-                        </button>
-                        <button className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-100 transition-colors">
-                            <Bell size={18} />
-                            Notifications
-                        </button>
-                        <button className="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-gray-100 transition-colors">
-                            <Database size={18} />
-                            Data
-                        </button>
-                    </nav>
-                </div>
+            <div className="space-y-6">
+                {/* Profile Section */}
+                <Card className="p-8 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300">
+                    <div className="flex items-center gap-6 mb-8">
+                        <div className="h-24 w-24 rounded-full bg-gray-50 dark:bg-gray-700 flex items-center justify-center text-5xl border-4 border-white dark:border-gray-600 shadow-sm">
+                            {avatar}
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white">{name || 'Guest User'}</h3>
+                            <p className="text-gray-500 dark:text-gray-400">Update your avatar and details</p>
+                        </div>
+                    </div>
 
-                {/* Main Content Area */}
-                <div className="col-span-1 md:col-span-9 space-y-8">
-                    {/* Profile Section */}
-                    <Card className="p-8 rounded-[2rem] border-none shadow-soft hover:shadow-lg transition-shadow duration-300">
-                        <div className="flex items-center justify-between mb-8">
-                            <div className="flex items-center gap-4">
-                                <div className="h-16 w-16 rounded-full bg-[#E8F5E9] flex items-center justify-center text-[#0F5132] text-xl font-bold">
-                                    {name && name.length > 0 ? name[0].toUpperCase() : <User />}
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-bold text-gray-900">{name || "User"}</h3>
-                                    <p className="text-gray-500">Update your photo and details</p>
-                                </div>
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Choose Avatar</label>
+                            <div className="flex gap-3 flex-wrap">
+                                {AVATARS.map((emoji) => (
+                                    <button
+                                        key={emoji}
+                                        onClick={() => setAvatar(emoji)}
+                                        className={cn(
+                                            "h-12 w-12 rounded-2xl flex items-center justify-center text-2xl transition-all hover:scale-110",
+                                            avatar === emoji
+                                                ? "bg-[#0F5132] text-white shadow-lg shadow-[#0F5132]/20 scale-110"
+                                                : "bg-gray-50 dark:bg-gray-700 text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-600"
+                                        )}
+                                    >
+                                        {emoji}
+                                    </button>
+                                ))}
                             </div>
-                            <Button variant="secondary" className="rounded-xl border-gray-200 text-gray-600" size="sm">
-                                Edit Profile
-                            </Button>
                         </div>
 
-                        <div className="grid gap-6 max-w-xl">
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-gray-700">Display Name</label>
-                                <Input
-                                    placeholder="Enter your name"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    className="h-12 rounded-xl bg-gray-50 border-transparent focus:bg-white focus:border-[#0F5132]/20 focus:ring-[#0F5132]/20"
-                                />
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Display Name</label>
+                            <Input
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                placeholder="Enter your name"
+                                className="max-w-md bg-gray-50 dark:bg-gray-700/50 border-transparent dark:border-transparent focus:bg-white dark:focus:bg-gray-800 dark:text-white transition-all"
+                            />
+                        </div>
+                    </div>
+                </Card>
+
+                {/* Preferences Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Dark Mode */}
+                    <Card className="p-6 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300 flex flex-col justify-between min-h-[160px]">
+                        <div>
+                            <div className="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4 text-gray-900 dark:text-white">
+                                <Palette size={20} />
                             </div>
+                            <h3 className="font-bold text-gray-900 dark:text-white mb-1">Dark Mode</h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Reduce eye strain with a dark theme.</p>
+                        </div>
+                        <div className="flex items-center justify-between mt-4">
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Enable</span>
+                            <Switch
+                                checked={darkMode}
+                                onCheckedChange={(checked) => {
+                                    setDarkMode(checked)
+                                    localService.saveTheme(checked ? 'dark' : 'light')
+                                    window.dispatchEvent(new Event('theme-updated'))
+                                }}
+                            />
                         </div>
                     </Card>
 
-                    {/* Preferences Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Card className="p-8 rounded-[2rem] border-none shadow-soft flex flex-col justify-between h-full bg-[#111827] text-white">
-                            <div>
-                                <div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center mb-6">
-                                    <Palette className="text-white" size={24} />
-                                </div>
-                                <h3 className="text-xl font-bold mb-2">Dark Mode</h3>
-                                <p className="text-gray-400 mb-6 text-sm">Reduce eye strain with a dark theme.</p>
+                    {/* Notifications */}
+                    <Card className="p-6 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300 flex flex-col justify-between min-h-[160px]">
+                        <div>
+                            <div className="h-10 w-10 rounded-full bg-[#E8F5E9] dark:bg-[#0F5132]/20 flex items-center justify-center mb-4 text-[#0F5132] dark:text-[#4ade80]">
+                                <Bell size={20} />
                             </div>
-                            <div className="flex items-center justify-between">
-                                <span className="font-medium text-sm">Enable</span>
-                                <Switch
-                                    checked={darkMode}
-                                    onCheckedChange={setDarkMode}
-                                    className="data-[state=checked]:bg-[#4ade80]"
-                                />
-                            </div>
-                        </Card>
+                            <h3 className="font-bold text-gray-900 dark:text-white mb-1">Notifications</h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Stay updated with your daily progress.</p>
+                        </div>
+                        <div className="flex items-center justify-between mt-4">
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Allow Notifications</span>
+                            <Switch
+                                checked={notifications}
+                                onCheckedChange={setNotifications}
+                            />
+                        </div>
+                    </Card>
 
-                        <Card className="p-8 rounded-[2rem] border-none shadow-soft flex flex-col justify-between h-full">
-                            <div>
-                                <div className="h-12 w-12 rounded-2xl bg-[#E8F5E9] flex items-center justify-center mb-6">
-                                    <Bell className="text-[#0F5132]" size={24} />
-                                </div>
-                                <h3 className="text-xl font-bold mb-2">Notifications</h3>
-                                <p className="text-gray-500 mb-6 text-sm">Stay updated with your daily progress.</p>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <span className="font-medium text-gray-900 text-sm">Allow Notifications</span>
-                                <Switch
-                                    checked={notifications}
-                                    onCheckedChange={setNotifications}
-                                    className="data-[state=checked]:bg-[#0F5132]"
-                                />
-                            </div>
-                        </Card>
-                    </div>
-
-                    {/* Data Section */}
-                    <Card className="p-8 rounded-[2rem] border-none shadow-soft">
-                        <div className="flex items-center gap-4 mb-6">
-                            <div className="h-10 w-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600">
+                    {/* Data Management */}
+                    <Card className="p-6 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300 flex flex-col justify-between min-h-[160px]">
+                        <div>
+                            <div className="h-10 w-10 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center mb-4 text-red-500">
                                 <Database size={20} />
                             </div>
-                            <h3 className="text-lg font-bold text-gray-900">Data Management</h3>
+                            <h3 className="font-bold text-gray-900 dark:text-white mb-1">Data Management</h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Manage your local storage data.</p>
                         </div>
-
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer group" onClick={handleExportData}>
-                                <div>
-                                    <p className="font-semibold text-gray-900">Export Information</p>
-                                    <p className="text-sm text-gray-500">Download your data as JSON</p>
-                                </div>
-                                <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-                                    <ChevronRight size={16} className="text-gray-400" />
-                                </div>
-                            </div>
-
-                            <div className="flex items-center justify-between p-4 rounded-2xl bg-red-50 hover:bg-red-100/50 transition-colors cursor-pointer group" onClick={handleClearData}>
-                                <div>
-                                    <p className="font-semibold text-red-600">Delete Account Data</p>
-                                    <p className="text-sm text-red-400/80">Permanently remove all local data</p>
-                                </div>
-                                <div className="h-8 w-8 rounded-full bg-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-                                    <LogOut size={16} className="text-red-500" />
-                                </div>
-                            </div>
+                        <div className="flex gap-2 mt-4">
+                            <Button variant="secondary" size="sm" onClick={handleExportData} className="text-xs dark:bg-transparent dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-800">
+                                <ChevronRight size={14} className="mr-1" /> Export
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={handleClearData} className="text-xs text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:bg-red-900/10 dark:hover:text-red-300">
+                                <LogOut size={14} className="mr-1" /> Reset
+                            </Button>
                         </div>
                     </Card>
                 </div>

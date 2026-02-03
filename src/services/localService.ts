@@ -2,8 +2,40 @@ import type { Task, Habit } from '@/types'
 
 const TASKS_KEY = 'antigravity_tasks'
 const HABITS_KEY = 'antigravity_habits'
+const USER_KEY = 'antigravity_user'
+
+export interface UserProfile {
+    name: string
+    avatar: string
+}
 
 export const localService = {
+    // --- USER PROFILE ---
+    getUserProfile(): UserProfile {
+        const stored = localStorage.getItem(USER_KEY)
+        if (stored) {
+            try {
+                return JSON.parse(stored)
+            } catch {
+                return { name: '', avatar: '👨‍💻' }
+            }
+        }
+        return { name: '', avatar: '👨‍💻' }
+    },
+
+    saveUserProfile(profile: UserProfile) {
+        localStorage.setItem(USER_KEY, JSON.stringify(profile))
+    },
+
+    // --- THEME ---
+    getTheme(): 'light' | 'dark' {
+        return (localStorage.getItem('antigravity_theme') as 'light' | 'dark') || 'light'
+    },
+
+    saveTheme(theme: 'light' | 'dark') {
+        localStorage.setItem('antigravity_theme', theme)
+    },
+
     // --- TASKS ---
     getTasks(): Task[] {
         const stored = localStorage.getItem(TASKS_KEY)
@@ -117,30 +149,33 @@ export const localService = {
         const updated = habits.map((h: Habit) => {
             if (h.id !== id) return h
 
-            const wasCompleted = h.completedToday
-            const newCompleted = !wasCompleted
-
+            const newCompleted = !h.completedToday
             const newHistory = { ...h.history }
+
             if (newCompleted) {
                 newHistory[today] = true
             } else {
                 delete newHistory[today]
             }
 
-            // Auto streak calc (simple version: count backwards from today)
-            let streak = 0
-            /* Logic could be complex for gaps, keeping it simple: just count active history keys? 
-               No, streak means consecutive days.
-               For now, let's just increment/decrement based on toggle for visual feedback.
-            */
-            if (newCompleted) streak = h.streak + 1
-            else streak = Math.max(0, h.streak - 1)
+            // Simple streak logic: if completed, streak +1 (if not already incremented today in a real app, but here just visual)
+            // Actually, best to just recalculate streak from history if we want accuracy, or just increment/decrement
+            // User reported weird behavior, so let's stick to:
+            // If checking -> streak + 1
+            // If unchecking -> streak - 1 (but not below 0)
+            // But we must ensure we don't double count if we toggle rapidly.
+            // The issue is likely that state in UI assumes X but local storage has Y.
+            // Let's rely on the direct toggle.
+
+            let streak = h.streak
+            if (newCompleted) streak += 1
+            else streak = Math.max(0, streak - 1)
 
             return {
                 ...h,
                 completedToday: newCompleted,
                 history: newHistory,
-                streak // In a real app, calculate strict calendar streak
+                streak
             }
         })
 

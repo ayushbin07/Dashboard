@@ -83,9 +83,9 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
     }
 
     return (
-        <Card className="p-6 h-full flex flex-col">
+        <Card className="p-8 h-full flex flex-col rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300">
             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-semibold">Daily Rituals</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Daily Rituals</h3>
                 <Button size="sm" variant="ghost" onClick={isFormOpen ? () => setIsFormOpen(false) : startAdd}>
                     {isFormOpen ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
                 </Button>
@@ -188,7 +188,7 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
                         animate={{ opacity: 1, x: 0 }}
                         className={cn(
                             "group flex items-center justify-between p-3 rounded-xl border transition-all relative overflow-hidden",
-                            habit.completedToday ? "bg-opacity-10 border-opacity-20" : "bg-white border-gray-100 hover:border-gray-200",
+                            habit.completedToday ? "bg-opacity-10 border-opacity-20" : "bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600",
                             habit.priority && !habit.completedToday && "border-l-4 border-l-red-400"
                         )}
                         style={{
@@ -203,15 +203,14 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
                                     "flex h-6 w-6 items-center justify-center rounded-lg border transition-all",
                                 )}
                                 style={{
-                                    backgroundColor: habit.completedToday ? habit.color : 'white',
-                                    borderColor: habit.completedToday ? habit.color : '#e5e7eb',
-                                    color: 'white'
+                                    backgroundColor: habit.completedToday ? habit.color : undefined, // Remove 'white' default, let CSS handle it
+                                    borderColor: habit.completedToday ? habit.color : 'currentColor', // inherit text color which we set below
                                 }}
                             >
-                                {habit.completedToday && <Check className="h-3.5 w-3.5" strokeWidth={3} />}
+                                {habit.completedToday ? <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} /> : <div className="dark:border-white opacity-20" />}
                             </button>
                             <div className="cursor-pointer" onClick={() => startEdit(habit)}>
-                                <p className={cn("text-sm font-medium transition-colors", habit.completedToday && "line-through opacity-50")}>
+                                <p className={cn("text-sm font-medium transition-colors text-gray-800 dark:text-gray-200", habit.completedToday && "line-through opacity-50")}>
                                     {habit.title}
                                 </p>
                                 <div className="flex gap-2 items-center">
