@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Check, Moon, Sun, Bell, BellOff } from 'lucide-react'
+import { supabase, authService } from '@/services/authService'
 import { localService } from '@/services/localService'
 import { notificationManager } from '@/utils/notificationManager'
 import { Button } from '@/components/ui/button'
@@ -15,6 +16,7 @@ interface OnboardingProps {
 export function Onboarding({ onComplete }: OnboardingProps) {
     const [currentStep, setCurrentStep] = useState(1)
     const [direction, setDirection] = useState(1)
+    const [isLoading, setIsLoading] = useState(false)
 
     // Form state
     const [username, setUsername] = useState('')
@@ -23,6 +25,22 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     const [notificationsEnabled, setNotificationsEnabled] = useState(false)
 
     const totalSteps = 4
+
+    // Load user data on mount
+    useEffect(() => {
+        const loadUser = async () => {
+            try {
+                const user = await authService.getCurrentUser()
+                if (user?.user_metadata) {
+                    if (user.user_metadata.username) setUsername(user.user_metadata.username)
+                    if (user.user_metadata.avatar) setSelectedAvatar(user.user_metadata.avatar)
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error)
+            }
+        }
+        loadUser()
+    }, [])
 
     const handleNext = () => {
         if (currentStep < totalSteps) {
@@ -39,33 +57,57 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     }
 
     const handleComplete = async () => {
-        // Save profile
-        localService.saveUserProfile({ name: username, avatar: selectedAvatar })
+        setIsLoading(true)
+        try {
+            // Save to Supabase
+            const { error } = await supabase.from('profiles').update({
+                username,
+                avatar: selectedAvatar,
+                theme: selectedTheme,
+                updated_at: new Date().toISOString()
+            }).eq('id', (await authService.getCurrentUser())?.id)
 
-        // Save theme
-        localService.saveTheme(selectedTheme)
-        document.documentElement.classList.toggle('dark', selectedTheme === 'dark')
+            if (error) {
+                console.error('Error updating profile:', error)
+                // Continue anyway to avoid blocking user
+            }
 
-        // Save notification settings
-        if (notificationsEnabled) {
-            await notificationManager.requestPermission()
-            localService.saveNotificationSettings({ pushNotifications: true, audioAlarms: true })
+            // Sync with localService (legacy/cache)
+            localService.saveUserProfile({ name: username, avatar: selectedAvatar })
+            localService.saveTheme(selectedTheme)
+            document.documentElement.classList.toggle('dark', selectedTheme === 'dark')
 
-            // Send test notification
-            setTimeout(() => {
-                notificationManager.sendNotification(
-                    'Welcome to AntiGravity! 🚀',
-                    'We\'ll notify you about upcoming deadlines just like this.'
-                )
-            }, 500)
-        } else {
-            localService.saveNotificationSettings({ pushNotifications: false, audioAlarms: false })
+            // Save notification settings
+            if (notificationsEnabled) {
+                try {
+                    await notificationManager.requestPermission()
+                    localService.saveNotificationSettings({ pushNotifications: true, audioAlarms: true })
+
+                    // Send test notification
+                    setTimeout(() => {
+                        notificationManager.sendNotification(
+                            'Welcome to AntiGravity! 🚀',
+                            'We\'ll notify you about upcoming deadlines just like this.'
+                        )
+                    }, 500)
+                } catch (e) {
+                    console.error('Notification permission failed', e)
+                }
+            } else {
+                localService.saveNotificationSettings({ pushNotifications: false, audioAlarms: false })
+            }
+
+            // Mark onboarding as complete specific to this user? 
+            // For now, keep using browser storage but maybe we should store this in DB profile too?
+            localStorage.setItem('antigravity_onboarding_complete', 'true')
+
+            onComplete()
+        } catch (error) {
+            console.error('Onboarding error:', error)
+            onComplete() // Fail safe: let them in
+        } finally {
+            setIsLoading(false)
         }
-
-        // Mark onboarding as complete
-        localStorage.setItem('antigravity_onboarding_complete', 'true')
-
-        onComplete()
     }
 
     const canProceed = () => {
@@ -176,10 +218,17 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                         </Button>
                         <Button
                             onClick={currentStep === totalSteps ? handleComplete : handleNext}
-                            disabled={!canProceed()}
+                            disabled={!canProceed() || isLoading}
                             className="bg-[#0F5132] hover:bg-[#0d4228] text-white px-6"
                         >
-                            {currentStep === totalSteps ? 'Get Started! 🚀' : 'Continue'}
+                            {isLoading ? (
+                                <span className="flex items-center gap-2">
+                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    Starting...
+                                </span>
+                            ) : (
+                                currentStep === totalSteps ? 'Get Started! 🚀' : 'Continue'
+                            )}
                         </Button>
                     </div>
                 </motion.div>
