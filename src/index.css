@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 249 250 251; /* #F9FAFB */
+    --foreground: 17 24 39;    /* #111827 */
+  }
+
+  body {
+    @apply bg-background text-gray-900 font-sans antialiased overflow-x-hidden;
+  }
+
+  /* Custom Scrollbar for technical feel */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full hover:bg-gray-400 transition-colors;
+  }
+}
+
+@layer utilities {
+    .glass {
+        @apply bg-white/70 backdrop-blur-lg border border-white/20;
+    }
+}
