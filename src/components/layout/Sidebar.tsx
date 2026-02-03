@@ -1,10 +1,21 @@
-import { Link, useLocation } from 'react-router-dom'
-import { Calendar, FileText, Settings, HelpCircle, LayoutGrid, Smartphone, Box } from "lucide-react"
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Calendar, FileText, Settings, HelpCircle, LayoutGrid, Smartphone, Box, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { authService } from '@/services/authService'
 
 export function Sidebar() {
     const location = useLocation()
+    const navigate = useNavigate()
     const pathname = location.pathname
+
+    const handleLogout = async () => {
+        try {
+            await authService.signOut()
+            navigate('/login')
+        } catch (error) {
+            console.error('Logout failed:', error)
+        }
+    }
 
     return (
         <aside className="fixed left-6 top-6 bottom-6 w-64 bg-white dark:bg-[#1f2937] dark:border-gray-800 rounded-[2rem] border border-gray-100 shadow-xl flex flex-col justify-between p-6 z-60 hidden lg:flex transition-all duration-300">
@@ -34,6 +45,7 @@ export function Sidebar() {
                         <nav className="space-y-2">
                             <NavItem icon={Settings} label="Settings" to="/settings" active={pathname === '/settings'} />
                             <NavItem icon={HelpCircle} label="Help" to="/help" active={pathname === '/help'} />
+                            <NavItem icon={LogOut} label="Logout" onClick={handleLogout} className="text-red-500 hover:text-red-600 hover:bg-red-50" />
                         </nav>
                     </div>
                 </div>
@@ -66,7 +78,17 @@ export function Sidebar() {
     )
 }
 
-function NavItem({ icon: Icon, label, active, badge, to }: { icon: any, label: string, active?: boolean, badge?: string, to?: string }) {
+interface NavItemProps {
+    icon: any
+    label: string
+    active?: boolean
+    badge?: string
+    to?: string
+    onClick?: () => void
+    className?: string
+}
+
+function NavItem({ icon: Icon, label, active, badge, to, onClick, className }: NavItemProps) {
     const content = (
         <>
             <div className="flex items-center gap-3">
@@ -86,7 +108,8 @@ function NavItem({ icon: Icon, label, active, badge, to }: { icon: any, label: s
         return (
             <Link to={to} className={cn(
                 "w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all group relative",
-                active ? "text-[#0F5132]" : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"
+                active ? "text-[#0F5132]" : "text-gray-400 hover:text-gray-600 hover:bg-gray-50",
+                className
             )}>
                 {content}
             </Link>
@@ -94,10 +117,14 @@ function NavItem({ icon: Icon, label, active, badge, to }: { icon: any, label: s
     }
 
     return (
-        <button className={cn(
-            "w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all group relative",
-            active ? "text-[#0F5132]" : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"
-        )}>
+        <button
+            onClick={onClick}
+            className={cn(
+                "w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all group relative",
+                active ? "text-[#0F5132]" : "text-gray-400 hover:text-gray-600 hover:bg-gray-50",
+                className
+            )}
+        >
             {content}
         </button>
     )
