@@ -18,19 +18,44 @@ export function Header() {
     const navigate = useNavigate()
 
     useEffect(() => {
-        const loadProfile = () => {
-            const p = localService.getUserProfile()
-            setProfile(p)
+        const loadProfile = async () => {
+            // Try load from local first for speed
+            const localProfile = localService.getUserProfile()
+            if (localProfile && localProfile.name) {
+                setProfile(localProfile)
+            }
+
+            // Then sync from DB
+            try {
+                const user = await import('@/services/authService').then(m => m.authService.getCurrentUser())
+                if (user) {
+                    const { data } = await import('@/services/authService').then(m => m.supabase
+                        .from('profiles')
+                        .select('username, avatar')
+                        .eq('id', user.id)
+                        .single()
+                    )
+
+                    if (data) {
+                        const dbProfile = { name: data.username || '', avatar: data.avatar || '👨‍💻' }
+                        setProfile(dbProfile)
+                        // Update local cache
+                        localService.saveUserProfile(dbProfile)
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading profile from DB:', error)
+            }
         }
 
         loadProfile()
+        // ... (rest of useEffect logic like tasks/streak)
+        // Note: Streak is still local for now as per priority
         setTasks(localService.getTasks())
 
-        // Update streak on mount (daily check-in)
         const updatedStreak = localService.updateStreak()
         setStreak(updatedStreak)
 
-        // Listen for profile updates from Settings page
         window.addEventListener('profile-updated', loadProfile)
         return () => window.removeEventListener('profile-updated', loadProfile)
     }, [])

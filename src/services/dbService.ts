@@ -124,8 +124,12 @@ export const dbService = {
     },
 
     async addTask(task: Omit<Task, 'id' | 'createdAt' | 'status'>): Promise<Task | null> {
+        console.log('Adding task:', task)
         const { data: { user } } = await supabase.auth.getUser()
-        if (!user) return null
+        if (!user) {
+            console.error('Add Task failed: No user')
+            return null
+        }
 
         const { data, error } = await supabase
             .from('tasks')
@@ -141,9 +145,11 @@ export const dbService = {
             .single()
 
         if (error) {
-            console.error('Error adding task:', error)
+            console.error('Error adding task to DB:', error)
             throw error
         }
+
+        console.log('Task added successfully:', data)
 
         return {
             id: data.id,
