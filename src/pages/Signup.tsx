@@ -47,7 +47,16 @@ export default function Signup() {
             // Navigate to onboarding or dashboard
             navigate('/')
         } catch (err: any) {
-            setError(err.message || 'Failed to create account')
+            console.error('Signup error:', err)
+            // Handle specific Supabase/Database errors
+            if (err.message?.includes('Database error saving new user') ||
+                err.message?.includes('duplicate key value')) {
+                setError('Username is already taken. Please choose another.')
+            } else if (err.message?.includes('violates unique constraint')) {
+                setError('Username or email already exists.')
+            } else {
+                setError(err.message || 'Failed to create account')
+            }
         } finally {
             setLoading(false)
         }
@@ -99,8 +108,8 @@ export default function Signup() {
                                         whileTap={{ scale: 0.95 }}
                                         onClick={() => setSelectedAvatar(avatar)}
                                         className={`text-3xl p-3 rounded-xl transition-all ${selectedAvatar === avatar
-                                                ? 'bg-[#0F5132]/20 ring-2 ring-[#0F5132] scale-110'
-                                                : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                            ? 'bg-[#0F5132]/20 ring-2 ring-[#0F5132] scale-110'
+                                            : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
                                             }`}
                                     >
                                         {avatar}
@@ -171,7 +180,7 @@ export default function Signup() {
                                                 width: passwordStrength === 'strong' ? '100%' : passwordStrength === 'medium' ? '66%' : '33%'
                                             }}
                                             className={`h-full ${passwordStrength === 'strong' ? 'bg-green-500' :
-                                                    passwordStrength === 'medium' ? 'bg-yellow-500' : 'bg-red-500'
+                                                passwordStrength === 'medium' ? 'bg-yellow-500' : 'bg-red-500'
                                                 }`}
                                         />
                                     </div>
