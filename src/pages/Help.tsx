@@ -9,6 +9,7 @@ import {
     Clock,
     CheckCircle2
 } from "lucide-react"
+import { APP_VERSION } from '@/version'
 
 export default function Help() {
     const sections = [
@@ -81,11 +82,16 @@ export default function Help() {
             className="w-[90%] mx-auto space-y-8 pb-20"
         >
             {/* Header */}
-            <div>
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-[#0F5132] to-[#4ade80] bg-clip-text text-transparent">
-                    How to use Dashboard
-                </h2>
-                <p className="text-gray-500 dark:text-gray-400">Complete guide to mastering your productivity ritual</p>
+            <div className="flex justify-between items-start">
+                <div>
+                    <h2 className="text-3xl font-bold bg-gradient-to-r from-[#0F5132] to-[#4ade80] bg-clip-text text-transparent">
+                        How to use Dashboard
+                    </h2>
+                    <p className="text-gray-500 dark:text-gray-400">Complete guide to mastering your productivity ritual</p>
+                </div>
+                <div className="text-xs font-mono text-gray-400 border border-gray-200 dark:border-gray-700 px-2 py-1 rounded">
+                    {APP_VERSION}
+                </div>
             </div>
 
             {/* Quick Tips */}
@@ -145,7 +151,7 @@ export default function Help() {
                         <span className="font-bold text-[#0F5132]">Theme:</span> Use the Settings page to toggle between Light and Dark mode. Dark mode is optimized for "Deep Work" focus.
                     </div>
                     <div className="text-sm">
-                        <span className="font-bold text-[#0F5132]">Persistence:</span> All your data is stored securely in your browser. You can clear your cache, but make sure to backup if you're switching devices.
+                        <span className="font-bold text-[#0F5132]">Persistence:</span> Your data is securely synced to the cloud ☁️. You can access your dashboard from any device by logging in.
                     </div>
                     <div className="text-sm">
                         <span className="font-bold text-[#0F5132]">Shortcuts:</span> Navigation is built for speed. Use the Sidebar for quick context switching between planning (Notes) and doing (Tasks).

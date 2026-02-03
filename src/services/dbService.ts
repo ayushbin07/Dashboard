@@ -196,26 +196,23 @@ export const dbService = {
         const newCompleted = !currentCompleted
 
         if (newCompleted) {
-            // Insert or update to true
             const { error } = await supabase
                 .from('habit_history')
-                .upsert({
+                .insert({
                     habit_id: id,
-                    user_id: user.id,
                     date: date,
                     completed: true
-                }, { onConflict: 'habit_id, date' })
-            if (error) throw error
+                })
+
+            if (error) console.error('Error marking habit complete:', error)
         } else {
-            // Delete the entry or set to false. Let's delete it to keep table clean? 
-            // Or set to false. The schema has a unique constraint.
-            // Let's delete it for "uncheck".
             const { error } = await supabase
                 .from('habit_history')
                 .delete()
                 .eq('habit_id', id)
                 .eq('date', date)
-            if (error) throw error
+
+            if (error) console.error('Error marking habit incomplete:', error)
         }
 
         // Update streak count on the habit parent?
@@ -236,5 +233,26 @@ export const dbService = {
             .delete()
             .eq('id', id)
         if (error) throw error
+    },
+
+    async resetData(): Promise<void> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Not authenticated')
+
+        // Delete all tasks
+        const { error: tasksError } = await supabase
+            .from('tasks')
+            .delete()
+            .eq('user_id', user.id)
+
+        if (tasksError) throw tasksError
+
+        // Delete all habits (history usually cascades)
+        const { error: habitsError } = await supabase
+            .from('habits')
+            .delete()
+            .eq('user_id', user.id)
+
+        if (habitsError) throw habitsError
     }
 }

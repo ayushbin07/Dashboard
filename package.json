@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "update-version": "node scripts/update-version.js",
+    "dev": "npm run update-version && vite",
+    "build": "npm run update-version && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
