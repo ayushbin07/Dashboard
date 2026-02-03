@@ -6,18 +6,9 @@ export function Timer() {
     const [duration, setDuration] = useState(25 * 60) // Default 25 min
     const [timeLeft, setTimeLeft] = useState(25 * 60)
     const [isActive, setIsActive] = useState(false)
-    const timerRef = useRef<NodeJS.Timeout | null>(null)
-    const audioRef = useRef<HTMLAudioElement | null>(null)
+    const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-    // beep sound base64
-    const BEEP_URL = "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU" // truncated for brevity, will use a simpler approach or full valid short base64 in real impl.
-    // Actually, let's use a standard frequency oscillator if passing full base64 is too long, 
-    // but React components can't easily do Web Audio Context setup without side effects.
-    // I'll assume a standard notification sound path or just visual indicator for now + system log 
-    // OR create a brief valid base64 wav.
-
-    // Simple short beep data URI
-    const ALARM_SOUND = "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU"
+    // Using AudioContext for sound generation in playAlarm instead of static files
 
     useEffect(() => {
         if (isActive && timeLeft > 0) {
