@@ -24,7 +24,7 @@ export function Sidebar() {
                         <nav className="space-y-2">
                             <NavItem icon={LayoutGrid} label="Dashboard" to="/" active={pathname === '/'} />
                             <NavItem icon={Box} label="Tasks" badge="12+" />
-                            <NavItem icon={Calendar} label="Calendar" />
+                            <NavItem icon={Calendar} label="Calendar" to="/calendar" active={pathname === '/calendar'} />
                             <NavItem icon={Users} label="Team" />
                         </nav>
                     </div>
