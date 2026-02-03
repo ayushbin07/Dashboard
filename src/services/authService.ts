@@ -35,8 +35,26 @@ export const authService = {
         return data
     },
 
-    // Sign in with email and password
-    async signIn(email: string, password: string) {
+    // Sign in with email or username
+    async signIn(loginIdentifier: string, password: string) {
+        let email = loginIdentifier
+
+        // Check if input looks like an email using simple regex
+        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginIdentifier)
+
+        if (!isEmail) {
+            // It's a username, look up the email
+            const { data: emailData, error: lookupError } = await supabase
+                .rpc('get_email_by_username', { username_input: loginIdentifier })
+
+            if (lookupError || !emailData) {
+                // Return a generic error to avoid user enumeration if possible, 
+                // or just let the downstream auth fail (but we need email to proceed).
+                throw new Error('Username not found or invalid')
+            }
+            email = emailData as string
+        }
+
         const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password
