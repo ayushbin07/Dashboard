@@ -1,178 +1,188 @@
 import { useState } from 'react'
 import { Card } from "@/components/ui/card"
-import { Check, Calendar, Plus, X, Tag } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { cn } from "@/lib/utils"
-import type { Task } from "@/types"
-import { CATEGORIES } from "@/types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { motion, AnimatePresence } from "framer-motion"
+import { X } from "lucide-react"
+import { cn } from "@/lib/utils"
+import type { Task } from "@/types"
 
 interface TaskListProps {
     tasks: Task[]
-    onToggle: (id: string, current: string) => void
-    onAdd: (task: any) => Promise<void>
+    onToggle: (id: string) => void
+    onAdd: (task: any) => void
+    onUpdate?: (task: Task) => void
 }
 
-export function TaskList({ tasks, onToggle, onAdd }: TaskListProps) {
-    const [isAdding, setIsAdding] = useState(false)
-    const [newTask, setNewTask] = useState({ title: '', category: 'Coding', priority: false, due: '', notes: '' })
+export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
+    const [filter, setFilter] = useState<'all' | 'priority' | 'normal'>('all')
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!newTask.title) return
+    // Edit/Add Form State
+    const [isFormOpen, setIsFormOpen] = useState(false)
+    const [editingTask, setEditingTask] = useState<Task | null>(null)
+    const [title, setTitle] = useState('')
+    const [priority, setPriority] = useState(false)
+    const [dueDate, setDueDate] = useState('')
 
-        await onAdd(newTask)
-        setIsAdding(false)
-        setNewTask({ title: '', category: 'Coding', priority: false, due: '', notes: '' })
+    const startAdd = () => {
+        setEditingTask(null)
+        setTitle('')
+        setPriority(false)
+        setDueDate('')
+        setIsFormOpen(true)
     }
 
-    // Sort: Priority Pending -> Additional Pending -> Completed
-    const sortedTasks = [...tasks].sort((a, b) => {
-        if (a.status === 'completed' && b.status !== 'completed') return 1
-        if (a.status !== 'completed' && b.status === 'completed') return -1
-        if (a.priority && !b.priority) return -1
-        if (!a.priority && b.priority) return 1
-        return 0
+    const startEdit = (task: Task) => {
+        setEditingTask(task)
+        setTitle(task.title)
+        setPriority(task.priority || false)
+        // Ensure dueDate is string for input
+        let dueStr = ''
+        if (task.dueDate instanceof Date) {
+            dueStr = task.dueDate.toISOString().split('T')[0]
+        } else if (typeof task.dueDate === 'string') {
+            dueStr = task.dueDate
+        }
+        setDueDate(dueStr)
+        setIsFormOpen(true)
+    }
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!title.trim()) return
+
+        if (editingTask && onUpdate) {
+            onUpdate({
+                ...editingTask,
+                title,
+                priority,
+                dueDate: dueDate
+            })
+        } else {
+            onAdd({
+                title,
+                priority,
+                due: dueDate || undefined,
+            })
+        }
+        setIsFormOpen(false)
+        setEditingTask(null)
+        setTitle('')
+    }
+
+    // Filter Logic
+    const filteredTasks = tasks.filter(t => {
+        if (t.status === 'completed') return false
+        if (filter === 'priority') return t.priority
+        if (filter === 'normal') return !t.priority
+        return true
+    })
+
+    // Sort: Priority first
+    const sortedTasks = [...filteredTasks].sort((a, b) => {
+        if (a.priority === b.priority) return 0
+        return a.priority ? -1 : 1
     })
 
     return (
-        <Card className="p-6 h-full flex flex-col relative overflow-hidden">
+        <Card className="p-6 h-full flex flex-col min-h-[400px]">
             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-semibold">Execution List</h3>
-                <Button size="sm" variant="secondary" onClick={() => setIsAdding(!isAdding)} className="gap-2">
-                    {isAdding ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-                    {isAdding ? 'Cancel' : 'Add Task'}
+                <div>
+                    <h3 className="text-lg font-semibold">Execution List</h3>
+                    <div className="flex gap-2 text-xs text-gray-400 mt-1">
+                        <button onClick={() => setFilter('all')} className={cn("hover:text-gray-600", filter === 'all' && "text-black font-medium")}>All</button>
+                        <button onClick={() => setFilter('priority')} className={cn("hover:text-gray-600", filter === 'priority' && "text-black font-medium")}>Priority</button>
+                    </div>
+                </div>
+                <Button size="sm" variant="secondary" onClick={isFormOpen ? () => setIsFormOpen(false) : startAdd}>
+                    {isFormOpen ? <X className="h-4 w-4" /> : "+ Add Task"}
                 </Button>
             </div>
 
-            {/* Add Task Form */}
             <AnimatePresence>
-                {isAdding && (
+                {isFormOpen && (
                     <motion.form
-                        initial={{ height: 0, opacity: 0, marginBottom: 0 }}
-                        animate={{ height: 'auto', opacity: 1, marginBottom: 24 }}
-                        exit={{ height: 0, opacity: 0, marginBottom: 0 }}
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="mb-4 bg-gray-50 p-4 rounded-xl space-y-3"
                         onSubmit={handleSubmit}
-                        className="overflow-hidden bg-gray-50/50 rounded-xl border border-dashed border-gray-300 p-4 space-y-3"
                     >
                         <Input
-                            value={newTask.title}
-                            onChange={e => setNewTask({ ...newTask, title: e.target.value })}
-                            placeholder="Task title..."
-                            className="bg-white"
+                            value={title}
+                            onChange={e => setTitle(e.target.value)}
+                            placeholder="Task description..."
                             autoFocus
+                            className="bg-white"
                         />
-                        <div className="flex flex-wrap gap-2">
-                            <Input
-                                type="date"
-                                value={newTask.due}
-                                onChange={e => setNewTask({ ...newTask, due: e.target.value })}
-                                className="w-auto bg-white"
-                            />
-                            <select
-                                value={newTask.category}
-                                onChange={e => setNewTask({ ...newTask, category: e.target.value })}
-                                className="h-10 rounded-xl border border-input bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                            >
-                                {CATEGORIES.map(cat => <option key={cat.name} value={cat.name}>{cat.name}</option>)}
-                            </select>
+                        <div className="flex gap-2">
                             <Button
                                 type="button"
-                                variant={newTask.priority ? "primary" : "secondary"}
-                                onClick={() => setNewTask({ ...newTask, priority: !newTask.priority })}
-                                className={cn("gap-2", newTask.priority && "bg-accent-priority hover:bg-accent-priority/90 text-white")}
+                                variant={priority ? "primary" : "secondary"}
+                                onClick={() => setPriority(!priority)}
+                                className={cn("h-9 text-xs flex-1", priority && "bg-red-100 text-red-600 border-red-200 hover:bg-red-200")}
                             >
-                                <Tag className="h-4 w-4" />
-                                {newTask.priority ? 'Priority' : 'Normal'}
+                                {priority ? "High Priority" : "Normal Priority"}
                             </Button>
-                        </div>
-                        <div className="flex justify-end">
-                            <Button type="submit" size="sm">Create Task</Button>
+                            <input
+                                type="date"
+                                value={dueDate}
+                                onChange={e => setDueDate(e.target.value)}
+                                className="h-9 rounded-md border border-input bg-white px-3 py-1 text-sm shadow-sm"
+                            />
+                            <Button type="submit" size="sm">
+                                {editingTask ? 'Save' : 'Add'}
+                            </Button>
                         </div>
                     </motion.form>
                 )}
             </AnimatePresence>
 
-            <div className="space-y-3 flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                <AnimatePresence mode='popLayout'>
-                    {sortedTasks.map(task => (
-                        <TaskItem
-                            key={task.id}
-                            task={task}
-                            onToggle={() => onToggle(task.id, task.status)}
-                        />
-                    ))}
-                    {tasks.length === 0 && !isAdding && (
-                        <div className="text-center text-gray-400 py-10 text-sm">
-                            No tasks found. Start by adding one.
+            <div className="space-y-3 flex-1 overflow-y-auto custom-scrollbar">
+                {sortedTasks.length === 0 && !isFormOpen && (
+                    <div className="text-center py-10 text-gray-400 text-sm">
+                        No active tasks.
+                    </div>
+                )}
+
+                {sortedTasks.map((task) => (
+                    <motion.div
+                        layout
+                        key={task.id}
+                        className={cn(
+                            "group flex items-start gap-3 p-3 rounded-xl border bg-white hover:shadow-sm transition-all relative",
+                            task.priority ? "border-l-4 border-l-red-500" : "border-gray-100"
+                        )}
+                    >
+                        <button
+                            onClick={() => onToggle(task.id)}
+                            className="mt-0.5 w-5 h-5 rounded border border-gray-300 hover:border-purple-500 flex items-center justify-center transition-colors"
+                        >
+                            {/* Empty square for pending */}
+                        </button>
+
+                        <div className="flex-1 cursor-pointer" onClick={() => startEdit(task)}>
+                            <p className="text-sm font-medium text-gray-800 leading-tight">{task.title}</p>
+                            {task.dueDate && (
+                                <p className="text-[10px] text-gray-400 mt-1">Due {task.dueDate instanceof Date ? task.dueDate.toLocaleDateString() : task.dueDate}</p>
+                            )}
                         </div>
-                    )}
-                </AnimatePresence>
+
+                        {task.priority && (
+                            <Badge variant="outline" className="text-[10px] border-red-200 text-red-500 bg-red-50">
+                                PRIORITY
+                            </Badge>
+                        )}
+
+                        <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onClick={() => startEdit(task)}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400 hover:text-gray-600"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                            </button>
+                        </div>
+                    </motion.div>
+                ))}
             </div>
         </Card>
-    )
-}
-
-function TaskItem({ task, onToggle }: { task: Task, onToggle: () => void }) {
-    const isCompleted = task.status === 'completed'
-
-    const getCategoryColor = (cat: string) => {
-        // Simplified lookup for brevity, ideally mapped cleaner
-        if (cat === 'Coding') return 'bg-purple-100 text-purple-700'
-        if (cat === 'Gym') return 'bg-amber-100 text-amber-700'
-        if (cat === 'Reading') return 'bg-pink-100 text-pink-700'
-        return 'bg-gray-100 text-gray-700'
-    }
-
-    return (
-        <motion.div
-            layout
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: isCompleted ? 0.5 : 1, y: 0 }}
-            exit={{ opacity: 0, x: -10 }}
-            className={cn(
-                "group flex items-start p-3 rounded-xl border transition-all hover:shadow-sm",
-                task.priority ? "border-l-4 border-l-accent-priority border-t-gray-100 border-r-gray-100 border-b-gray-100 bg-red-50/10" : "border-gray-100 bg-white",
-                isCompleted && "border-l-gray-200 bg-gray-50 grayscale"
-            )}
-        >
-            <button
-                onClick={onToggle}
-                className={cn(
-                    "mt-1 mr-3 flex h-5 w-5 items-center justify-center rounded-full border transition-all",
-                    isCompleted ? "bg-primary border-primary text-white" : "border-gray-300 hover:border-primary"
-                )}
-            >
-                {isCompleted && <Check className="h-3 w-3" />}
-            </button>
-
-            <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                    <span className={cn(
-                        "font-medium text-sm truncate transition-all",
-                        isCompleted && "line-through text-gray-400"
-                    )}>
-                        {task.title}
-                    </span>
-                    <Badge variant="secondary" className={cn("ml-2 whitespace-nowrap", getCategoryColor(task.category))}>
-                        {task.category}
-                    </Badge>
-                </div>
-
-                <div className="flex items-center mt-1 space-x-3 text-xs text-gray-400">
-                    <span className="flex items-center">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No Date'}
-                    </span>
-                    {task.notes && (
-                        <span className="truncate max-w-[200px] hidden sm:inline-block">
-                            • {task.notes}
-                        </span>
-                    )}
-                </div>
-            </div>
-        </motion.div>
     )
 }

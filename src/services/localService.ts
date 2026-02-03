@@ -7,7 +7,12 @@ export const localService = {
     // --- TASKS ---
     getTasks(): Task[] {
         const stored = localStorage.getItem(TASKS_KEY)
-        return stored ? JSON.parse(stored) : []
+        if (!stored) return []
+        try {
+            return JSON.parse(stored)
+        } catch {
+            return []
+        }
     },
 
     saveTasks(tasks: Task[]) {
@@ -45,14 +50,21 @@ export const localService = {
     // --- HABITS ---
     getHabits(): Habit[] {
         const stored = localStorage.getItem(HABITS_KEY)
-        let habits = stored ? JSON.parse(stored) : [] as Habit[]
+        let habits: Habit[] = []
+        if (stored) {
+            try {
+                habits = JSON.parse(stored)
+            } catch {
+                habits = []
+            }
+        }
 
         // Check if day changed, reset completedToday if needed
         const today = new Date().toISOString().split('T')[0]
         habits = habits.map((h: Habit) => {
             // If last history entry is NOT today, then completedToday should be false (unless we just marked it)
             // Actually simpler: we just trust `completedToday` but when we load, if history[today] is missing, ensure completedToday is false
-            const isDoneInHistory = !!h.history[today]
+            const isDoneInHistory = !!(h.history && h.history[today])
             if (h.completedToday !== isDoneInHistory) {
                 return { ...h, completedToday: isDoneInHistory }
             }
@@ -65,18 +77,37 @@ export const localService = {
         localStorage.setItem(HABITS_KEY, JSON.stringify(habits))
     },
 
-    addHabit(title: string, category: string) {
+    addHabit(title: string, category: string, priority: boolean, targetPerMonth: number, color?: string) {
         const habits = this.getHabits()
         const newHabit: Habit = {
             id: crypto.randomUUID(),
             title,
             category,
+            priority,
+            targetPerMonth,
+            color: color || '#8B5CF6', // Default purple
             streak: 0,
             completedToday: false,
             history: {}
         }
         this.saveHabits([...habits, newHabit])
         return newHabit
+    },
+
+    updateHabit(updatedHabit: Habit) {
+        const habits = this.getHabits()
+        const updated = habits.map(h => h.id === updatedHabit.id ? updatedHabit : h)
+        this.saveHabits(updated)
+        // Recalculate streak/today status might be needed if history changed, 
+        // but for simple metadata edits (title, color) it's fine.
+        return updated
+    },
+
+    updateTask(updatedTask: Task) {
+        const tasks = this.getTasks()
+        const updated = tasks.map(t => t.id === updatedTask.id ? updatedTask : t)
+        this.saveTasks(updated)
+        return updated
     },
 
     toggleHabit(id: string) {

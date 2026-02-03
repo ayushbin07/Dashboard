@@ -41,14 +41,24 @@ export default function Dashboard() {
         refreshData()
     }
 
+    const handleUpdateTask = (updatedTask: Task) => {
+        localService.updateTask(updatedTask)
+        refreshData()
+    }
+
     // --- Habit Handlers ---
     const handleToggleHabit = (id: string) => {
         localService.toggleHabit(id)
         refreshData()
     }
 
-    const handleAddHabit = (title: string, category: string) => {
-        localService.addHabit(title, category)
+    const handleAddHabit = (title: string, category: string, priority: boolean, target: number, color: string) => {
+        localService.addHabit(title, category, priority, target, color)
+        refreshData()
+    }
+
+    const handleUpdateHabit = (updatedHabit: Habit) => {
+        localService.updateHabit(updatedHabit)
         refreshData()
     }
 
@@ -67,16 +77,15 @@ export default function Dashboard() {
             animate={{ opacity: 1 }}
             className="space-y-6"
         >
-            {/* Top Cards (Now reflecting Habits + Tasks) */}
-            <StatCards tasks={tasks} />
-            {/* Note: We might want to update StatCards to show Habit stats too, keeping it simple for now */}
+            {/* Top Cards (Now reflecting Habits) */}
+            <StatCards habits={habits} />
 
             {/* Main Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                 {/* Left Column: Analytics */}
                 <div className="lg:col-span-2 space-y-6">
-                    <AnalyticsGraph />
+                    <AnalyticsGraph habits={habits} />
                 </div>
 
                 {/* Right Column: Execution List (To-Dos) */}
@@ -85,23 +94,19 @@ export default function Dashboard() {
                         tasks={tasks}
                         onToggle={handleToggleTask}
                         onAdd={handleAddTask}
+                        onUpdate={handleUpdateTask}
                     />
                 </div>
 
                 {/* Bottom Row: Habits */}
                 <div className="lg:col-span-3">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <HabitList
-                            habits={habits}
-                            onToggle={handleToggleHabit}
-                            onAdd={handleAddHabit}
-                            onDelete={handleDeleteHabit}
-                        />
-                        {/* Placeholder for future module or expanded charts */}
-                        <div className="hidden md:block bg-gray-50/50 rounded-2xl border border-dashed border-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                            Additional Modules (Journal / Notes)
-                        </div>
-                    </div>
+                    <HabitList
+                        habits={habits}
+                        onToggle={handleToggleHabit}
+                        onAdd={handleAddHabit}
+                        onUpdate={handleUpdateHabit}
+                        onDelete={handleDeleteHabit}
+                    />
                 </div>
 
             </div>

@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { motion } from "framer-motion"
-import type { Task } from "@/types"
+import type { Habit } from "@/types"
 
 interface StatCardProps {
     title: string
@@ -10,32 +10,36 @@ interface StatCardProps {
     type: "priority" | "additional" | "neutral"
 }
 
-export function StatCards({ tasks }: { tasks: Task[] }) {
-    const priorityTasks = tasks.filter(t => t.priority && t.status === 'pending')
-    const additionalTasks = tasks.filter(t => !t.priority && t.status === 'pending')
+export function StatCards({ habits }: { habits: Habit[] }) {
+    const priorityHabits = habits.filter(h => h.priority)
+    const normalHabits = habits.filter(h => !h.priority)
 
-    const totalTasks = tasks.length
-    const completedTasks = tasks.filter(t => t.status === 'completed').length
-    const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
+    // Calculate daily completion logic
+    const priorityActive = priorityHabits.filter(h => h.completedToday).length
+    const normalActive = normalHabits.filter(h => h.completedToday).length
+
+    const totalToday = habits.length
+    const completedTodayCount = habits.filter(h => h.completedToday).length
+    const progress = totalToday > 0 ? Math.round((completedTodayCount / totalToday) * 100) : 0
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <SingleStatCard
-                title="Priority Tasks"
-                value={priorityTasks.length}
-                subtitle="Active"
+                title="Priority Rituals"
+                value={`${priorityActive} / ${priorityHabits.length}`}
+                subtitle="Done Today"
                 type="priority"
             />
             <SingleStatCard
-                title="Additional Tasks"
-                value={additionalTasks.length}
-                subtitle="Pending"
+                title="Daily Habits"
+                value={`${normalActive} / ${normalHabits.length}`}
+                subtitle="Done Today"
                 type="additional"
             />
             <SingleStatCard
-                title="Overall Progress"
+                title="Daily Consistency"
                 value={`${progress}%`}
-                subtitle="Total Completion"
+                subtitle="Overall Completion"
                 type="neutral"
             />
         </div>

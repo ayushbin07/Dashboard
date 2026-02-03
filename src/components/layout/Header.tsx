@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Search, Settings, SlidersHorizontal } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -6,6 +7,7 @@ import { motion } from 'framer-motion'
 
 export function Header() {
     const [greeting, setGreeting] = useState('')
+    const navigate = useNavigate()
 
     useEffect(() => {
         const hour = new Date().getHours()
@@ -23,7 +25,8 @@ export function Header() {
                     <motion.h1
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className="text-lg font-semibold text-gray-900 tracking-tight"
+                        className="text-lg font-semibold text-gray-900 tracking-tight cursor-pointer"
+                        onClick={() => navigate('/')}
                     >
                         {greeting}
                     </motion.h1>
@@ -45,7 +48,7 @@ export function Header() {
                     <Button variant="ghost" size="icon">
                         <SlidersHorizontal className="h-5 w-5" />
                     </Button>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" onClick={() => navigate('/settings')}>
                         <Settings className="h-5 w-5" />
                     </Button>
                 </div>

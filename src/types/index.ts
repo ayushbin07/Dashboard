@@ -17,6 +17,9 @@ export interface Habit {
     title: string
     category: string
     streak: number
+    priority: boolean // true = High, false = Normal
+    targetPerMonth: number
+    color?: string
     completedToday: boolean
     history: Record<string, boolean> // 'YYYY-MM-DD': true/false
 }
