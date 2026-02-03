@@ -35,9 +35,16 @@ export function Reminders({ tasks }: { tasks: Task[] }) {
                 </div>
             </div>
             {upcomingTasks.length > 0 && (
-                <button className="w-full py-2.5 rounded-xl bg-[#0F5132] text-white text-sm font-medium flex items-center justify-center gap-2 hover:bg-[#156a42] transition-colors mt-2">
-                    View Schedule
-                </button>
+                <a
+                    href="https://calendar.google.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full"
+                >
+                    <button className="w-full py-2.5 rounded-xl bg-[#0F5132] text-white text-sm font-medium flex items-center justify-center gap-2 hover:bg-[#156a42] transition-colors mt-2">
+                        View Schedule
+                    </button>
+                </a>
             )}
         </Card>
     )

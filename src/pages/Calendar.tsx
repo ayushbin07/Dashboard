@@ -1,21 +1,35 @@
 import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, X, Check } from 'lucide-react'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, isSameDay, isSameMonth } from 'date-fns'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { localService } from '@/services/localService'
-import type { Habit } from '@/types'
+import type { Habit, Task } from '@/types'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export default function Calendar() {
     const [currentMonth, setCurrentMonth] = useState(new Date())
     const [habits, setHabits] = useState<Habit[]>([])
+    const [tasks, setTasks] = useState<Task[]>([])
     const [selectedDate, setSelectedDate] = useState<Date | null>(null)
     const [hoveredDate, setHoveredDate] = useState<Date | null>(null)
+    const location = useLocation()
 
     useEffect(() => {
         setHabits(localService.getHabits())
-    }, [])
+        setTasks(localService.getTasks())
+
+        // Handle navigation from search
+        const state = location.state as { selectedDate?: string | Date }
+        if (state?.selectedDate) {
+            const date = new Date(state.selectedDate)
+            setCurrentMonth(date)
+            setSelectedDate(date)
+            // Clear state after handling it
+            window.history.replaceState({}, document.title)
+        }
+    }, [location])
 
     const goToPreviousMonth = () => {
         setCurrentMonth(subMonths(currentMonth, 1))
@@ -91,6 +105,16 @@ export default function Calendar() {
 
         setHabits(updatedHabits)
         localService.saveHabits(updatedHabits)
+    }
+
+    // Get completed tasks for a specific date
+    const getCompletedTasksForDate = (date: Date) => {
+        const dateKey = format(date, 'yyyy-MM-dd')
+        return tasks.filter(task => {
+            if (task.status !== 'completed') return false
+            const taskDate = new Date(task.dueDate)
+            return format(taskDate, 'yyyy-MM-dd') === dateKey
+        })
     }
 
     const isToday = (date: Date) => {
@@ -265,43 +289,83 @@ export default function Calendar() {
                                 </Button>
                             </div>
 
-                            <div className="space-y-3 max-h-[400px] overflow-y-auto">
-                                {habits.map(habit => {
-                                    const dateHabits = getHabitsForDate(selectedDate)
-                                    const habitData = dateHabits.find(h => h.id === habit.id)
-                                    const isCompleted = habitData?.completed || false
+                            <div className="space-y-4 max-h-[500px] overflow-y-auto">
+                                {/* Habits Section */}
+                                <div>
+                                    <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Daily Rituals</h4>
+                                    <div className="space-y-3">
+                                        {habits.map(habit => {
+                                            const dateHabits = getHabitsForDate(selectedDate)
+                                            const habitData = dateHabits.find(h => h.id === habit.id)
+                                            const isCompleted = habitData?.completed || false
+
+                                            return (
+                                                <motion.div
+                                                    key={habit.id}
+                                                    whileHover={{ scale: 1.02 }}
+                                                    onClick={() => toggleHabitForDate(habit.id, selectedDate)}
+                                                    className={`
+                                                        p-4 rounded-xl border-2 cursor-pointer transition-all
+                                                        ${isCompleted
+                                                            ? 'bg-[#0F5132]/10 border-[#0F5132] dark:bg-[#0F5132]/20'
+                                                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}
+                                                    `}
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`
+                                                            w-6 h-6 rounded-full flex items-center justify-center
+                                                            ${isCompleted ? 'bg-[#0F5132]' : 'bg-gray-200 dark:bg-gray-700'}
+                                                        `}>
+                                                            {isCompleted && <Check size={16} className="text-white" />}
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <div className={`font-semibold ${isCompleted ? 'text-[#0F5132] dark:text-[#4ade80]' : 'text-gray-900 dark:text-white'}`}>
+                                                                {habit.title}
+                                                            </div>
+                                                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                                                                {habit.category}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </motion.div>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+
+                                {/* Completed Tasks Section */}
+                                {(() => {
+                                    const completedTasks = getCompletedTasksForDate(selectedDate)
+                                    if (completedTasks.length === 0) return null
 
                                     return (
-                                        <motion.div
-                                            key={habit.id}
-                                            whileHover={{ scale: 1.02 }}
-                                            onClick={() => toggleHabitForDate(habit.id, selectedDate)}
-                                            className={`
-                                                p-4 rounded-xl border-2 cursor-pointer transition-all
-                                                ${isCompleted
-                                                    ? 'bg-[#0F5132]/10 border-[#0F5132] dark:bg-[#0F5132]/20'
-                                                    : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}
-                                            `}
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <div className={`
-                                                    w-6 h-6 rounded-full flex items-center justify-center
-                                                    ${isCompleted ? 'bg-[#0F5132]' : 'bg-gray-200 dark:bg-gray-700'}
-                                                `}>
-                                                    {isCompleted && <Check size={16} className="text-white" />}
-                                                </div>
-                                                <div className="flex-1">
-                                                    <div className={`font-semibold ${isCompleted ? 'text-[#0F5132] dark:text-[#4ade80]' : 'text-gray-900 dark:text-white'}`}>
-                                                        {habit.title}
+                                        <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                                            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Completed Tasks</h4>
+                                            <div className="space-y-2">
+                                                {completedTasks.map(task => (
+                                                    <div
+                                                        key={task.id}
+                                                        className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700"
+                                                    >
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center">
+                                                                <Check size={12} className="text-blue-500" />
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <div className="font-medium text-sm text-gray-900 dark:text-white line-through">
+                                                                    {task.title}
+                                                                </div>
+                                                                <div className="text-xs text-gray-500 dark:text-gray-400">
+                                                                    {task.category}
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                                                        {habit.category}
-                                                    </div>
-                                                </div>
+                                                ))}
                                             </div>
-                                        </motion.div>
+                                        </div>
                                     )
-                                })}
+                                })()}
                             </div>
                         </motion.div>
                     </motion.div>

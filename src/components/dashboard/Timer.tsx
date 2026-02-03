@@ -72,8 +72,18 @@ export function Timer() {
     }
 
     return (
-        <Card className="h-full w-full aspect-square bg-[#051F15] dark:bg-[#051F15] rounded-[2rem] p-4 shadow-soft flex flex-col justify-center items-center text-white relative border-none">
-            <div className="text-center w-full">
+        <Card className="h-full w-full aspect-square bg-[#051F15] dark:bg-[#051F15] rounded-[2rem] p-4 shadow-soft flex flex-col justify-center items-center text-white relative border-none overflow-hidden">
+            {/* Background Image */}
+            <div
+                className="absolute inset-0 opacity-10"
+                style={{
+                    backgroundImage: 'url(/src/img/circuit.jpg)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                }}
+            />
+
+            <div className="text-center w-full relative z-10">
                 <h3 className="text-gray-400 text-[10px] uppercase tracking-widest mb-2">Timer</h3>
 
                 <div className="text-3xl font-mono font-bold tracking-wider mb-3 leading-none">

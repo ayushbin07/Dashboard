@@ -3,6 +3,21 @@ import type { Task, Habit } from '@/types'
 const TASKS_KEY = 'antigravity_tasks'
 const HABITS_KEY = 'antigravity_habits'
 const USER_KEY = 'antigravity_user'
+const NOTIFICATION_SETTINGS_KEY = 'antigravity_notification_settings'
+const STREAK_KEY = 'antigravity_streak'
+
+export type StreakStatus = 'active' | 'grace1' | 'grace2' | 'broken'
+
+export interface StreakData {
+    count: number
+    lastCheckIn: string // ISO date string
+    status: StreakStatus
+}
+
+export interface NotificationSettings {
+    pushNotifications: boolean
+    audioAlarms: boolean
+}
 
 export interface UserProfile {
     name: string
@@ -34,6 +49,99 @@ export const localService = {
 
     saveTheme(theme: 'light' | 'dark') {
         localStorage.setItem('antigravity_theme', theme)
+    },
+
+    // --- NOTIFICATION SETTINGS ---
+    getNotificationSettings(): NotificationSettings {
+        const stored = localStorage.getItem(NOTIFICATION_SETTINGS_KEY)
+        if (stored) {
+            try {
+                return JSON.parse(stored)
+            } catch {
+                return { pushNotifications: true, audioAlarms: true }
+            }
+        }
+        return { pushNotifications: true, audioAlarms: true }
+    },
+
+    saveNotificationSettings(settings: NotificationSettings) {
+        localStorage.setItem(NOTIFICATION_SETTINGS_KEY, JSON.stringify(settings))
+    },
+
+    // --- STREAK SYSTEM ---
+    getStreakData(): StreakData {
+        const stored = localStorage.getItem(STREAK_KEY)
+        if (stored) {
+            try {
+                return JSON.parse(stored)
+            } catch {
+                return { count: 0, lastCheckIn: new Date().toISOString().split('T')[0], status: 'broken' }
+            }
+        }
+        return { count: 0, lastCheckIn: new Date().toISOString().split('T')[0], status: 'broken' }
+    },
+
+    updateStreak(): StreakData {
+        const streak = this.getStreakData()
+        const today = new Date()
+        const todayStr = today.toISOString().split('T')[0]
+        const lastCheckIn = new Date(streak.lastCheckIn)
+        const lastCheckInStr = lastCheckIn.toISOString().split('T')[0]
+
+        // First time user - initialize streak
+        if (streak.count === 0) {
+            const newStreak: StreakData = {
+                count: 1,
+                lastCheckIn: todayStr,
+                status: 'active'
+            }
+            localStorage.setItem(STREAK_KEY, JSON.stringify(newStreak))
+            return newStreak
+        }
+
+        // Same day - no change
+        if (todayStr === lastCheckInStr) {
+            return streak
+        }
+
+        // Calculate day gap
+        const timeDiff = today.getTime() - lastCheckIn.getTime()
+        const dayGap = Math.floor(timeDiff / (1000 * 60 * 60 * 24))
+
+        let newStreak: StreakData
+
+        if (dayGap === 1) {
+            // Next day - increment streak
+            newStreak = {
+                count: streak.count + 1,
+                lastCheckIn: todayStr,
+                status: 'active'
+            }
+        } else if (dayGap === 2) {
+            // Missed 1 day - grace period 1
+            newStreak = {
+                count: streak.count,
+                lastCheckIn: todayStr,
+                status: 'grace1'
+            }
+        } else if (dayGap === 3) {
+            // Missed 2 days - grace period 2 (final warning)
+            newStreak = {
+                count: streak.count,
+                lastCheckIn: todayStr,
+                status: 'grace2'
+            }
+        } else {
+            // Missed 3+ days - reset
+            newStreak = {
+                count: 1,
+                lastCheckIn: todayStr,
+                status: 'active'
+            }
+        }
+
+        localStorage.setItem(STREAK_KEY, JSON.stringify(newStreak))
+        return newStreak
     },
 
     // --- TASKS ---

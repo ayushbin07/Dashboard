@@ -89,7 +89,7 @@ export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
     const completedTasks = tasks.filter(t => t.status === 'completed') // Use original tasks for completed to avoid filter interference
 
     return (
-        <Card className="p-8 h-full flex flex-col min-h-[400px] rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300">
+        <Card className="p-8 h-full flex flex-col min-h-[400px] rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-all duration-300 hover:shadow-xl">
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Execution List</h3>
@@ -109,7 +109,7 @@ export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        className="mb-4 bg-gray-50 p-4 rounded-xl space-y-3"
+                        className="mb-4 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl space-y-3 border border-gray-200 dark:border-gray-700"
                         onSubmit={handleSubmit}
                     >
                         <Input
@@ -117,14 +117,14 @@ export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
                             onChange={e => setTitle(e.target.value)}
                             placeholder="Task description..."
                             autoFocus
-                            className="bg-white"
+                            className="bg-white dark:bg-gray-900 dark:text-white dark:border-gray-700"
                         />
                         <div className="flex gap-2">
                             <Button
                                 type="button"
                                 variant={priority ? "primary" : "secondary"}
                                 onClick={() => setPriority(!priority)}
-                                className={cn("h-9 text-xs flex-1", priority && "bg-red-100 text-red-600 border-red-200 hover:bg-red-200")}
+                                className={cn("h-9 text-xs flex-1", priority && "bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 hover:bg-red-200 dark:hover:bg-red-900/60")}
                             >
                                 {priority ? "High Priority" : "Normal Priority"}
                             </Button>
@@ -132,7 +132,7 @@ export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
                                 type="date"
                                 value={dueDate}
                                 onChange={e => setDueDate(e.target.value)}
-                                className="h-9 rounded-md border border-input bg-white px-3 py-1 text-sm shadow-sm"
+                                className="h-9 rounded-md border border-input bg-white dark:bg-gray-900 dark:text-white dark:border-gray-700 px-3 py-1 text-sm shadow-sm"
                             />
                             <Button type="submit" size="sm">
                                 {editingTask ? 'Save' : 'Add'}

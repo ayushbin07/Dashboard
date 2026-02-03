@@ -83,7 +83,7 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
     }
 
     return (
-        <Card className="p-8 h-full flex flex-col rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300">
+        <Card className="p-8 h-full flex flex-col rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-all duration-300 hover:shadow-xl">
             <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Daily Rituals</h3>
                 <Button size="sm" variant="ghost" onClick={isFormOpen ? () => setIsFormOpen(false) : startAdd}>
@@ -97,7 +97,7 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        className="mb-4 space-y-3 overflow-hidden bg-gray-50 p-4 rounded-xl border border-dashed border-gray-200"
+                        className="mb-4 space-y-3 overflow-hidden bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-dashed border-gray-200 dark:border-gray-700"
                         onSubmit={handleSubmit}
                     >
                         <Input
@@ -105,7 +105,7 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="Ritual name..."
                             autoFocus
-                            className="bg-white"
+                            className="bg-white dark:bg-gray-900 dark:text-white dark:border-gray-700"
                         />
 
                         {/* Controls Row */}
@@ -113,18 +113,18 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
                             <select
                                 value={category}
                                 onChange={(e) => setCategory(e.target.value)}
-                                className="h-9 rounded-md border border-input bg-white px-3 py-1 text-sm shadow-sm"
+                                className="h-9 rounded-md border border-input bg-white dark:bg-gray-900 dark:text-white dark:border-gray-700 px-3 py-1 text-sm shadow-sm"
                             >
                                 {CATEGORIES.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
                             </select>
 
-                            <div className="flex items-center gap-2 bg-white border rounded-md px-2">
-                                <span className="text-xs text-gray-500 whitespace-nowrap">Target:</span>
+                            <div className="flex items-center gap-2 bg-white dark:bg-gray-900 border dark:border-gray-700 rounded-md px-2">
+                                <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">Target:</span>
                                 <input
                                     type="number" min="1" max="31"
                                     value={target}
                                     onChange={(e) => setTarget(parseInt(e.target.value))}
-                                    className="w-10 text-sm outline-none"
+                                    className="w-10 text-sm outline-none bg-transparent dark:text-white"
                                 />
                             </div>
 
@@ -149,7 +149,7 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
                                     onClick={() => setColor(c)}
                                     className={cn(
                                         "w-5 h-5 rounded-full transition-all border border-transparent",
-                                        color === c ? "scale-110 ring-2 ring-offset-1 ring-gray-300 shadow-sm" : "hover:scale-110"
+                                        color === c ? "scale-110 ring-2 ring-offset-1 ring-gray-300 dark:ring-gray-600 shadow-sm" : "hover:scale-110"
                                     )}
                                     style={{ backgroundColor: c }}
                                 />
@@ -161,13 +161,13 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
                                     onChange={(e) => setColor(e.target.value)}
                                     className="w-6 h-6 rounded-full overflow-hidden border-0 p-0 absolute opacity-0 cursor-pointer"
                                 />
-                                <div className="w-5 h-5 rounded-full border border-gray-300 bg-gradient-to-br from-white to-gray-200 flex items-center justify-center text-[8px] text-gray-500 cursor-pointer hover:bg-gray-50">
+                                <div className="w-5 h-5 rounded-full border border-gray-300 dark:border-gray-600 bg-gradient-to-br from-white to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center text-[8px] text-gray-500 dark:text-gray-400 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
                                     +
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex justify-end pt-2 border-t border-gray-200/50 mt-2">
+                        <div className="flex justify-end pt-2 border-t border-gray-200/50 dark:border-gray-700/50 mt-2">
                             <Button type="submit" size="sm" className="w-full sm:w-auto">
                                 {editingId ? 'Update Ritual' : 'Create Ritual'}
                             </Button>

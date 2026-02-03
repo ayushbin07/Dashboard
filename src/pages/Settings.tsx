@@ -11,7 +11,8 @@ export default function Settings() {
     const [name, setName] = useState('')
     const [avatar, setAvatar] = useState('👨‍💻')
     const [darkMode, setDarkMode] = useState(false)
-    const [notifications, setNotifications] = useState(false)
+    const [pushNotifications, setPushNotifications] = useState(true)
+    const [audioAlarms, setAudioAlarms] = useState(true)
     const [isLoaded, setIsLoaded] = useState(false)
 
     useEffect(() => {
@@ -20,6 +21,10 @@ export default function Settings() {
         if (profile.avatar) setAvatar(profile.avatar)
 
         setDarkMode(localService.getTheme() === 'dark')
+
+        const notifSettings = localService.getNotificationSettings()
+        setPushNotifications(notifSettings.pushNotifications)
+        setAudioAlarms(notifSettings.audioAlarms)
 
         setIsLoaded(true)
     }, [])
@@ -143,20 +148,44 @@ export default function Settings() {
                         </div>
                     </Card>
 
-                    {/* Notifications */}
-                    <Card className="p-6 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300 flex flex-col justify-between min-h-[160px]">
+                    {/* Push Notifications */}
+                    <Card className="p-6 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300 flex flex-col justify-between min-h-[180px]">
                         <div>
                             <div className="h-10 w-10 rounded-full bg-[#E8F5E9] dark:bg-[#0F5132]/20 flex items-center justify-center mb-4 text-[#0F5132] dark:text-[#4ade80]">
                                 <Bell size={20} />
                             </div>
-                            <h3 className="font-bold text-gray-900 dark:text-white mb-1">Notifications</h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Stay updated with your daily progress.</p>
+                            <h3 className="font-bold text-gray-900 dark:text-white mb-1">Push Notifications</h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Get browser notifications for upcoming deadlines.</p>
                         </div>
                         <div className="flex items-center justify-between mt-4">
-                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Allow Notifications</span>
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Enable</span>
                             <Switch
-                                checked={notifications}
-                                onCheckedChange={setNotifications}
+                                checked={pushNotifications}
+                                onCheckedChange={(checked) => {
+                                    setPushNotifications(checked)
+                                    localService.saveNotificationSettings({ pushNotifications: checked, audioAlarms })
+                                }}
+                            />
+                        </div>
+                    </Card>
+
+                    {/* Audio Alarms */}
+                    <Card className="p-6 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300 flex flex-col justify-between min-h-[180px]">
+                        <div>
+                            <div className="h-10 w-10 rounded-full bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center mb-4 text-amber-600 dark:text-amber-500">
+                                <Bell size={20} />
+                            </div>
+                            <h3 className="font-bold text-gray-900 dark:text-white mb-1">Audio Alarms</h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Play an audio alert when tasks are due.</p>
+                        </div>
+                        <div className="flex items-center justify-between mt-4">
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Enable</span>
+                            <Switch
+                                checked={audioAlarms}
+                                onCheckedChange={(checked) => {
+                                    setAudioAlarms(checked)
+                                    localService.saveNotificationSettings({ pushNotifications, audioAlarms: checked })
+                                }}
                             />
                         </div>
                     </Card>

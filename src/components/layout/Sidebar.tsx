@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Calendar, Users, Settings, HelpCircle, LogOut, LayoutGrid, Smartphone, Box } from "lucide-react"
+import { Calendar, FileText, Settings, HelpCircle, LayoutGrid, Smartphone, Box } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function Sidebar() {
@@ -14,7 +14,7 @@ export function Sidebar() {
                     <div className="w-8 h-8 rounded-xl bg-[#0F5132] flex items-center justify-center">
                         <div className="w-4 h-4 border-2 border-white rounded-full" />
                     </div>
-                    <span className="text-xl font-bold tracking-tight text-[#0F5132]">Donezo</span>
+                    <span className="text-xl font-bold tracking-tight text-[#0F5132]">Dashboard</span>
                 </div>
 
                 {/* Menu */}
@@ -23,9 +23,9 @@ export function Sidebar() {
                         <p className="text-xs font-bold text-gray-400 mb-4 px-3">MENU</p>
                         <nav className="space-y-2">
                             <NavItem icon={LayoutGrid} label="Dashboard" to="/" active={pathname === '/'} />
-                            <NavItem icon={Box} label="Tasks" badge="12+" />
+                            <NavItem icon={Box} label="Tasks" to="/tasks" active={pathname === '/tasks'} />
                             <NavItem icon={Calendar} label="Calendar" to="/calendar" active={pathname === '/calendar'} />
-                            <NavItem icon={Users} label="Team" />
+                            <NavItem icon={FileText} label="Notes" to="/notes" active={pathname === '/notes'} />
                         </nav>
                     </div>
 
@@ -33,8 +33,7 @@ export function Sidebar() {
                         <p className="text-xs font-bold text-gray-400 mb-4 px-3">GENERAL</p>
                         <nav className="space-y-2">
                             <NavItem icon={Settings} label="Settings" to="/settings" active={pathname === '/settings'} />
-                            <NavItem icon={HelpCircle} label="Help" />
-                            <NavItem icon={LogOut} label="Logout" />
+                            <NavItem icon={HelpCircle} label="Help" to="/help" active={pathname === '/help'} />
                         </nav>
                     </div>
                 </div>
@@ -46,11 +45,18 @@ export function Sidebar() {
                     <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center mb-3">
                         <Smartphone size={16} />
                     </div>
-                    <h4 className="font-semibold text-sm mb-1">Download our Mobile App</h4>
-                    <p className="text-[10px] text-gray-400 mb-4">Get easy in another way</p>
-                    <button className="w-full py-2 bg-[#0F5132] rounded-xl text-xs font-medium hover:bg-[#156a42] transition-colors">
-                        Download
-                    </button>
+                    <h4 className="font-semibold text-sm mb-1">Developed by Ayush</h4>
+                    <p className="text-[10px] text-gray-400 mb-4">Get in touch with me</p>
+                    <a
+                        href="https://portfolio-theta-seven-dgkady8ks1.vercel.app/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block w-full"
+                    >
+                        <button className="w-full py-2 bg-[#0F5132] rounded-xl text-xs font-medium hover:bg-[#156a42] transition-colors">
+                            Contact
+                        </button>
+                    </a>
                 </div>
                 {/* Decoration */}
                 <div className="absolute top-0 right-0 w-20 h-20 bg-[#0F5132] rounded-full blur-2xl -mr-10 -mt-10 opacity-50" />
