@@ -7,7 +7,7 @@ export function Sidebar() {
     const pathname = location.pathname
 
     return (
-        <aside className="fixed left-6 top-24 bottom-6 w-64 bg-white dark:bg-[#1f2937] dark:border-gray-800 rounded-[2rem] border border-gray-100 shadow-xl flex flex-col justify-between p-6 z-60 hidden lg:flex transition-all duration-300">
+        <aside className="fixed left-6 top-6 bottom-6 w-64 bg-white dark:bg-[#1f2937] dark:border-gray-800 rounded-[2rem] border border-gray-100 shadow-xl flex flex-col justify-between p-6 z-60 hidden lg:flex transition-all duration-300">
             <div>
                 {/* Logo */}
                 <div className="flex items-center gap-3 mb-10">
