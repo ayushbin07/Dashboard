@@ -388,7 +388,7 @@ export const dbService = {
         if (!user) return null
 
         // Get current streak data
-        let { data, error } = await supabase
+        let { data } = await supabase
             .from('streak_data')
             .select('*')
             .eq('user_id', user.id)
@@ -476,7 +476,7 @@ export const dbService = {
     },
 
     // Deprecated manual update, kept if needed but not for overwrite
-    async updateStreak(count: number): Promise<void> {
+    async updateStreak(_count: number): Promise<void> {
         // This is restricted now
         console.warn("Manual streak update is deprecated")
     }

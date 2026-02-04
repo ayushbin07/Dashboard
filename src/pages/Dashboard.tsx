@@ -101,7 +101,7 @@ export default function Dashboard() {
     }
 
     if (loading) {
-        return <div className="flex h-[50vh] items-center justify-center text-gray-400">Loading AntiGravity OS...</div>
+        return <div className="flex h-[50vh] items-center justify-center text-gray-400">Hail Ayush...</div>
     }
 
     return (
