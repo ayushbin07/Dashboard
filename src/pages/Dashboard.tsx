@@ -8,7 +8,7 @@ import { Reminders } from '@/components/dashboard/Reminders'
 import { Timer } from '@/components/dashboard/Timer'
 import { QuoteCard } from '@/components/dashboard/QuoteCard'
 import { FriendsList } from '@/components/dashboard/FriendsList'
-import { motion } from 'framer-motion'
+import { motion, type Variants } from 'framer-motion'
 import { dbService } from '@/services/dbService'
 import type { Task, Habit } from '@/types'
 
@@ -107,7 +107,7 @@ export default function Dashboard() {
         refreshData()
     }
 
-    const containerVariants = {
+    const containerVariants: Variants = {
         hidden: { opacity: 0 },
         show: {
             opacity: 1,
@@ -118,7 +118,7 @@ export default function Dashboard() {
         }
     }
 
-    const itemVariants = {
+    const itemVariants: Variants = {
         hidden: { opacity: 0, y: 20 },
         show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
     }
