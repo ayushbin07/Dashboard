@@ -9,7 +9,6 @@ import { Timer } from '@/components/dashboard/Timer'
 import { QuoteCard } from '@/components/dashboard/QuoteCard'
 import { FriendsList } from '@/components/dashboard/FriendsList'
 import { motion } from 'framer-motion'
-import GradualBlur from '@/components/ui/GradualBlur'
 import { dbService } from '@/services/dbService'
 import type { Task, Habit } from '@/types'
 
@@ -197,43 +196,6 @@ export default function Dashboard() {
             {/* Daily Quote */}
             <motion.div variants={itemVariants} className="pt-6">
                 <QuoteCard />
-            </motion.div>
-
-            {/* Gradual Blur Demonstration Section */}
-            <motion.div variants={itemVariants} className="pt-10">
-                <h3 className="text-lg font-bold mb-4 opacity-50 uppercase tracking-widest text-center">Gradual Blur Tech Demo</h3>
-                <section className="relative h-[500px] overflow-hidden rounded-[2rem] border border-gray-200 dark:border-gray-800 shadow-xl bg-white dark:bg-gray-900">
-                    <div className="h-full overflow-y-auto p-10 custom-scrollbar">
-                        <div className="space-y-8">
-                            <h4 className="text-4xl font-bold text-emerald-600">Scroll to see the effect</h4>
-                            <p className="text-gray-500 max-w-2xl leading-relaxed">
-                                This section demonstrates the `GradualBlur` component. As you scroll down, the content will gradually blur as it approaches the bottom edge, creating a smooth transition rather than a hard cut.
-                            </p>
-                            <div className="grid grid-cols-2 gap-4">
-                                {[1, 2, 3, 4, 5, 6].map(i => (
-                                    <div key={i} className="h-40 bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center text-gray-400 font-mono">
-                                        Data Module {i}
-                                    </div>
-                                ))}
-                            </div>
-                            <p className="text-gray-500 pb-20">
-                                More content here to enable scrolling... Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                            </p>
-                        </div>
-                    </div>
-
-                    <GradualBlur
-                        target="parent"
-                        position="bottom"
-                        height="7rem"
-                        strength={2}
-                        divCount={5}
-                        curve="bezier"
-                        exponential
-                        opacity={1}
-                        zIndex={50}
-                    />
-                </section>
             </motion.div>
         </motion.div>
     )
