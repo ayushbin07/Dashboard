@@ -97,14 +97,7 @@ export function FriendsList() {
 
             const userProfile = profiles[0]
 
-            // Step 2: Check if already friends
-            if (friends.some(f => f.id === userProfile.id)) {
-                setError('Already friends with this user')
-                setLoading(false)
-                return
-            }
-
-            // Step 3: Check if trying to add yourself
+            // Step 2: Check if trying to add yourself
             const { data: { user } } = await supabase.auth.getUser()
             if (user && userProfile.id === user.id) {
                 setError('Cannot add yourself as a friend')
@@ -112,20 +105,60 @@ export function FriendsList() {
                 return
             }
 
-            // Step 4: Add to database
-            await dbService.addFriend(userProfile.id)
+            // Step 3: Check if already friends (in local state)
+            if (friends.some(f => f.id === userProfile.id)) {
+                setError('Already friends with this user')
+                setLoading(false)
+                return
+            }
 
-            // Step 5: Get streak data
+            // Step 4: Check if already friends (in database)
+            const { data: existingFriend } = await supabase
+                .from('friends')
+                .select('id')
+                .eq('user_id', user?.id)
+                .eq('friend_id', userProfile.id)
+                .maybeSingle()
+
+            if (existingFriend) {
+                setError('Already friends with this user')
+                // Reload friends to sync state
+                await loadFriends()
+                setLoading(false)
+                return
+            }
+
+            // Step 5: Add to database
+            const { error: insertError } = await supabase
+                .from('friends')
+                .insert({
+                    user_id: user?.id,
+                    friend_id: userProfile.id
+                })
+
+            if (insertError) {
+                // Handle duplicate key error specifically
+                if (insertError.code === '23505') {
+                    setError('Already friends with this user')
+                    await loadFriends()
+                } else {
+                    throw insertError
+                }
+                setLoading(false)
+                return
+            }
+
+            // Step 6: Get streak data
             const { data: streakData } = await supabase
                 .from('streak_data')
                 .select('count')
                 .eq('user_id', userProfile.id)
                 .maybeSingle()
 
-            // Step 6: Get today's progress
+            // Step 7: Get today's progress
             const todayProgress = await dbService.getUserTodayProgress(userProfile.id)
 
-            // Step 7: Add to local state
+            // Step 8: Add to local state
             const newFriend: Friend = {
                 id: userProfile.id,
                 username: userProfile.username,
