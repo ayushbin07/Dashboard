@@ -410,31 +410,50 @@ export const dbService = {
 
     // --- FRIENDS ---
     async getFriends(): Promise<Array<{ id: string; username: string; avatar: string }>> {
+        console.log('Fetching friends list...')
         const { data: { user } } = await supabase.auth.getUser()
-        if (!user) return []
-
-        const { data, error } = await supabase
-            .from('friends')
-            .select(`
-                friend_id,
-                profiles:friend_id (
-                    id,
-                    username,
-                    avatar
-                )
-            `)
-            .eq('user_id', user.id)
-
-        if (error) {
-            console.error('Error fetching friends:', error)
+        if (!user) {
+            console.log('No user found for friends fetch')
             return []
         }
 
-        // Transform the data to flatten the nested structure
-        return data.map((f: any) => ({
-            id: f.profiles.id,
-            username: f.profiles.username,
-            avatar: f.profiles.avatar || '🧑'
+        // Step 1: Get all friend IDs for the current user
+        const { data: friendsData, error: friendsError } = await supabase
+            .from('friends')
+            .select('friend_id')
+            .eq('user_id', user.id)
+
+        if (friendsError) {
+            console.error('Error fetching friend IDs:', friendsError)
+            return []
+        }
+
+        if (!friendsData || friendsData.length === 0) {
+            console.log('No friends found in database')
+            return []
+        }
+
+        const friendIds = friendsData.map(f => f.friend_id)
+        console.log('Found friend IDs:', friendIds)
+
+        // Step 2: Get profile info for all these IDs
+        const { data: profiles, error: profilesError } = await supabase
+            .from('profiles')
+            .select('id, username, avatar')
+            .in('id', friendIds)
+
+        if (profilesError) {
+            console.error('Error fetching friend profiles:', profilesError)
+            // Even if profiles fail, we know they are friends, but we can't show them without profiles
+            return []
+        }
+
+        console.log('Fetched friend profiles:', profiles)
+
+        return (profiles || []).map(p => ({
+            id: p.id,
+            username: p.username,
+            avatar: p.avatar || '🧑'
         }))
     },
 

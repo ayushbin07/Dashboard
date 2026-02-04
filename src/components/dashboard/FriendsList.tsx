@@ -34,24 +34,35 @@ export function FriendsList() {
             // For each friend, get their streak and progress
             const friendsWithData = await Promise.all(
                 friendProfiles.map(async (profile) => {
-                    const { supabase } = await import('@/services/authService')
+                    try {
+                        const { supabase } = await import('@/services/authService')
 
-                    // Get streak
-                    const { data: streakData } = await supabase
-                        .from('streak_data')
-                        .select('count')
-                        .eq('user_id', profile.id)
-                        .maybeSingle()
+                        // Get streak (fallback if RLS blocks this specific table)
+                        const { data: streakData } = await supabase
+                            .from('streak_data')
+                            .select('count')
+                            .eq('user_id', profile.id)
+                            .maybeSingle()
 
-                    // Get progress
-                    const todayProgress = await dbService.getUserTodayProgress(profile.id)
+                        // Get progress
+                        const todayProgress = await dbService.getUserTodayProgress(profile.id)
 
-                    return {
-                        id: profile.id,
-                        username: profile.username,
-                        avatar: profile.avatar,
-                        streak: streakData?.count || 0,
-                        todayProgress
+                        return {
+                            id: profile.id,
+                            username: profile.username,
+                            avatar: profile.avatar,
+                            streak: streakData?.count || 0,
+                            todayProgress
+                        }
+                    } catch (memberErr) {
+                        console.error(`Error loading data for friend ${profile.username}:`, memberErr)
+                        return {
+                            id: profile.id,
+                            username: profile.username,
+                            avatar: profile.avatar,
+                            streak: 0,
+                            todayProgress: 0
+                        }
                     }
                 })
             )
