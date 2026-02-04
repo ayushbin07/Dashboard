@@ -1,4 +1,4 @@
-# AntiGravity Dashboard 🚀
+# Productive Dashboard 🚀
 
 ![Version](https://img.shields.io/badge/version-1.17-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
@@ -34,10 +34,6 @@ A modern, high-performance productivity dashboard built with React 19, Vite, and
 ### Installation
 
 1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/antigravity-dashboard.git
-   cd antigravity-dashboard
-   ```
 
 2. **Install dependencies**
    ```bash
