@@ -17,6 +17,7 @@ interface HabitListProps {
 }
 
 const PASTEL_COLORS = [
+    '#0F5132', // Forest (Default)
     '#8B5CF6', // Purple
     '#EC4899', // Pink
     '#F59E0B', // Amber
@@ -34,14 +35,14 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
     const [category, setCategory] = useState('Health')
     const [priority, setPriority] = useState(false)
     const [target, setTarget] = useState(30)
-    const [color, setColor] = useState('#8B5CF6')
+    const [color, setColor] = useState('#0F5132')
 
     const startAdd = () => {
         setEditingId(null)
         setTitle('')
         setPriority(false)
         setTarget(30)
-        setColor('#8B5CF6')
+        setColor('#0F5132')
         setIsFormOpen(true)
     }
 
@@ -51,7 +52,7 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
         setCategory(habit.category)
         setPriority(habit.priority)
         setTarget(habit.targetPerMonth)
-        setColor(habit.color || '#8B5CF6')
+        setColor(habit.color || '#0F5132')
         setIsFormOpen(true)
     }
 
@@ -192,8 +193,8 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
                             habit.priority && !habit.completedToday && "border-l-4 border-l-red-400"
                         )}
                         style={{
-                            backgroundColor: habit.completedToday ? `${habit.color}15` : undefined, // 10% opacity
-                            borderColor: habit.completedToday ? habit.color : undefined
+                            backgroundColor: habit.completedToday ? `${habit.color || '#0F5132'}15` : undefined, // 10% opacity, fallback to green
+                            borderColor: habit.completedToday ? (habit.color || '#0F5132') : undefined
                         }}
                     >
                         <div className="flex items-center gap-3 relative z-10">

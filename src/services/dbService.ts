@@ -18,14 +18,13 @@ export const dbService = {
 
         return data.map(n => ({
             id: n.id,
-            title: n.title,
             content: n.content,
             createdAt: n.created_at,
             updatedAt: n.updated_at
         }))
     },
 
-    async addNote(title: string, content: string): Promise<Note | null> {
+    async addNote(content: string): Promise<Note | null> {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return null
 
@@ -33,7 +32,6 @@ export const dbService = {
             .from('notes')
             .insert({
                 user_id: user.id,
-                title,
                 content
             })
             .select()
@@ -43,18 +41,16 @@ export const dbService = {
 
         return {
             id: data.id,
-            title: data.title,
             content: data.content,
             createdAt: data.created_at,
             updatedAt: data.updated_at
         }
     },
 
-    async updateNote(id: string, title: string, content: string): Promise<void> {
+    async updateNote(id: string, content: string): Promise<void> {
         const { error } = await supabase
             .from('notes')
             .update({
-                title,
                 content,
                 updated_at: new Date().toISOString()
             })
@@ -302,6 +298,7 @@ export const dbService = {
             const { error } = await supabase
                 .from('habit_history')
                 .insert({
+                    user_id: user.id,
                     habit_id: id,
                     date: date,
                     completed: true
@@ -338,5 +335,149 @@ export const dbService = {
         if (error) throw error
     },
 
+    // --- PROFILE ---
+    async getProfile(): Promise<{ username: string; avatar: string; theme: string } | null> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return null
 
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('username, avatar, theme')
+            .eq('id', user.id)
+            .single()
+
+        if (error) {
+            console.error('Error fetching profile:', error)
+            return null
+        }
+        return data
+    },
+
+    async updateProfile(updates: { username?: string; avatar?: string; theme?: string }): Promise<void> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Not authenticated')
+
+        const { error } = await supabase
+            .from('profiles')
+            .update({
+                ...updates,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', user.id)
+
+        if (error) throw error
+    },
+
+    // --- STREAK ---
+    async getStreak(): Promise<{ count: number; status: string } | null> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return null
+
+        const { data, error } = await supabase
+            .from('streak_data')
+            .select('count, status')
+            .eq('user_id', user.id)
+            .single()
+
+        if (error) return null
+        return data
+    },
+
+    async checkAndIncrementStreak(): Promise<{ count: number; status: string } | null> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return null
+
+        // Get current streak data
+        let { data, error } = await supabase
+            .from('streak_data')
+            .select('*')
+            .eq('user_id', user.id)
+            .maybeSingle()
+
+        // Helper for local date string YYYY-MM-DD
+        const getLocalDateStr = () => {
+            const d = new Date()
+            const year = d.getFullYear()
+            const month = String(d.getMonth() + 1).padStart(2, '0')
+            const day = String(d.getDate()).padStart(2, '0')
+            return `${year}-${month}-${day}`
+        }
+
+        const todayStr = getLocalDateStr()
+
+        // Initialize if empty
+        if (!data) {
+            const { data: newData, error: insertError } = await supabase
+                .from('streak_data')
+                .insert({
+                    user_id: user.id,
+                    count: 1,
+                    last_check_in: todayStr,
+                    status: 'active'
+                })
+                .select()
+                .single()
+
+            if (insertError) {
+                console.error('Error initializing streak:', insertError)
+                return { count: 1, status: 'active' } // Fallback
+            }
+            return { count: newData.count, status: newData.status }
+        }
+
+        const lastCheckInStr = data.last_check_in // Date string from DB (YYYY-MM-DD)
+
+        // If already checked in today, return current
+        if (todayStr === lastCheckInStr) {
+            return { count: data.count, status: data.status }
+        }
+
+        // Parse dates safely (treat as UTC to avoid timezone shifts when comparing just dates)
+        const d1 = new Date(todayStr).getTime()
+        const d2 = new Date(lastCheckInStr).getTime()
+        const dayGap = Math.round((d1 - d2) / (1000 * 60 * 60 * 24))
+
+        let newCount = data.count
+        let newStatus = data.status
+
+        if (dayGap === 1) {
+            // Consecutive day
+            newCount += 1
+            newStatus = 'active'
+        } else if (dayGap === 2) {
+            // Missed 1 day
+            newStatus = 'grace1'
+        } else if (dayGap === 3) {
+            // Missed 2 days
+            newStatus = 'grace2'
+        } else if (dayGap > 3 || dayGap < 0) {
+            // Broken streak (or time travel)
+            newCount = 1
+            newStatus = 'active'
+        }
+
+        // Update DB
+        const { error: updateError } = await supabase
+            .from('streak_data')
+            .update({
+                count: newCount,
+                status: newStatus,
+                last_check_in: todayStr,
+                updated_at: new Date().toISOString()
+            })
+            .eq('user_id', user.id)
+
+        if (updateError) {
+            console.error('Error updating streak:', updateError)
+            return { count: data.count, status: data.status }
+        }
+
+        return { count: newCount, status: newStatus }
+    },
+
+    // Deprecated manual update, kept if needed but not for overwrite
+    async updateStreak(count: number): Promise<void> {
+        // This is restricted now
+        console.warn("Manual streak update is deprecated")
+    }
 }

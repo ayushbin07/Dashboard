@@ -55,10 +55,10 @@ export default function Help() {
             color: "text-amber-500",
             bg: "bg-amber-50 dark:bg-amber-900/20",
             instructions: [
-                "A full-featured editor supporting Markdown for clean organizing.",
-                "Use 'Edit' mode to write and 'Preview' mode to see the rendered output.",
-                "All notes are saved locally to your browser and persist between sessions.",
-                "Organize your thoughts, project plans, or daily reflections."
+                "Create and organize notes with intuitive drag-and-drop functionality.",
+                "Double-click any note title to rename it instantly.",
+                "Review your changes in the visual Markdown preview pane.",
+                "All notes are securely synced to the cloud via Supabase."
             ]
         },
         {

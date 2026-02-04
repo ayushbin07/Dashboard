@@ -1,112 +1,102 @@
 import { useState, useEffect } from 'react'
-import { FileText, Plus, Trash2, Edit2 } from 'lucide-react'
+import { Plus, Trash2, Save, FileText, Menu } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import ReactMarkdown from 'react-markdown'
 import { dbService } from '@/services/dbService'
-
-interface Note {
-    id: string
-    title: string
-    content: string
-    createdAt: string
-    updatedAt: string
-}
+import type { Note } from '@/types'
 
 export default function Notes() {
     const [notes, setNotes] = useState<Note[]>([])
     const [selectedNote, setSelectedNote] = useState<Note | null>(null)
-    const [isEditing, setIsEditing] = useState(false)
-    const [editTitle, setEditTitle] = useState('')
-    const [editContent, setEditContent] = useState('')
-    const [isPreview, setIsPreview] = useState(false)
-    const [loading, setLoading] = useState(true)
+    const [content, setContent] = useState('')
+    const [isLoading, setIsLoading] = useState(false)
+    const [isSaving, setIsSaving] = useState(false)
+    const [isMobileListVisible, setIsMobileListVisible] = useState(true)
 
-    const fetchNotes = async () => {
-        try {
-            const fetchedNotes = await dbService.getNotes()
-            setNotes(fetchedNotes)
-            if (fetchedNotes.length > 0 && !selectedNote) {
-                // Only auto-select if nothing selected
-                // setSelectedNote(fetchedNotes[0]) 
-            }
-        } catch (error) {
-            console.error('Failed to fetch notes', error)
-        } finally {
-            setLoading(false)
-        }
-    }
-
+    // Load notes on mount
     useEffect(() => {
         fetchNotes()
     }, [])
 
-    const createNewNote = async () => {
+    const fetchNotes = async () => {
+        setIsLoading(true)
         try {
-            const newNote = await dbService.addNote('Untitled Note', '')
+            const fetchedNotes = await dbService.getNotes()
+            setNotes(fetchedNotes)
+        } catch (error) {
+            console.error('Failed to fetch notes', error)
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const handleCreateNote = async () => {
+        try {
+            const newNote = await dbService.addNote('')
             if (newNote) {
                 setNotes([newNote, ...notes])
                 setSelectedNote(newNote)
-                setEditTitle(newNote.title)
-                setEditContent(newNote.content)
-                setIsEditing(true)
+                setContent('')
+                setIsMobileListVisible(false) // Automatically switch to editor on mobile
             }
         } catch (error) {
             console.error('Failed to create note', error)
         }
     }
 
-    const deleteNote = async (noteId: string) => {
+    const handleDeleteNote = async (id: string, e: React.MouseEvent) => {
+        e.stopPropagation()
+        if (!confirm('Are you sure you want to delete this note?')) return
+
         try {
-            await dbService.deleteNote(noteId)
-            const updatedNotes = notes.filter(n => n.id !== noteId)
-            setNotes(updatedNotes)
-            if (selectedNote?.id === noteId) {
-                setSelectedNote(null) // Don't auto-select another to avoid confusion
-                setIsEditing(false)
+            await dbService.deleteNote(id)
+            setNotes(notes.filter(n => n.id !== id))
+            if (selectedNote?.id === id) {
+                setSelectedNote(null)
+                setContent('')
+                setIsMobileListVisible(true) // Go back to list if deleted current note
             }
         } catch (error) {
             console.error('Failed to delete note', error)
         }
     }
 
-    const startEditing = () => {
-        if (selectedNote) {
-            setEditTitle(selectedNote.title)
-            setEditContent(selectedNote.content)
-            setIsEditing(true)
+    const handleSelectNote = (note: Note) => {
+        setSelectedNote(note)
+        setContent(note.content || '')
+        setIsMobileListVisible(false) // Switch to editor on mobile
+    }
+
+    const handleSave = async () => {
+        if (!selectedNote) return
+
+        setIsSaving(true)
+        try {
+            await dbService.updateNote(selectedNote.id, content)
+
+            // Update local state
+            const updatedNotes = notes.map(n =>
+                n.id === selectedNote.id
+                    ? { ...n, content, updatedAt: new Date().toISOString() }
+                    : n
+            )
+            setNotes(updatedNotes)
+            // Update selected note reference so we don't lose sync
+            setSelectedNote({ ...selectedNote, content, updatedAt: new Date().toISOString() })
+        } catch (error) {
+            console.error('Failed to save note', error)
+        } finally {
+            setIsSaving(false)
         }
     }
 
-    const saveEdit = async () => {
-        if (selectedNote) {
-            try {
-                await dbService.updateNote(selectedNote.id, editTitle, editContent)
-
-                const updatedNotes = notes.map(note =>
-                    note.id === selectedNote.id
-                        ? {
-                            ...note,
-                            title: editTitle,
-                            content: editContent,
-                            updatedAt: new Date().toISOString()
-                        }
-                        : note
-                )
-                setNotes(updatedNotes)
-                setSelectedNote({ ...selectedNote, title: editTitle, content: editContent })
-                setIsEditing(false)
-            } catch (error) {
-                console.error('Failed to update note', error)
-            }
-        }
-    }
-
-    const cancelEdit = () => {
-        setIsEditing(false)
-        setEditTitle('')
-        setEditContent('')
+    // Helper to extract a display title from content
+    const getDisplayTitle = (noteContent: string) => {
+        if (!noteContent || !noteContent.trim()) return 'Empty Note'
+        // Get first line or first 30 chars
+        const firstLine = noteContent.split('\n')[0].trim()
+        return firstLine.length > 30 ? firstLine.substring(0, 30) + '...' : firstLine
     }
 
     return (
@@ -117,158 +107,118 @@ export default function Notes() {
         >
             {/* Header */}
             <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h2 className="text-3xl font-bold bg-gradient-to-r from-[#0F5132] to-[#4ade80] bg-clip-text text-transparent">
-                        Notes
-                    </h2>
-                    <p className="text-gray-500 dark:text-gray-400">Write and organize your notes</p>
+                <div className="flex items-center gap-3">
+                    {/* Mobile Toggle Button */}
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="md:hidden"
+                        onClick={() => setIsMobileListVisible(!isMobileListVisible)}
+                    >
+                        {isMobileListVisible ? (
+                            <FileText className="h-6 w-6" /> // Show Editor Icon
+                        ) : (
+                            <Menu className="h-6 w-6" /> // Menu/List Icon
+                        )}
+                    </Button>
+
+                    <div>
+                        <h2 className="text-3xl font-bold bg-gradient-to-r from-[#0F5132] to-[#4ade80] bg-clip-text text-transparent">
+                            Raw Notes
+                        </h2>
+                        <p className="text-gray-500 dark:text-gray-400">Simple text notes</p>
+                    </div>
                 </div>
                 <Button
-                    onClick={createNewNote}
+                    onClick={handleCreateNote}
                     className="bg-[#0F5132] hover:bg-[#0F5132]/90 text-white rounded-full"
                 >
                     <Plus size={20} className="mr-2" />
-                    New Note
+                    New
                 </Button>
             </div>
 
-            <div className="grid grid-cols-12 gap-6">
-                {/* Sidebar - Notes List */}
-                <div className="col-span-12 md:col-span-4 lg:col-span-3">
-                    <Card className="p-4 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937]">
-                        <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-3 px-2">
-                            ALL NOTES ({notes.length})
-                        </h3>
-                        <div className="space-y-2 max-h-[600px] overflow-y-auto">
-                            {notes.length === 0 ? (
+            <div className="grid grid-cols-12 gap-6 h-[calc(100vh-200px)]">
+                {/* Sidebar List */}
+                <div className={`col-span-12 md:col-span-4 lg:col-span-3 h-full ${isMobileListVisible ? 'block' : 'hidden'
+                    } md:block`}>
+                    <Card className="h-full rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] overflow-hidden flex flex-col">
+                        <div className="p-4 border-b border-gray-100 dark:border-gray-800">
+                            <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                                SAVED ({notes.length})
+                            </h3>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-2 space-y-2">
+                            {isLoading ? (
+                                <p className="text-center text-gray-400 py-4">Loading...</p>
+                            ) : notes.length === 0 ? (
                                 <div className="text-center py-8 text-gray-500 dark:text-gray-400 text-sm">
-                                    No notes yet.<br />Create your first note!
+                                    No notes.<br />Click New to start.
                                 </div>
                             ) : (
                                 notes.map(note => (
-                                    <motion.div
+                                    <div
                                         key={note.id}
-                                        whileHover={{ scale: 1.02 }}
-                                        onClick={() => {
-                                            setSelectedNote(note)
-                                            setIsEditing(false)
-                                        }}
-                                        className={`p-3 rounded-xl cursor-pointer transition-all ${selectedNote?.id === note.id
-                                            ? 'bg-[#0F5132]/10 border-l-4 border-l-[#0F5132]'
-                                            : 'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                        onClick={() => handleSelectNote(note)}
+                                        className={`group p-3 rounded-xl cursor-pointer transition-all border ${selectedNote?.id === note.id
+                                                ? 'bg-[#0F5132]/10 border-[#0F5132] dark:border-[#0F5132]'
+                                                : 'bg-gray-50 dark:bg-gray-800 border-transparent hover:bg-gray-100 dark:hover:bg-gray-700'
                                             }`}
                                     >
-                                        <div className="flex items-start justify-between gap-2">
-                                            <div className="flex-1 min-w-0">
-                                                <div className="font-semibold text-sm text-gray-900 dark:text-white truncate">
-                                                    {note.title}
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex-1 min-w-0 pr-2">
+                                                <div className={`font-semibold text-sm truncate ${selectedNote?.id === note.id ? 'text-[#0F5132] dark:text-[#4ade80]' : 'text-gray-900 dark:text-white'}`}>
+                                                    {getDisplayTitle(note.content)}
                                                 </div>
                                                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                                     {new Date(note.updatedAt).toLocaleDateString()}
                                                 </div>
                                             </div>
                                             <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    deleteNote(note.id)
-                                                }}
-                                                className="p-1 hover:bg-red-100 dark:hover:bg-red-900/20 rounded"
+                                                onClick={(e) => handleDeleteNote(note.id, e)}
+                                                className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 rounded-md transition-opacity"
                                             >
-                                                <Trash2 size={14} className="text-red-500" />
+                                                <Trash2 size={14} />
                                             </button>
                                         </div>
-                                    </motion.div>
+                                    </div>
                                 ))
                             )}
                         </div>
                     </Card>
                 </div>
 
-                {/* Editor/Preview Area */}
-                <div className="col-span-12 md:col-span-8 lg:col-span-9">
-                    <Card className="p-8 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] min-h-[600px]">
+                {/* Editor Area */}
+                <div className={`col-span-12 md:col-span-8 lg:col-span-9 h-full ${!isMobileListVisible ? 'block' : 'hidden'
+                    } md:block`}>
+                    <Card className="h-full p-6 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] flex flex-col">
                         {selectedNote ? (
                             <>
-                                {/* Toolbar */}
-                                <div className="flex justify-between items-center mb-6">
-                                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                                        {isEditing ? editTitle : selectedNote.title}
-                                    </h3>
-                                    <div className="flex gap-2">
-                                        {isEditing ? (
-                                            <>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => setIsPreview(!isPreview)}
-                                                    className="rounded-full"
-                                                >
-                                                    {isPreview ? 'Edit' : 'Preview'}
-                                                </Button>
-                                                <Button
-                                                    variant="secondary"
-                                                    size="sm"
-                                                    onClick={cancelEdit}
-                                                    className="rounded-full"
-                                                >
-                                                    Cancel
-                                                </Button>
-                                                <Button
-                                                    size="sm"
-                                                    onClick={saveEdit}
-                                                    className="bg-[#0F5132] hover:bg-[#0F5132]/90 text-white rounded-full"
-                                                >
-                                                    Save
-                                                </Button>
-                                            </>
-                                        ) : (
-                                            <Button
-                                                size="sm"
-                                                onClick={startEditing}
-                                                className="bg-[#0F5132] hover:bg-[#0F5132]/90 text-white rounded-full"
-                                            >
-                                                <Edit2 size={16} className="mr-2" />
-                                                Edit
-                                            </Button>
-                                        )}
-                                    </div>
+                                <div className="flex justify-between items-center mb-4">
+                                    <span className="text-sm text-gray-400">
+                                        Last saved: {new Date(selectedNote.updatedAt).toLocaleString()}
+                                    </span>
+                                    <Button
+                                        onClick={handleSave}
+                                        disabled={isSaving}
+                                        className="bg-[#0F5132] hover:bg-[#0F5132]/90 text-white rounded-full px-6"
+                                    >
+                                        <Save size={18} className="mr-2" />
+                                        {isSaving ? 'Saving...' : 'Save Work'}
+                                    </Button>
                                 </div>
-
-                                {/* Content */}
-                                {isEditing ? (
-                                    <div className="space-y-4">
-                                        {!isPreview ? (
-                                            <>
-                                                <input
-                                                    type="text"
-                                                    value={editTitle}
-                                                    onChange={(e) => setEditTitle(e.target.value)}
-                                                    className="w-full px-4 py-2 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-semibold"
-                                                    placeholder="Note title..."
-                                                />
-                                                <textarea
-                                                    value={editContent}
-                                                    onChange={(e) => setEditContent(e.target.value)}
-                                                    className="w-full h-[450px] px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono text-sm resize-none"
-                                                    placeholder="Start writing your note..."
-                                                />
-                                            </>
-                                        ) : (
-                                            <div className="prose dark:prose-invert max-w-none">
-                                                <ReactMarkdown>{editContent}</ReactMarkdown>
-                                            </div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="prose dark:prose-invert max-w-none">
-                                        <ReactMarkdown>{selectedNote.content}</ReactMarkdown>
-                                    </div>
-                                )}
+                                <textarea
+                                    value={content}
+                                    onChange={(e) => setContent(e.target.value)}
+                                    placeholder="Start typing your note here..."
+                                    className="flex-1 w-full resize-none bg-transparent border-0 focus:ring-0 p-0 text-gray-800 dark:text-gray-200 leading-relaxed text-lg font-mono placeholder-gray-300 dark:placeholder-gray-600 outline-none"
+                                    spellCheck={false}
+                                />
                             </>
                         ) : (
-                            <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
-                                <FileText size={64} className="mb-4 opacity-50" />
-                                <p className="text-lg">Select a note or create a new one</p>
+                            <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-500">
+                                <FileText size={64} className="mb-4 opacity-20" />
+                                <p className="text-lg">Select a note to view or edit</p>
                             </div>
                         )}
                     </Card>

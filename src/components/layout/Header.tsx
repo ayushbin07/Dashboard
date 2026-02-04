@@ -1,12 +1,16 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Bell } from 'lucide-react'
+import { Search, Bell, Menu } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { localService, type StreakData } from '@/services/localService'
 import type { Task } from '@/types'
 
-export function Header() {
+interface HeaderProps {
+    onOpenSidebar?: () => void
+}
+
+export function Header({ onOpenSidebar }: HeaderProps) {
     const [profile, setProfile] = useState({ name: '', avatar: '👨‍💻' })
     const [searchQuery, setSearchQuery] = useState('')
     const [searchResults, setSearchResults] = useState<any[]>([])
@@ -42,6 +46,17 @@ export function Header() {
                         // Update local cache
                         localService.saveUserProfile(dbProfile)
                     }
+
+                    // Sync Streak from DB
+                    const { dbService } = await import('@/services/dbService')
+                    const newStreak = await dbService.checkAndIncrementStreak()
+                    if (newStreak) {
+                        setStreak({
+                            count: newStreak.count,
+                            status: newStreak.status as any,
+                            lastCheckIn: new Date().toISOString()
+                        })
+                    }
                 }
             } catch (error) {
                 console.error('Error loading profile from DB:', error)
@@ -49,12 +64,7 @@ export function Header() {
         }
 
         loadProfile()
-        // ... (rest of useEffect logic like tasks/streak)
-        // Note: Streak is still local for now as per priority
         setTasks(localService.getTasks())
-
-        const updatedStreak = localService.updateStreak()
-        setStreak(updatedStreak)
 
         window.addEventListener('profile-updated', loadProfile)
         return () => window.removeEventListener('profile-updated', loadProfile)
@@ -123,11 +133,20 @@ export function Header() {
     const hasNotifications = notifications.length > 0
 
     return (
-        <header className="fixed top-6 left-0 right-0 max-w-5xl mx-auto rounded-full bg-white/90 dark:bg-[#1f2937]/90 backdrop-blur-xl shadow-soft border border-white/20 dark:border-gray-700 z-50 px-2 py-2 h-16 transition-all duration-300 ease-out hover:shadow-xl hover:bg-white/95 dark:hover:bg-[#1f2937]/95">
+        <header className="fixed top-6 left-4 right-4 lg:left-0 lg:right-0 max-w-5xl mx-auto rounded-full bg-white/90 dark:bg-[#1f2937]/90 backdrop-blur-xl shadow-soft border border-white/20 dark:border-gray-700 z-50 px-2 py-2 h-16 transition-all duration-300 ease-out hover:shadow-xl hover:bg-white/95 dark:hover:bg-[#1f2937]/95">
             <div className="flex h-full items-center justify-between px-2">
 
-                {/* Left: Search Bar (Pill) */}
-                <div className="flex items-center w-full max-w-sm">
+                {/* Left: Mobile Menu + Search */}
+                <div className="flex items-center w-full max-w-sm gap-2">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="lg:hidden shrink-0 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
+                        onClick={onOpenSidebar}
+                    >
+                        <Menu className="h-5 w-5" />
+                    </Button>
+
                     <div className="relative w-full group">
                         <div className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 bg-gray-100 dark:bg-gray-700/50 rounded-full flex items-center justify-center transition-colors group-focus-within:bg-[#0F5132]/10 dark:group-focus-within:bg-[#4ade80]/20">
                             <Search className="h-4 w-4 text-gray-500 dark:text-gray-400 group-focus-within:text-[#0F5132] dark:group-focus-within:text-[#4ade80]" />

@@ -16,14 +16,17 @@ export default function Dashboard() {
 
     const refreshData = async () => {
         try {
+            console.log('Refreshing Dashboard Data (Tasks/Habits)...')
             const [fetchedTasks, fetchedHabits] = await Promise.all([
                 dbService.getTasks(),
                 dbService.getHabits()
             ])
+            console.log(`Loaded ${fetchedTasks.length} tasks and ${fetchedHabits.length} habits`)
             setTasks(fetchedTasks)
             setHabits(fetchedHabits)
         } catch (error) {
             console.error('Failed to load dashboard data', error)
+            alert('Dashboard Load Error: ' + (error as any).message)
         }
     }
 
@@ -111,7 +114,9 @@ export default function Dashboard() {
             {/* Header Area */}
             <div className="flex justify-between items-end mb-2">
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Dashboard</h2>
+                    <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                        Dashboard <span className="text-xs font-mono text-gray-400 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">v 1.17</span>
+                    </h2>
                     <p className="text-gray-500 dark:text-gray-400 text-sm">Plan, prioritize, and accomplish your tasks with ease.</p>
                 </div>
             </div>

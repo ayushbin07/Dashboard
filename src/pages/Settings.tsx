@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
-import { Palette, Bell, Database, ChevronRight, LogOut, AlertTriangle, X } from "lucide-react"
+import { Palette, Bell, Database, ChevronRight, LogOut, AlertTriangle, X, Save, Flame, User } from "lucide-react"
 import { localService } from "@/services/localService"
 import { dbService } from "@/services/dbService"
 import { supabase } from "@/services/authService"
@@ -13,10 +13,15 @@ import { motion, AnimatePresence } from "framer-motion"
 export default function Settings() {
     const [name, setName] = useState('')
     const [avatar, setAvatar] = useState('👨‍💻')
+    const [streak, setStreak] = useState(0)
+
+    // Preferences
     const [darkMode, setDarkMode] = useState(false)
     const [pushNotifications, setPushNotifications] = useState(true)
     const [audioAlarms, setAudioAlarms] = useState(true)
+
     const [isLoaded, setIsLoaded] = useState(false)
+    const [isSaving, setIsSaving] = useState(false)
 
     // Reset Data Modal State
     const [showResetModal, setShowResetModal] = useState(false)
@@ -25,40 +30,72 @@ export default function Settings() {
     const [resetError, setResetError] = useState('')
 
     useEffect(() => {
-        const profile = localService.getUserProfile()
-        if (profile.name) setName(profile.name)
-        if (profile.avatar) setAvatar(profile.avatar)
+        const loadProfile = async () => {
+            try {
+                // Load from DB
+                const profile = await dbService.getProfile()
+                if (profile) {
+                    setName(profile.username || '')
+                    setAvatar(profile.avatar || '👨‍💻')
+                } else {
+                    // Fallback to local if no DB profile found (unlikely if authorized)
+                    const localProfile = localService.getUserProfile()
+                    setName(localProfile.name || '')
+                    setAvatar(localProfile.avatar || '👨‍💻')
+                }
 
+                const streakData = await dbService.getStreak()
+                if (streakData) {
+                    setStreak(streakData.count)
+                }
+            } catch (error) {
+                console.error('Failed to load profile', error)
+            } finally {
+                setIsLoaded(true)
+            }
+        }
+
+        loadProfile()
+
+        // Load local preferences
         setDarkMode(localService.getTheme() === 'dark')
-
         const notifSettings = localService.getNotificationSettings()
         setPushNotifications(notifSettings.pushNotifications)
         setAudioAlarms(notifSettings.audioAlarms)
-
-        setIsLoaded(true)
     }, [])
 
-    const handleSaveProfile = () => {
-        if (!isLoaded) return
-        localService.saveUserProfile({ name, avatar })
-        window.dispatchEvent(new Event('profile-updated'))
-    }
+    const handleSaveProfile = async () => {
+        if (!isLoaded || isSaving) return
 
-    // Auto-save on change
-    useEffect(() => {
-        if (isLoaded) {
-            handleSaveProfile()
+        setIsSaving(true)
+        try {
+            await dbService.updateProfile({
+                username: name,
+                avatar: avatar
+            })
+
+            // Update local cache too for immediate feel elsewhere if used
+            localService.saveUserProfile({ name, avatar })
+
+            // Dispatch event for other components to update
+            window.dispatchEvent(new Event('profile-updated'))
+
+            alert('Profile saved successfully!')
+        } catch (error) {
+            console.error('Failed to save profile', error)
+            alert('Failed to save profile.')
+        } finally {
+            setIsSaving(false)
         }
-    }, [name, avatar, isLoaded])
+    }
 
     const AVATARS = ['👨‍💻', '👩‍🚀', '🦁', '🐼', '⚡', '🤖', '🦊', '🦉']
 
     const handleExportData = () => {
-        // Exporting local data for now, could be updated to fetch from DB
         const data = {
             tasks: localService.getTasks(),
             habits: localService.getHabits(),
-            user: { name },
+            user: { name, avatar, streak },
             timestamp: new Date().toISOString()
         }
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" })
@@ -112,6 +149,8 @@ export default function Settings() {
         }
     }
 
+
+
     return (
         <div className="max-w-4xl mx-auto space-y-6 pb-20 relative">
             {/* Header */}
@@ -123,29 +162,54 @@ export default function Settings() {
             <div className="space-y-6">
                 {/* Profile Section */}
                 <Card className="p-8 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300">
-                    <div className="flex items-center gap-6 mb-8">
-                        <div className="h-24 w-24 rounded-full bg-gray-50 dark:bg-gray-700 flex items-center justify-center text-5xl border-4 border-white dark:border-gray-600 shadow-sm">
-                            {avatar}
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+                        <div className="flex items-center gap-6">
+                            <div className="h-24 w-24 rounded-full bg-gray-50 dark:bg-gray-700 flex items-center justify-center text-5xl border-4 border-white dark:border-gray-600 shadow-sm relative group">
+                                {avatar}
+                                <div className="absolute inset-0 bg-black/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <span className="text-xs font-bold text-white bg-black/50 px-2 py-1 rounded-full">Change</span>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white">{name || 'Guest User'}</h3>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#0F5132]/10 text-[#0F5132] dark:text-[#4ade80]">
+                                        <Flame size={12} className="fill-current" />
+                                        {streak} Day Streak
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white">{name || 'Guest User'}</h3>
-                            <p className="text-gray-500 dark:text-gray-400">Update your avatar and details</p>
-                        </div>
+                        <Button
+                            onClick={handleSaveProfile}
+                            disabled={isSaving}
+                            className="bg-[#0F5132] hover:bg-[#0F5132]/90 text-white rounded-full px-8 self-start md:self-center"
+                        >
+                            {isSaving ? 'Saving...' : (
+                                <>
+                                    <Save size={18} className="mr-2" />
+                                    Save Changes
+                                </>
+                            )}
+                        </Button>
                     </div>
 
-                    <div className="space-y-6">
+                    <div className="space-y-8 border-t border-gray-100 dark:border-gray-700 pt-8">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Choose Avatar</label>
-                            <div className="flex gap-3 flex-wrap">
+                            <label className="block text-sm font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                <span className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">🎨</span>
+                                Choose Avatar
+                            </label>
+                            <div className="flex gap-4 flex-wrap">
                                 {AVATARS.map((emoji) => (
                                     <button
                                         key={emoji}
                                         onClick={() => setAvatar(emoji)}
                                         className={cn(
-                                            "h-12 w-12 rounded-2xl flex items-center justify-center text-2xl transition-all hover:scale-110",
+                                            "h-14 w-14 rounded-2xl flex items-center justify-center text-3xl transition-all hover:scale-110",
                                             avatar === emoji
-                                                ? "bg-[#0F5132] text-white shadow-lg shadow-[#0F5132]/20 scale-110"
-                                                : "bg-gray-50 dark:bg-gray-700 text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-600"
+                                                ? "bg-[#0F5132] text-white shadow-lg shadow-[#0F5132]/20 scale-110 ring-2 ring-offset-2 ring-[#0F5132] dark:ring-offset-[#1f2937]"
+                                                : "bg-gray-50 dark:bg-gray-800 text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700"
                                         )}
                                     >
                                         {emoji}
@@ -154,14 +218,19 @@ export default function Settings() {
                             </div>
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Display Name</label>
-                            <Input
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                placeholder="Enter your name"
-                                className="max-w-md bg-gray-50 dark:bg-gray-700/50 border-transparent dark:border-transparent focus:bg-white dark:focus:bg-gray-800 dark:text-white transition-all"
-                            />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                    <span className="w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-xs"><User size={14} /></span>
+                                    Display Name
+                                </label>
+                                <Input
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder="Enter your name"
+                                    className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:ring-[#0F5132] dark:focus:ring-[#0F5132] dark:text-white h-11"
+                                />
+                            </div>
                         </div>
                     </div>
                 </Card>
@@ -191,7 +260,7 @@ export default function Settings() {
                     </Card>
 
                     {/* Push Notifications */}
-                    <Card className="p-6 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300 flex flex-col justify-between min-h-[180px]">
+                    < Card className="p-6 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300 flex flex-col justify-between min-h-[180px]" >
                         <div>
                             <div className="h-10 w-10 rounded-full bg-[#E8F5E9] dark:bg-[#0F5132]/20 flex items-center justify-center mb-4 text-[#0F5132] dark:text-[#4ade80]">
                                 <Bell size={20} />
@@ -209,10 +278,10 @@ export default function Settings() {
                                 }}
                             />
                         </div>
-                    </Card>
+                    </Card >
 
                     {/* Audio Alarms */}
-                    <Card className="p-6 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300 flex flex-col justify-between min-h-[180px]">
+                    < Card className="p-6 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300 flex flex-col justify-between min-h-[180px]" >
                         <div>
                             <div className="h-10 w-10 rounded-full bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center mb-4 text-amber-600 dark:text-amber-500">
                                 <Bell size={20} />
@@ -230,10 +299,10 @@ export default function Settings() {
                                 }}
                             />
                         </div>
-                    </Card>
+                    </Card >
 
                     {/* Data Management */}
-                    <Card className="p-6 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300 flex flex-col justify-between min-h-[160px]">
+                    < Card className="p-6 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300 flex flex-col justify-between min-h-[160px]" >
                         <div>
                             <div className="h-10 w-10 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center mb-4 text-red-500">
                                 <Database size={20} />
@@ -252,76 +321,78 @@ export default function Settings() {
                                 <AlertTriangle size={14} className="mr-1" /> Reset Cloud Database
                             </Button>
                         </div>
-                    </Card>
-                </div>
-            </div>
+                    </Card >
+                </div >
+            </div >
 
             {/* Reset Confirmation Modal */}
             <AnimatePresence>
-                {showResetModal && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-                        onClick={() => setShowResetModal(false)}
-                    >
+                {
+                    showResetModal && (
                         <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="bg-white dark:bg-[#1f2937] rounded-[2rem] p-8 max-w-md w-full shadow-2xl"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                            onClick={() => setShowResetModal(false)}
                         >
-                            <div className="flex justify-between items-center mb-4">
-                                <div className="flex items-center gap-3 text-red-600 dark:text-red-500">
-                                    <AlertTriangle size={32} />
-                                    <h3 className="text-2xl font-bold">Danger Zone</h3>
-                                </div>
-                                <Button variant="ghost" size="icon" onClick={() => setShowResetModal(false)} className="rounded-full">
-                                    <X size={20} />
-                                </Button>
-                            </div>
-
-                            <p className="text-gray-600 dark:text-gray-300 mb-6">
-                                You are about to <span className="font-bold text-red-600">PERMANENTLY DELETE</span> all your Tasks and Habits from the database.
-                                This action cannot be undone.
-                            </p>
-
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Enter your password to confirm
-                                    </label>
-                                    <Input
-                                        type="password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        placeholder="Your Password"
-                                        className="bg-gray-50 dark:bg-gray-700 dark:text-white"
-                                    />
-                                    {resetError && (
-                                        <p className="text-xs text-red-500 mt-1">{resetError}</p>
-                                    )}
-                                </div>
-
-                                <div className="flex gap-3 pt-2">
-                                    <Button variant="secondary" className="flex-1" onClick={() => setShowResetModal(false)}>
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        className="flex-1 bg-red-600 hover:bg-red-700 text-white"
-                                        onClick={handleResetDatabase}
-                                        disabled={!password || resetLoading}
-                                    >
-                                        {resetLoading ? 'Deleting...' : 'Delete Everything'}
+                            <motion.div
+                                initial={{ scale: 0.9, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.9, opacity: 0 }}
+                                onClick={(e) => e.stopPropagation()}
+                                className="bg-white dark:bg-[#1f2937] rounded-[2rem] p-8 max-w-md w-full shadow-2xl"
+                            >
+                                <div className="flex justify-between items-center mb-4">
+                                    <div className="flex items-center gap-3 text-red-600 dark:text-red-500">
+                                        <AlertTriangle size={32} />
+                                        <h3 className="text-2xl font-bold">Danger Zone</h3>
+                                    </div>
+                                    <Button variant="ghost" size="icon" onClick={() => setShowResetModal(false)} className="rounded-full">
+                                        <X size={20} />
                                     </Button>
                                 </div>
-                            </div>
+
+                                <p className="text-gray-600 dark:text-gray-300 mb-6">
+                                    You are about to <span className="font-bold text-red-600">PERMANENTLY DELETE</span> all your Tasks and Habits from the database.
+                                    This action cannot be undone.
+                                </p>
+
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                            Enter your password to confirm
+                                        </label>
+                                        <Input
+                                            type="password"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            placeholder="Your Password"
+                                            className="bg-gray-50 dark:bg-gray-700 dark:text-white"
+                                        />
+                                        {resetError && (
+                                            <p className="text-xs text-red-500 mt-1">{resetError}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="flex gap-3 pt-2">
+                                        <Button variant="secondary" className="flex-1" onClick={() => setShowResetModal(false)}>
+                                            Cancel
+                                        </Button>
+                                        <Button
+                                            className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                                            onClick={handleResetDatabase}
+                                            disabled={!password || resetLoading}
+                                        >
+                                            {resetLoading ? 'Deleting...' : 'Delete Everything'}
+                                        </Button>
+                                    </div>
+                                </div>
+                            </motion.div>
                         </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
+                    )
+                }
+            </AnimatePresence >
+        </div >
     )
 }
