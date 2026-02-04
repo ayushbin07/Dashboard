@@ -368,6 +368,103 @@ export const dbService = {
         if (error) throw error
     },
 
+    async getUserByUsername(username: string): Promise<{ id: string; username: string; avatar: string } | null> {
+        console.log('Searching for username:', username)
+
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('id, username, avatar')
+            .eq('username', username)
+            .maybeSingle()
+
+        console.log('getUserByUsername result:', { data, error })
+
+        if (error) {
+            console.error('Error fetching user by username:', error)
+            return null
+        }
+
+        return data
+    },
+
+    async getUserTodayProgress(userId: string): Promise<number> {
+        const today = new Date().toISOString().split('T')[0]
+
+        // Get habits for user
+        const { data: habits } = await supabase
+            .from('habits')
+            .select('id, history')
+            .eq('user_id', userId)
+
+        if (!habits || habits.length === 0) return 0
+
+        // Count completed habits today
+        const completedToday = habits.filter(habit => {
+            const history = habit.history as Record<string, boolean> || {}
+            return history[today] === true
+        }).length
+
+        // Calculate percentage
+        return Math.round((completedToday / habits.length) * 100)
+    },
+
+    // --- FRIENDS ---
+    async getFriends(): Promise<Array<{ id: string; username: string; avatar: string }>> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return []
+
+        const { data, error } = await supabase
+            .from('friends')
+            .select(`
+                friend_id,
+                profiles:friend_id (
+                    id,
+                    username,
+                    avatar
+                )
+            `)
+            .eq('user_id', user.id)
+
+        if (error) {
+            console.error('Error fetching friends:', error)
+            return []
+        }
+
+        // Transform the data to flatten the nested structure
+        return data.map((f: any) => ({
+            id: f.profiles.id,
+            username: f.profiles.username,
+            avatar: f.profiles.avatar || '🧑'
+        }))
+    },
+
+    async addFriend(friendId: string): Promise<void> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Not authenticated')
+
+        const { error } = await supabase
+            .from('friends')
+            .insert({
+                user_id: user.id,
+                friend_id: friendId
+            })
+
+        if (error) throw error
+    },
+
+    async removeFriend(friendId: string): Promise<void> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Not authenticated')
+
+        const { error } = await supabase
+            .from('friends')
+            .delete()
+            .eq('user_id', user.id)
+            .eq('friend_id', friendId)
+
+        if (error) throw error
+    },
+
     // --- STREAK ---
     async getStreak(): Promise<{ count: number; status: string } | null> {
         const { data: { user } } = await supabase.auth.getUser()

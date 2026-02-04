@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Calendar, FileText, Settings, HelpCircle, LayoutGrid, Smartphone, Box, LogOut, X } from "lucide-react"
+import { Calendar, FileText, Settings, HelpCircle, LayoutGrid, Smartphone, Box, LogOut, X, Bug } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { authService } from '@/services/authService'
 import { Button } from '@/components/ui/button'
@@ -38,7 +38,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             )}
 
             <aside className={cn(
-                "fixed left-6 top-6 bottom-6 w-64 bg-white dark:bg-[#1f2937] dark:border-gray-800 rounded-[2rem] border border-gray-100 shadow-xl flex flex-col justify-between p-6 transition-all duration-300 z-50",
+                "fixed left-6 top-6 bottom-6 w-64 bg-white/30 dark:bg-[#1f2937]/30 backdrop-blur-sm dark:border-gray-800 rounded-[2rem] border border-gray-100 shadow-xl flex flex-col justify-between p-6 transition-all duration-300 z-50",
                 // Visibility
                 isOpen ? "translate-x-0" : "-translate-x-[200%] lg:translate-x-0",
                 // On large screens, always show and reset transform
@@ -81,6 +81,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                             <nav className="space-y-2">
                                 <NavItem icon={Settings} label="Settings" to="/settings" active={pathname === '/settings'} onClick={handleNavClick} />
                                 <NavItem icon={HelpCircle} label="Help" to="/help" active={pathname === '/help'} onClick={handleNavClick} />
+                                <NavItem
+                                    icon={Bug}
+                                    label="Report Bug"
+                                    onClick={() => {
+                                        window.open('https://wa.me/9779812294101', '_blank')
+                                        handleNavClick()
+                                    }}
+                                />
                                 <NavItem icon={LogOut} label="Logout" onClick={() => { handleLogout(); handleNavClick(); }} className="text-red-500 hover:text-red-600 hover:bg-red-50" />
                             </nav>
                         </div>

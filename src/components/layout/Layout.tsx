@@ -5,6 +5,7 @@ import { Sidebar } from './Sidebar'
 import { localService } from '@/services/localService'
 import { Menu } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useElasticScroll } from '@/hooks/useElasticScroll'
 
 interface LayoutProps {
     children: React.ReactNode
@@ -29,6 +30,9 @@ export function Layout({ children }: LayoutProps) {
         window.addEventListener('theme-updated', applyTheme)
         return () => window.removeEventListener('theme-updated', applyTheme)
     }, [])
+
+    // Enable elastic scroll animation
+    useElasticScroll()
 
     return (
         <div className="min-h-screen bg-[#F8F9FA] dark:bg-[#111827] text-primary dark:text-gray-100 font-sans transition-colors duration-300">

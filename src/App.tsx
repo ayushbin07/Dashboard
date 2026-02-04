@@ -73,7 +73,7 @@ function App() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0F5132] to-[#1e7e34] dark:from-gray-900 dark:to-gray-800">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-white text-lg font-medium">Loading...</p>
+          <p className="text-white text-lg font-medium">Connecting to NASA satellites...</p>
         </div>
       </div>
     )

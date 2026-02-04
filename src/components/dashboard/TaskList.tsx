@@ -96,7 +96,7 @@ export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
     const completedTasks = tasks.filter(t => t.status === 'completed') // Use original tasks for completed to avoid filter interference
 
     return (
-        <Card className="p-8 h-full flex flex-col min-h-[400px] rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-all duration-300 hover:shadow-xl">
+        <Card className="p-8 flex flex-col max-h-[350px] rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-all duration-300 hover:shadow-xl">
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Execution List</h3>

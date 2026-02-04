@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import './styles/scroll-animation.css';
+
 @layer base {
   :root {
     --background: 249 250 251;

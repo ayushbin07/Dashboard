@@ -74,7 +74,7 @@ export function Header({ onOpenSidebar }: HeaderProps) {
         if (searchQuery.trim().length > 1) {
             const tasks = localService.getTasks()
             const filtered = tasks.filter((t: any) =>
-                t.title.toLowerCase().includes(searchQuery.toLowerCase())
+                t.title?.toLowerCase().includes(searchQuery.toLowerCase())
             )
             setSearchResults(filtered.slice(0, 5))
             setIsSearching(true)
@@ -133,7 +133,7 @@ export function Header({ onOpenSidebar }: HeaderProps) {
     const hasNotifications = notifications.length > 0
 
     return (
-        <header className="fixed top-6 left-4 right-4 lg:left-0 lg:right-0 max-w-5xl mx-auto rounded-full bg-white/90 dark:bg-[#1f2937]/90 backdrop-blur-xl shadow-soft border border-white/20 dark:border-gray-700 z-50 px-2 py-2 h-16 transition-all duration-300 ease-out hover:shadow-xl hover:bg-white/95 dark:hover:bg-[#1f2937]/95">
+        <header className="fixed top-6 left-4 right-4 lg:left-0 lg:right-0 max-w-5xl mx-auto rounded-full bg-white/30 dark:bg-[#1f2937]/30 backdrop-blur-sm shadow-soft border border-white/20 dark:border-gray-700 z-50 px-2 py-2 h-16 transition-all duration-300 ease-out hover:shadow-xl hover:bg-white/40 dark:hover:bg-[#1f2937]/40">
             <div className="flex h-full items-center justify-between px-2">
 
                 {/* Left: Mobile Menu + Search */}

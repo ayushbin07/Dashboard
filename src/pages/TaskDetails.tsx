@@ -38,7 +38,7 @@ export default function TaskDetails() {
         }
     }
 
-    if (loading) return <div>Loading...</div>
+    if (loading) return <div>Connecting to NASA satellites...</div>
     if (!task) return <div>Task not found</div>
 
     return (

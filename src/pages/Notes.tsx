@@ -150,7 +150,7 @@ export default function Notes() {
                         </div>
                         <div className="flex-1 overflow-y-auto p-2 space-y-2">
                             {isLoading ? (
-                                <p className="text-center text-gray-400 py-4">Loading...</p>
+                                <p className="text-center text-gray-400 py-4">Connecting to NASA satellites...</p>
                             ) : notes.length === 0 ? (
                                 <div className="text-center py-8 text-gray-500 dark:text-gray-400 text-sm">
                                     No notes.<br />Click New to start.
@@ -161,8 +161,8 @@ export default function Notes() {
                                         key={note.id}
                                         onClick={() => handleSelectNote(note)}
                                         className={`group p-3 rounded-xl cursor-pointer transition-all border ${selectedNote?.id === note.id
-                                                ? 'bg-[#0F5132]/10 border-[#0F5132] dark:border-[#0F5132]'
-                                                : 'bg-gray-50 dark:bg-gray-800 border-transparent hover:bg-gray-100 dark:hover:bg-gray-700'
+                                            ? 'bg-[#0F5132]/10 border-[#0F5132] dark:border-[#0F5132]'
+                                            : 'bg-gray-50 dark:bg-gray-800 border-transparent hover:bg-gray-100 dark:hover:bg-gray-700'
                                             }`}
                                     >
                                         <div className="flex justify-between items-start">

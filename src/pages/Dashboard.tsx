@@ -5,6 +5,8 @@ import { TaskList } from '@/components/dashboard/TaskList'
 import { HabitList } from '@/components/dashboard/HabitList'
 import { Reminders } from '@/components/dashboard/Reminders'
 import { Timer } from '@/components/dashboard/Timer'
+import { QuoteCard } from '@/components/dashboard/QuoteCard'
+import { FriendsList } from '@/components/dashboard/FriendsList'
 import { motion } from 'framer-motion'
 import { dbService } from '@/services/dbService'
 import type { Task, Habit } from '@/types'
@@ -21,9 +23,13 @@ export default function Dashboard() {
                 dbService.getTasks(),
                 dbService.getHabits()
             ])
-            console.log(`Loaded ${fetchedTasks.length} tasks and ${fetchedHabits.length} habits`)
             setTasks(fetchedTasks)
             setHabits(fetchedHabits)
+
+            // Sync to local service for search availability
+            const { localService } = await import('@/services/localService')
+            localService.saveTasks(fetchedTasks)
+            localService.saveHabits(fetchedHabits)
         } catch (error) {
             console.error('Failed to load dashboard data', error)
             alert('Dashboard Load Error: ' + (error as any).message)
@@ -101,7 +107,7 @@ export default function Dashboard() {
     }
 
     if (loading) {
-        return <div className="flex h-[50vh] items-center justify-center text-gray-400">Hail Ayush...</div>
+        return <div className="flex h-[50vh] items-center justify-center text-emerald-500 dark:text-emerald-400 font-semibold">Hail Ayush...</div>
     }
 
     return (
@@ -109,7 +115,7 @@ export default function Dashboard() {
             layout
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="space-y-4 max-w-[1600px] mx-auto p-2"
+            className="space-y-4 max-w-[1600px] mx-auto p-2 pb-20"
         >
             {/* Header Area */}
             <div className="flex justify-between items-end mb-2">
@@ -128,7 +134,7 @@ export default function Dashboard() {
             </div>
 
             {/* Main Content Grid: 2 Columns */}
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 h-full">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
 
                 {/* Left Column (2/3 width) */}
                 <div className="xl:col-span-2 space-y-4">
@@ -138,7 +144,7 @@ export default function Dashboard() {
                     </div>
 
                     {/* Habits and Reminders Row */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-[340px]">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <HabitList
                             habits={habits}
                             onToggle={handleToggleHabit}
@@ -152,17 +158,22 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-                {/* Right Column (1/3 width) - Long Task List */}
-                <div className="xl:col-span-1 h-full min-h-[600px]">
+                {/* Right Column (1/3 width) - Task List + Friends */}
+                <div className="xl:col-span-1 space-y-4">
                     <TaskList
                         tasks={tasks}
                         onToggle={handleToggleTask}
                         onAdd={handleAddTask}
                         onUpdate={handleUpdateTask}
                     />
+                    <FriendsList />
                 </div>
             </div>
 
+            {/* Daily Quote */}
+            <div className="pt-6">
+                <QuoteCard />
+            </div>
         </motion.div>
     )
 }

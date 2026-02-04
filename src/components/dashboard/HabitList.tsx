@@ -84,7 +84,7 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
     }
 
     return (
-        <Card className="p-8 h-full flex flex-col rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-all duration-300 hover:shadow-xl">
+        <Card className="p-8 flex flex-col rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-all duration-300 hover:shadow-xl">
             <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Daily Rituals</h3>
                 <Button size="sm" variant="ghost" onClick={isFormOpen ? () => setIsFormOpen(false) : startAdd}>
@@ -177,7 +177,7 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
                 )}
             </AnimatePresence>
 
-            <div className="space-y-2 flex-1 overflow-y-auto custom-scrollbar pr-2">
+            <div className="space-y-2">
                 {habits.length === 0 && !isFormOpen && (
                     <p className="text-center text-gray-400 text-sm py-8">No habits tracked yet.</p>
                 )}
