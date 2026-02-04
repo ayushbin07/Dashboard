@@ -68,7 +68,7 @@ export function Timer() {
             <div
                 className="absolute inset-0 opacity-10"
                 style={{
-                    backgroundImage: 'url(/src/img/circuit.jpg)',
+                    backgroundImage: 'url(/img/circuit.jpg)',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center'
                 }}

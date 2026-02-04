@@ -1,4 +1,5 @@
 import { supabase } from './authService'
+import { format } from 'date-fns'
 import type { Task, Habit, Note } from '@/types'
 
 export const dbService = {
@@ -6,9 +7,13 @@ export const dbService = {
 
     // --- NOTES ---
     async getNotes(): Promise<Note[]> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return []
+
         const { data, error } = await supabase
             .from('notes')
             .select('*')
+            .eq('user_id', user.id)
             .order('updated_at', { ascending: false })
 
         if (error) {
@@ -97,9 +102,13 @@ export const dbService = {
         if (notesError) throw notesError
     },
     async getTasks(): Promise<Task[]> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return []
+
         const { data, error } = await supabase
             .from('tasks')
             .select('*')
+            .eq('user_id', user.id)
             .order('created_at', { ascending: false })
 
         if (error) {
@@ -196,9 +205,13 @@ export const dbService = {
 
     // --- HABITS ---
     async getHabits(): Promise<Habit[]> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return []
+
         const { data: habits, error } = await supabase
             .from('habits')
             .select('*')
+            .eq('user_id', user.id)
             .order('created_at', { ascending: true })
 
         if (error) {
@@ -223,7 +236,7 @@ export const dbService = {
             historyMap[h.habit_id][h.date] = h.completed
         })
 
-        const today = new Date().toISOString().split('T')[0]
+        const today = format(new Date(), 'yyyy-MM-dd')
 
         return habits.map(h => {
             const hHistory = historyMap[h.id] || {}
@@ -388,7 +401,7 @@ export const dbService = {
     },
 
     async getUserTodayProgress(userId: string): Promise<number> {
-        const today = new Date().toISOString().split('T')[0]
+        const today = format(new Date(), 'yyyy-MM-dd')
 
         // Get habits for user
         const { data: habits } = await supabase

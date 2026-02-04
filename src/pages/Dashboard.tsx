@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { format } from 'date-fns'
 import { StatCards } from '@/components/dashboard/StatCards'
 import { AnalyticsGraph } from '@/components/dashboard/AnalyticsGraph'
 import { TaskList } from '@/components/dashboard/TaskList'
@@ -81,7 +82,7 @@ export default function Dashboard() {
     const handleToggleHabit = async (id: string) => {
         const habit = habits.find(h => h.id === id)
         if (habit) {
-            const today = new Date().toISOString().split('T')[0]
+            const today = format(new Date(), 'yyyy-MM-dd')
             // Optimistic update
             setHabits(prev => prev.map(h => h.id === id ? { ...h, completedToday: !h.completedToday } : h))
 
@@ -106,32 +107,48 @@ export default function Dashboard() {
         refreshData()
     }
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1,
+                delayChildren: 0.1
+            }
+        }
+    }
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
+    }
+
     if (loading) {
-        return <div className="flex h-[50vh] items-center justify-center text-emerald-500 dark:text-emerald-400 font-semibold">Hail Ayush...</div>
+        return <div className="flex h-[50vh] items-center justify-center text-emerald-500 dark:text-emerald-400 font-semibold italic">Adjusting system parameters...</div>
     }
 
     return (
         <motion.div
-            layout
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
             className="space-y-4 max-w-[1600px] mx-auto p-2 pb-20"
         >
             {/* Header Area */}
-            <div className="flex justify-between items-end mb-2">
+            <motion.div variants={itemVariants} className="flex justify-between items-end mb-2">
                 <div>
                     <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                        Dashboard <span className="text-xs font-mono text-gray-400 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">v 1.17</span>
+                        Dashboard <span className="text-xs font-mono text-gray-400 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">v 1.26</span>
                     </h2>
                     <p className="text-gray-500 dark:text-gray-400 text-sm">Plan, prioritize, and accomplish your tasks with ease.</p>
                 </div>
-            </div>
+            </motion.div>
 
             {/* Top Cards Row: 5 Columns (4 Stats + 1 Timer) */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <motion.div variants={itemVariants} className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <StatCards habits={habits} />
                 <Timer />
-            </div>
+            </motion.div>
 
             {/* Main Content Grid: 2 Columns */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
@@ -139,41 +156,47 @@ export default function Dashboard() {
                 {/* Left Column (2/3 width) */}
                 <div className="xl:col-span-2 space-y-4">
                     {/* Analytics Graph */}
-                    <div className="h-[320px]">
+                    <motion.div variants={itemVariants} className="h-[320px]">
                         <AnalyticsGraph habits={habits} />
-                    </div>
+                    </motion.div>
 
                     {/* Habits and Reminders Row */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <HabitList
-                            habits={habits}
-                            onToggle={handleToggleHabit}
-                            onAdd={handleAddHabit}
-                            onUpdate={handleUpdateHabit}
-                            onDelete={handleDeleteHabit}
-                        />
-                        <div className="h-full">
+                        <motion.div variants={itemVariants}>
+                            <HabitList
+                                habits={habits}
+                                onToggle={handleToggleHabit}
+                                onAdd={handleAddHabit}
+                                onUpdate={handleUpdateHabit}
+                                onDelete={handleDeleteHabit}
+                            />
+                        </motion.div>
+                        <motion.div variants={itemVariants} className="h-full">
                             <Reminders tasks={tasks} />
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
 
                 {/* Right Column (1/3 width) - Task List + Friends */}
                 <div className="xl:col-span-1 space-y-4">
-                    <TaskList
-                        tasks={tasks}
-                        onToggle={handleToggleTask}
-                        onAdd={handleAddTask}
-                        onUpdate={handleUpdateTask}
-                    />
-                    <FriendsList />
+                    <motion.div variants={itemVariants}>
+                        <TaskList
+                            tasks={tasks}
+                            onToggle={handleToggleTask}
+                            onAdd={handleAddTask}
+                            onUpdate={handleUpdateTask}
+                        />
+                    </motion.div>
+                    <motion.div variants={itemVariants}>
+                        <FriendsList />
+                    </motion.div>
                 </div>
             </div>
 
             {/* Daily Quote */}
-            <div className="pt-6">
+            <motion.div variants={itemVariants} className="pt-6">
                 <QuoteCard />
-            </div>
+            </motion.div>
         </motion.div>
     )
 }

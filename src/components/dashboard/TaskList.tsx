@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { format } from 'date-fns'
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -24,16 +25,14 @@ export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
     const [title, setTitle] = useState('')
     const [priority, setPriority] = useState(false)
     const [dueDate, setDueDate] = useState('')
-    const [category, setCategory] = useState('Personal')
-
-    const CATEGORIES = ['Personal', 'Work', 'Health', 'Learning', 'Finance']
+    const [category, setCategory] = useState('')
 
     const startAdd = () => {
         setEditingTask(null)
         setTitle('')
         setPriority(false)
         setDueDate('')
-        setCategory('Personal')
+        setCategory('')
         setIsFormOpen(true)
     }
 
@@ -41,11 +40,11 @@ export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
         setEditingTask(task)
         setTitle(task.title)
         setPriority(task.priority || false)
-        setCategory(task.category || 'Personal')
+        setCategory(task.category || '')
         // Ensure dueDate is string for input
         let dueStr = ''
         if (task.dueDate instanceof Date) {
-            dueStr = task.dueDate.toISOString().split('T')[0]
+            dueStr = format(task.dueDate, 'yyyy-MM-dd')
         } else if (typeof task.dueDate === 'string') {
             dueStr = task.dueDate
         }
@@ -127,23 +126,17 @@ export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
                             className="bg-white dark:bg-gray-900 dark:text-white dark:border-gray-700"
                         />
 
-                        {/* Categories */}
-                        <div className="flex gap-2 flex-wrap">
-                            {CATEGORIES.map(cat => (
-                                <button
-                                    key={cat}
-                                    type="button"
-                                    onClick={() => setCategory(cat)}
-                                    className={cn(
-                                        "text-[10px] px-2 py-1 rounded-full border transition-all",
-                                        category === cat
-                                            ? "bg-[#0F5132] text-white border-[#0F5132]"
-                                            : "bg-white dark:bg-gray-800 text-gray-500 border-gray-200 dark:border-gray-700 hover:border-gray-300"
-                                    )}
-                                >
-                                    {cat}
-                                </button>
-                            ))}
+                        {/* Tag Input */}
+                        <div className="relative">
+                            <Input
+                                value={category}
+                                onChange={e => setCategory(e.target.value)}
+                                placeholder="Add tag (e.g. Work, Health)..."
+                                className="bg-white dark:bg-gray-900 dark:text-white dark:border-gray-700 pl-8"
+                            />
+                            <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z" /><path d="M7 7h.01" /></svg>
+                            </div>
                         </div>
 
                         <div className="flex gap-2">
@@ -151,8 +144,12 @@ export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
                                 type="button"
                                 variant={priority ? "primary" : "secondary"}
                                 onClick={() => setPriority(!priority)}
-                                className={cn("h-9 text-xs flex-1", priority && "bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 hover:bg-red-200 dark:hover:bg-red-900/60")}
+                                className={cn(
+                                    "h-9 text-xs flex-1 gap-1.5",
+                                    priority ? "bg-red-500 hover:bg-red-600 text-white border-transparent" : "text-gray-500"
+                                )}
                             >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill={priority ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={cn(priority ? "text-white" : "text-gray-400")}><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" /></svg>
                                 {priority ? "High Priority" : "Normal Priority"}
                             </Button>
                             <input
@@ -161,7 +158,7 @@ export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
                                 onChange={e => setDueDate(e.target.value)}
                                 className="h-9 rounded-md border border-input bg-white dark:bg-gray-900 dark:text-white dark:border-gray-700 px-3 py-1 text-sm shadow-sm"
                             />
-                            <Button type="submit" size="sm">
+                            <Button type="submit" size="sm" className="bg-[#0F5132] hover:bg-[#156a42] text-white">
                                 {editingTask ? 'Save' : 'Add'}
                             </Button>
                         </div>
@@ -206,8 +203,7 @@ export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
 function TaskItem({ task, onToggle, startEdit, isCompleted }: { task: Task, onToggle: (id: string) => void, startEdit: (t: Task) => void, isCompleted?: boolean }) {
     return (
         <motion.div
-            layout
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: isCompleted ? 0.6 : 1, y: 0 }}
             className={cn(
                 "group flex items-start gap-3 p-3 rounded-xl border bg-white dark:bg-gray-800 dark:border-gray-700 hover:shadow-sm transition-all relative",
@@ -227,22 +223,31 @@ function TaskItem({ task, onToggle, startEdit, isCompleted }: { task: Task, onTo
 
             <div className="flex-1 cursor-pointer" onClick={() => startEdit(task)}>
                 <p className={cn("text-sm font-medium text-gray-800 dark:text-gray-200 leading-tight", isCompleted && "line-through text-gray-400")}>{task.title}</p>
-                {task.dueDate && (
-                    <p className="text-[10px] text-gray-400 mt-1">Due {task.dueDate instanceof Date ? task.dueDate.toLocaleDateString() : task.dueDate}</p>
-                )}
+                <div className="flex gap-2 items-center mt-1.5">
+                    {task.category && (
+                        <span className="text-[10px] uppercase tracking-wider font-semibold opacity-60">
+                            {task.category}
+                        </span>
+                    )}
+                    {task.dueDate && (
+                        <p className="text-[10px] text-gray-400">Due {task.dueDate instanceof Date ? task.dueDate.toLocaleDateString() : task.dueDate}</p>
+                    )}
+                </div>
             </div>
 
-            {task.priority && !isCompleted && (
-                <Badge variant="outline" className="text-[10px] border-red-200 text-red-500 bg-red-50">
-                    PRIORITY
-                </Badge>
-            )}
+            {
+                task.priority && !isCompleted && (
+                    <Badge variant="outline" className="text-[10px] border-red-200 text-red-500 bg-red-50">
+                        PRIORITY
+                    </Badge>
+                )
+            }
 
-            <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            < div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity" >
                 <button onClick={() => startEdit(task)}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400 hover:text-gray-600"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
                 </button>
             </div>
-        </motion.div>
+        </motion.div >
     )
 }

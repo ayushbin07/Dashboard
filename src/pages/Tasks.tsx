@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { format } from 'date-fns'
 import { Check } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { dbService } from '@/services/dbService'
@@ -58,7 +59,7 @@ export default function Tasks() {
         })
         setHabits(updatedHabits)
 
-        const today = new Date().toISOString().split('T')[0]
+        const today = format(new Date(), 'yyyy-MM-dd')
         await dbService.toggleHabit(habitId, today, habit.completedToday)
         refreshData()
     }

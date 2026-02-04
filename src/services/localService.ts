@@ -1,3 +1,4 @@
+import { format } from 'date-fns'
 import type { Task, Habit } from '@/types'
 
 const TASKS_KEY = 'antigravity_tasks'
@@ -75,18 +76,18 @@ export const localService = {
             try {
                 return JSON.parse(stored)
             } catch {
-                return { count: 0, lastCheckIn: new Date().toISOString().split('T')[0], status: 'broken' }
+                return { count: 0, lastCheckIn: format(new Date(), 'yyyy-MM-dd'), status: 'broken' }
             }
         }
-        return { count: 0, lastCheckIn: new Date().toISOString().split('T')[0], status: 'broken' }
+        return { count: 0, lastCheckIn: format(new Date(), 'yyyy-MM-dd'), status: 'broken' }
     },
 
     updateStreak(): StreakData {
         const streak = this.getStreakData()
         const today = new Date()
-        const todayStr = today.toISOString().split('T')[0]
+        const todayStr = format(today, 'yyyy-MM-dd')
         const lastCheckIn = new Date(streak.lastCheckIn)
-        const lastCheckInStr = lastCheckIn.toISOString().split('T')[0]
+        const lastCheckInStr = format(lastCheckIn, 'yyyy-MM-dd')
 
         // First time user - initialize streak
         if (streak.count === 0) {
@@ -200,7 +201,7 @@ export const localService = {
         }
 
         // Check if day changed, reset completedToday if needed
-        const today = new Date().toISOString().split('T')[0]
+        const today = format(new Date(), 'yyyy-MM-dd')
         habits = habits.map((h: Habit) => {
             // If last history entry is NOT today, then completedToday should be false (unless we just marked it)
             // Actually simpler: we just trust `completedToday` but when we load, if history[today] is missing, ensure completedToday is false
@@ -252,7 +253,7 @@ export const localService = {
 
     toggleHabit(id: string) {
         const habits = this.getHabits()
-        const today = new Date().toISOString().split('T')[0]
+        const today = format(new Date(), 'yyyy-MM-dd')
 
         const updated = habits.map((h: Habit) => {
             if (h.id !== id) return h

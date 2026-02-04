@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { format } from "date-fns"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -102,7 +103,7 @@ export default function Settings() {
         const url = URL.createObjectURL(blob)
         const a = document.createElement("a")
         a.href = url
-        a.download = `antigravity-backup-${new Date().toISOString().split('T')[0]}.json`
+        a.download = `antigravity-backup-${format(new Date(), 'yyyy-MM-dd')}.json`
         document.body.appendChild(a)
         a.click()
         document.body.removeChild(a)

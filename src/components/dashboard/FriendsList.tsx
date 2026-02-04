@@ -272,10 +272,9 @@ export function FriendsList() {
                         {friends.map((friend) => (
                             <motion.div
                                 key={friend.id}
-                                layout
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.8 }}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 10 }}
                                 className="relative group"
                             >
                                 <div className="aspect-square bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-2xl p-4 flex flex-col items-center justify-center border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all">

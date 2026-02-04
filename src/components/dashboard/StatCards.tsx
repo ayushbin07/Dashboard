@@ -17,7 +17,7 @@ export function StatCards({ habits }: { habits: Habit[] }) {
                     <div
                         className="absolute inset-0 opacity-20"
                         style={{
-                            backgroundImage: 'url(/src/img/forest.jpg)',
+                            backgroundImage: 'url(/img/forest.jpg)',
                             backgroundSize: 'cover',
                             backgroundPosition: 'center'
                         }}

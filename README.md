@@ -1,6 +1,6 @@
 # Productive Dashboard 🚀
 
-![Version](https://img.shields.io/badge/version-1.17-blue.svg)
+![Version](https://img.shields.io/badge/version-1.26-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 A modern, high-performance productivity dashboard built with React 19, Vite, and Supabase. Designed to help you plan, prioritize, and accomplish your tasks with ease.

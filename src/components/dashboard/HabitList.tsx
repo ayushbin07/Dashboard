@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input"
 import { motion, AnimatePresence } from "framer-motion"
 import { Check, Plus, Flame, Trash2, X, Edit2 } from "lucide-react"
 import type { Habit } from "@/types"
-import { CATEGORIES } from "@/types"
 import { cn } from "@/lib/utils"
 
 interface HabitListProps {
@@ -32,7 +31,7 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
 
     // Form States
     const [title, setTitle] = useState('')
-    const [category, setCategory] = useState('Health')
+    const [category, setCategory] = useState('')
     const [priority, setPriority] = useState(false)
     const [target, setTarget] = useState(30)
     const [color, setColor] = useState('#0F5132')
@@ -109,36 +108,44 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
                             className="bg-white dark:bg-gray-900 dark:text-white dark:border-gray-700"
                         />
 
-                        {/* Controls Row */}
-                        <div className="flex flex-wrap gap-2">
-                            <select
-                                value={category}
-                                onChange={(e) => setCategory(e.target.value)}
-                                className="h-9 rounded-md border border-input bg-white dark:bg-gray-900 dark:text-white dark:border-gray-700 px-3 py-1 text-sm shadow-sm"
-                            >
-                                {CATEGORIES.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
-                            </select>
+                        {/* Tag & Target Row */}
+                        <div className="flex gap-2">
+                            <div className="relative flex-1">
+                                <Input
+                                    value={category}
+                                    onChange={(e) => setCategory(e.target.value)}
+                                    placeholder="Add tag (e.g. Health, Zen)..."
+                                    className="bg-white dark:bg-gray-900 dark:text-white dark:border-gray-700 pl-8"
+                                />
+                                <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z" /><path d="M7 7h.01" /></svg>
+                                </div>
+                            </div>
 
-                            <div className="flex items-center gap-2 bg-white dark:bg-gray-900 border dark:border-gray-700 rounded-md px-2">
-                                <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">Target:</span>
+                            <div className="flex items-center gap-2 bg-white dark:bg-gray-900 border dark:border-gray-700 rounded-md px-3 h-9 shadow-sm">
+                                <span className="text-xs text-gray-400 whitespace-nowrap">Target:</span>
                                 <input
                                     type="number" min="1" max="31"
                                     value={target}
                                     onChange={(e) => setTarget(parseInt(e.target.value))}
-                                    className="w-10 text-sm outline-none bg-transparent dark:text-white"
+                                    className="w-8 text-sm outline-none bg-transparent dark:text-white font-medium"
                                 />
                             </div>
-
-                            <Button
-                                type="button"
-                                variant={priority ? "primary" : "secondary"}
-                                onClick={() => setPriority(!priority)}
-                                className={cn("h-9 px-3 text-xs gap-1.5", priority && "bg-red-500 hover:bg-red-600 text-white border-transparent")}
-                            >
-                                <Flame className={cn("h-3.5 w-3.5", priority ? "fill-white" : "text-gray-400")} />
-                                {priority ? "High" : "Normal"}
-                            </Button>
                         </div>
+
+                        {/* Priority Toggle */}
+                        <Button
+                            type="button"
+                            variant={priority ? "primary" : "secondary"}
+                            onClick={() => setPriority(!priority)}
+                            className={cn(
+                                "h-9 text-xs w-full gap-1.5 justify-center",
+                                priority ? "bg-red-500 hover:bg-red-600 text-white border-transparent" : "text-gray-500"
+                            )}
+                        >
+                            <Flame className={cn("h-3.5 w-3.5", priority ? "fill-white" : "text-gray-400")} />
+                            {priority ? "High Priority" : "Normal Priority"}
+                        </Button>
 
                         {/* Color Picker Row */}
                         <div className="flex items-center gap-2 pt-1">
@@ -169,7 +176,7 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
                         </div>
 
                         <div className="flex justify-end pt-2 border-t border-gray-200/50 dark:border-gray-700/50 mt-2">
-                            <Button type="submit" size="sm" className="w-full sm:w-auto">
+                            <Button type="submit" size="sm" className="w-full sm:w-auto bg-[#0F5132] hover:bg-[#156a42] text-white">
                                 {editingId ? 'Update Ritual' : 'Create Ritual'}
                             </Button>
                         </div>
@@ -184,9 +191,8 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
                 {habits.map(habit => (
                     <motion.div
                         key={habit.id}
-                        layout
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
                         className={cn(
                             "group flex items-center justify-between p-3 rounded-xl border transition-all relative overflow-hidden",
                             habit.completedToday ? "bg-opacity-10 border-opacity-20" : "bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600",
@@ -204,17 +210,17 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
                                     "flex h-6 w-6 items-center justify-center rounded-lg border transition-all",
                                 )}
                                 style={{
-                                    backgroundColor: habit.completedToday ? habit.color : undefined, // Remove 'white' default, let CSS handle it
-                                    borderColor: habit.completedToday ? habit.color : 'currentColor', // inherit text color which we set below
+                                    backgroundColor: habit.completedToday ? habit.color : undefined,
+                                    borderColor: habit.completedToday ? habit.color : 'rgba(0,0,0,0.1)',
                                 }}
                             >
                                 {habit.completedToday ? <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} /> : <div className="dark:border-white opacity-20" />}
                             </button>
                             <div className="cursor-pointer" onClick={() => startEdit(habit)}>
-                                <p className={cn("text-sm font-medium transition-colors text-gray-800 dark:text-gray-200", habit.completedToday && "line-through opacity-50")}>
+                                <p className={cn("text-sm font-medium transition-colors text-gray-800 dark:text-gray-200 leading-tight", habit.completedToday && "line-through opacity-50")}>
                                     {habit.title}
                                 </p>
-                                <div className="flex gap-2 items-center">
+                                <div className="flex gap-2 items-center mt-1.5">
                                     <span className="text-[10px] uppercase tracking-wider font-semibold opacity-60">
                                         {habit.category}
                                     </span>

@@ -28,7 +28,7 @@ export function AnalyticsGraph({ habits }: { habits: Habit[] }) {
         setMonthName(format(now, 'MMMM yyyy'))
 
         // Get today's date in same format as localService uses (UTC)
-        const today = new Date().toISOString().split('T')[0]
+        const today = format(new Date(), 'yyyy-MM-dd')
 
         const historyData: GraphData[] = daysInMonth.map((date) => {
             // Use UTC date format to match localService
