@@ -374,7 +374,7 @@ export const dbService = {
         const { data, error } = await supabase
             .from('profiles')
             .select('id, username, avatar')
-            .eq('username', username)
+            .ilike('username', username.trim())
             .maybeSingle()
 
         console.log('getUserByUsername result:', { data, error })

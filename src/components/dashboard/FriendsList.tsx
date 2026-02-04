@@ -63,52 +63,69 @@ export function FriendsList() {
     }
 
     const handleAddFriend = async () => {
-        if (!username.trim()) return
+        if (!username.trim()) {
+            setError('Please enter a username')
+            return
+        }
 
         setLoading(true)
         setError('')
 
         try {
-            console.log('Starting friend lookup for username:', username.trim())
             const { dbService } = await import('@/services/dbService')
+            const { supabase } = await import('@/services/authService')
 
-            // Check if user exists
-            const userProfile = await dbService.getUserByUsername(username.trim())
-            console.log('User profile result:', userProfile)
+            // Step 1: Find the user by username
+            const { data: profiles, error: searchError } = await supabase
+                .from('profiles')
+                .select('id, username, avatar')
+                .ilike('username', username.trim())
+                .limit(1)
 
-            if (!userProfile) {
-                console.log('No user found with username:', username.trim())
-                setError('No such user found')
+            if (searchError) {
+                console.error('Search error:', searchError)
+                setError('Error searching for user')
                 setLoading(false)
                 return
             }
 
-            // Check if already added
+            if (!profiles || profiles.length === 0) {
+                setError(`User "${username.trim()}" not found`)
+                setLoading(false)
+                return
+            }
+
+            const userProfile = profiles[0]
+
+            // Step 2: Check if already friends
             if (friends.some(f => f.id === userProfile.id)) {
-                setError('Friend already added')
+                setError('Already friends with this user')
                 setLoading(false)
                 return
             }
 
-            // Add to database
+            // Step 3: Check if trying to add yourself
+            const { data: { user } } = await supabase.auth.getUser()
+            if (user && userProfile.id === user.id) {
+                setError('Cannot add yourself as a friend')
+                setLoading(false)
+                return
+            }
+
+            // Step 4: Add to database
             await dbService.addFriend(userProfile.id)
 
-            console.log('Fetching streak data for user:', userProfile.id)
-            // Get streak data
-            const { supabase } = await import('@/services/authService')
-            const { data: streakData, error: streakError } = await supabase
+            // Step 5: Get streak data
+            const { data: streakData } = await supabase
                 .from('streak_data')
                 .select('count')
                 .eq('user_id', userProfile.id)
                 .maybeSingle()
 
-            console.log('Streak data result:', { streakData, streakError })
-
-            // Get today's progress
-            console.log('Calculating today\'s progress for user:', userProfile.id)
+            // Step 6: Get today's progress
             const todayProgress = await dbService.getUserTodayProgress(userProfile.id)
-            console.log('Today\'s progress:', todayProgress)
 
+            // Step 7: Add to local state
             const newFriend: Friend = {
                 id: userProfile.id,
                 username: userProfile.username,
@@ -117,13 +134,13 @@ export function FriendsList() {
                 todayProgress
             }
 
-            console.log('Adding friend:', newFriend)
             setFriends(prev => [...prev, newFriend])
             setUsername('')
             setIsAdding(false)
-        } catch (err) {
+            setError('')
+        } catch (err: any) {
             console.error('Error adding friend:', err)
-            setError('Failed to add friend')
+            setError(err.message || 'Failed to add friend')
         } finally {
             setLoading(false)
         }
