@@ -465,6 +465,91 @@ export const dbService = {
         if (error) throw error
     },
 
+    // --- USER FEEDBACK ---
+    async getFeedback(): Promise<Array<{ id: string; comment: string; username: string; avatar: string; created_at: string }>> {
+        // Fetch feedback entries
+        const { data: feedbackData, error: feedbackError } = await supabase
+            .from('user_feedback')
+            .select('id, comment, created_at, user_id')
+            .order('created_at', { ascending: false })
+            .limit(50)
+
+        if (feedbackError) {
+            console.error('Error fetching feedback:', feedbackError)
+            return []
+        }
+
+        if (!feedbackData || feedbackData.length === 0) {
+            console.log('No feedback found')
+            return []
+        }
+
+        // Get unique user IDs
+        const userIds = [...new Set(feedbackData.map(f => f.user_id))]
+
+        // Fetch profiles for these users
+        const { data: profilesData, error: profilesError } = await supabase
+            .from('profiles')
+            .select('id, username, avatar')
+            .in('id', userIds)
+
+        if (profilesError) {
+            console.error('Error fetching profiles:', profilesError)
+        }
+
+        // Create a map of user profiles
+        const profileMap = new Map()
+        profilesData?.forEach(p => {
+            profileMap.set(p.id, { username: p.username, avatar: p.avatar })
+        })
+
+        // Combine feedback with profile data
+        const result = feedbackData.map(f => {
+            const profile = profileMap.get(f.user_id)
+            return {
+                id: f.id,
+                comment: f.comment,
+                username: profile?.username || 'Anonymous',
+                avatar: profile?.avatar || '👤',
+                created_at: f.created_at
+            }
+        })
+
+        console.log('Fetched feedback:', result)
+        return result
+    },
+
+    async addFeedback(comment: string): Promise<void> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Not authenticated')
+
+        if (!comment || comment.length === 0 || comment.length > 500) {
+            throw new Error('Comment must be between 1 and 500 characters')
+        }
+
+        const { error } = await supabase
+            .from('user_feedback')
+            .insert({
+                user_id: user.id,
+                comment: comment.trim()
+            })
+
+        if (error) throw error
+    },
+
+    async deleteFeedback(feedbackId: string): Promise<void> {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) throw new Error('Not authenticated')
+
+        const { error } = await supabase
+            .from('user_feedback')
+            .delete()
+            .eq('id', feedbackId)
+            .eq('user_id', user.id)
+
+        if (error) throw error
+    },
+
     // --- STREAK ---
     async getStreak(): Promise<{ count: number; status: string } | null> {
         const { data: { user } } = await supabase.auth.getUser()

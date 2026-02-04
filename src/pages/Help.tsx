@@ -1,5 +1,8 @@
-import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
 import {
     LayoutGrid,
     Box,
@@ -7,11 +10,60 @@ import {
     FileText,
     Zap,
     Clock,
-    CheckCircle2
+    CheckCircle2,
+    MessageCircle,
+    X
 } from "lucide-react"
 import { APP_VERSION } from '@/version'
+import { FeedbackMarquee } from '@/components/FeedbackMarquee'
+import { dbService } from '@/services/dbService'
 
 export default function Help() {
+    const [feedbackItems, setFeedbackItems] = useState<any[]>([])
+    const [showModal, setShowModal] = useState(false)
+    const [comment, setComment] = useState('')
+    const [submitting, setSubmitting] = useState(false)
+    const [error, setError] = useState('')
+
+    useEffect(() => {
+        loadFeedback()
+    }, [])
+
+    const loadFeedback = async () => {
+        try {
+            const data = await dbService.getFeedback()
+            setFeedbackItems(data)
+        } catch (err) {
+            console.error('Error loading feedback:', err)
+        }
+    }
+
+    const handleSubmit = async () => {
+        if (!comment.trim()) {
+            setError('Please enter a comment')
+            return
+        }
+
+        if (comment.length > 500) {
+            setError('Comment must be 500 characters or less')
+            return
+        }
+
+        setSubmitting(true)
+        setError('')
+
+        try {
+            await dbService.addFeedback(comment)
+            setComment('')
+            setShowModal(false)
+            await loadFeedback()
+        } catch (err: any) {
+            setError(err.message || 'Failed to submit feedback')
+        } finally {
+            setSubmitting(false)
+        }
+    }
+
     const sections = [
         {
             title: "Dashboard",
@@ -112,7 +164,37 @@ export default function Help() {
                         </ul>
                     </Card>
                 ))}
+
+                {/* User Feedback Card */}
+                <Card className="p-6 rounded-[2rem] border-none shadow-soft bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 hover:shadow-xl transition-all group col-span-1 md:col-span-2 lg:col-span-1">
+                    <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <MessageCircle className="w-6 h-6 text-emerald-500" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">User Feedback</h3>
+                    <div className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        See what other users are saying!
+                    </div>
+                    <button
+                        onClick={() => setShowModal(true)}
+                        className="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
+                    >
+                        <MessageCircle size={16} />
+                        Add Comment
+                    </button>
+                </Card>
             </div>
+
+            {/* Feedback  Marquee Display */}
+            {feedbackItems.length > 0 && (
+                <Card className="p-8 rounded-[2rem] border-none shadow-soft bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20">
+                    <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                        <MessageCircle className="w-5 h-5 text-emerald-500" />
+                        Recent Feedback
+                    </h4>
+                    <FeedbackMarquee feedbackItems={feedbackItems} />
+                </Card>
+            )}
+
 
             {/* Coming Soon Section */}
             <Card className="p-8 rounded-[3rem] border-none shadow-soft bg-gradient-to-br from-[#0F5132] to-[#0a3d24] text-white relative overflow-hidden">
@@ -158,6 +240,78 @@ export default function Help() {
                     </div>
                 </div>
             </div>
+
+
+
+            {/* Comment Submission Modal */}
+            <AnimatePresence>
+                {showModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                        onClick={() => setShowModal(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                            className="bg-white dark:bg-[#1f2937] rounded-[2rem] p-8 max-w-lg w-full shadow-2xl"
+                        >
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Share Your Thoughts</h3>
+                                <Button variant="ghost" size="icon" onClick={() => setShowModal(false)} className="rounded-full">
+                                    <X size={20} />
+                                </Button>
+                            </div>
+
+                            <p className="text-gray-600 dark:text-gray-300 mb-6">
+                                Your feedback helps us improve! Share what you love or what we can do better.
+                            </p>
+
+                            <Textarea
+                                value={comment}
+                                onChange={(e) => {
+                                    setComment(e.target.value)
+                                    setError('')
+                                }}
+                                placeholder="Type your comment here... (max 500 characters)"
+                                className="mb-4 min-h-[120px] bg-gray-50 dark:bg-gray-800 dark:text-white dark:border-gray-700"
+                                maxLength={500}
+                            />
+
+                            <div className="flex justify-between items-center mb-4">
+                                <span className="text-sm text-gray-500 dark:text-gray-400">
+                                    {comment.length}/500 characters
+                                </span>
+                            </div>
+
+                            {error && (
+                                <p className="text-sm text-red-500 mb-4">{error}</p>
+                            )}
+
+                            <div className="flex gap-3">
+                                <Button
+                                    variant="secondary"
+                                    className="flex-1"
+                                    onClick={() => setShowModal(false)}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+                                    onClick={handleSubmit}
+                                    disabled={submitting || !comment.trim()}
+                                >
+                                    {submitting ? 'Submitting...' : 'Submit'}
+                                </Button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </motion.div>
     )
 }
