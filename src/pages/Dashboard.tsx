@@ -48,14 +48,19 @@ export default function Dashboard() {
     }
 
     const handleAddTask = async (newTask: any) => {
-        await dbService.addTask({
-            title: newTask.title,
-            priority: newTask.priority,
-            category: newTask.category || 'General',
-            dueDate: newTask.due,
-            notes: newTask.notes
-        })
-        refreshData()
+        try {
+            await dbService.addTask({
+                title: newTask.title,
+                priority: newTask.priority,
+                category: newTask.category || 'General',
+                dueDate: newTask.due,
+                notes: newTask.notes
+            })
+            refreshData()
+        } catch (error: any) {
+            console.error('Failed to add task:', error)
+            alert('Failed to add task: ' + (error.message || error.details || JSON.stringify(error)))
+        }
     }
 
     const handleUpdateTask = async (updatedTask: Task) => {
