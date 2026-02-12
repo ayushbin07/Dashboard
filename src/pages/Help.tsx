@@ -149,7 +149,7 @@ export default function Help() {
             {/* Quick Tips */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {sections.map((section, idx) => (
-                    <Card key={idx} className="p-6 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] hover:shadow-xl transition-all group">
+                    <Card key={idx} className="p-6 rounded-[2rem] border-none shadow-soft bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] hover:shadow-xl transition-all group">
                         <div className={`w-12 h-12 ${section.bg} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                             <section.icon className={`w-6 h-6 ${section.color}`} />
                         </div>
@@ -258,7 +258,7 @@ export default function Help() {
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
                             onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                            className="bg-white dark:bg-[#1f2937] rounded-[2rem] p-8 max-w-lg w-full shadow-2xl"
+                            className="bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] rounded-[2rem] p-8 max-w-lg w-full shadow-2xl"
                         >
                             <div className="flex justify-between items-center mb-4">
                                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Share Your Thoughts</h3>
@@ -278,7 +278,7 @@ export default function Help() {
                                     setError('')
                                 }}
                                 placeholder="Type your comment here... (max 500 characters)"
-                                className="mb-4 min-h-[120px] bg-gray-50 dark:bg-gray-800 dark:text-white dark:border-gray-700"
+                                className="mb-4 min-h-[120px] bg-white/20 dark:bg-gray-800/20 dark:text-white dark:border-gray-700/50"
                                 maxLength={500}
                             />
 

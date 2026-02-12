@@ -11,7 +11,7 @@ export function ProgressGauge({ habits }: { habits: Habit[] }) {
     // Actually, css rotation trick is easier for the "half gauge" look.
 
     return (
-        <Card className="h-full bg-white rounded-[2rem] p-6 shadow-soft flex flex-col items-center justify-center relative overflow-visible">
+        <Card className="h-full bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] rounded-[2rem] p-6 shadow-soft flex flex-col items-center justify-center relative overflow-visible">
             <h3 className="text-lg font-bold text-gray-900 absolute top-6 left-6">Daily Progress</h3>
 
             {/* CSS Only Semi Circle Gauge */}

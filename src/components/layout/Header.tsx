@@ -109,9 +109,11 @@ export function Header({ onOpenSidebar }: HeaderProps) {
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
 
         return tasks
-            .filter(task => task.status === 'pending')
+            .filter(task => task.status === 'pending' && task.dueDate)
             .map(task => {
                 const dueDate = new Date(task.dueDate)
+                if (isNaN(dueDate.getTime())) return null
+
                 const dueDateOnly = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate())
                 const diffTime = dueDateOnly.getTime() - today.getTime()
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
@@ -125,7 +127,7 @@ export function Header({ onOpenSidebar }: HeaderProps) {
                     isDueSoon: diffDays > 0 && diffDays <= 3
                 }
             })
-            .filter(n => n.isOverdue || n.isDueToday || n.isDueSoon)
+            .filter((n): n is NonNullable<typeof n> => n !== null && (n.isOverdue || n.isDueToday || n.isDueSoon))
             .sort((a, b) => a.diffDays - b.diffDays)
     }
 
@@ -133,7 +135,7 @@ export function Header({ onOpenSidebar }: HeaderProps) {
     const hasNotifications = notifications.length > 0
 
     return (
-        <header className="fixed top-6 left-4 right-4 lg:left-0 lg:right-0 max-w-5xl mx-auto rounded-full bg-white/30 dark:bg-[#1f2937]/30 backdrop-blur-sm shadow-soft border border-white/20 dark:border-gray-700 z-50 px-2 py-2 h-16 transition-all duration-300 ease-out hover:shadow-xl hover:bg-white/40 dark:hover:bg-[#1f2937]/40">
+        <header className="fixed top-6 left-4 right-4 lg:left-0 lg:right-0 max-w-5xl mx-auto rounded-full bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] shadow-soft border border-white/20 dark:border-gray-700 z-50 px-2 py-2 h-16 transition-all duration-300 ease-out hover:shadow-xl hover:bg-white/50 dark:hover:bg-[#1f2937]/50">
             <div className="flex h-full items-center justify-between px-2">
 
                 {/* Left: Mobile Menu + Search */}

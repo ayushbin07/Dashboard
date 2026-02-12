@@ -4,14 +4,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { motion, AnimatePresence } from "framer-motion"
 import { Plus, X, UserPlus } from "lucide-react"
-import { cn } from "@/lib/utils"
+
 
 interface Friend {
     id: string
     username: string
     avatar: string
     streak: number
-    todayProgress: number // 0-100
 }
 
 export function FriendsList() {
@@ -45,14 +44,11 @@ export function FriendsList() {
                             .maybeSingle()
 
                         // Get progress
-                        const todayProgress = await dbService.getUserTodayProgress(profile.id)
-
                         return {
                             id: profile.id,
                             username: profile.username,
                             avatar: profile.avatar,
-                            streak: streakData?.count || 0,
-                            todayProgress
+                            streak: streakData?.count || 0
                         }
                     } catch (memberErr) {
                         console.error(`Error loading data for friend ${profile.username}:`, memberErr)
@@ -60,8 +56,7 @@ export function FriendsList() {
                             id: profile.id,
                             username: profile.username,
                             avatar: profile.avatar,
-                            streak: 0,
-                            todayProgress: 0
+                            streak: 0
                         }
                     }
                 })
@@ -83,7 +78,7 @@ export function FriendsList() {
         setError('')
 
         try {
-            const { dbService } = await import('@/services/dbService')
+
             const { supabase } = await import('@/services/authService')
 
             // Step 1: Find the user by username
@@ -166,16 +161,12 @@ export function FriendsList() {
                 .eq('user_id', userProfile.id)
                 .maybeSingle()
 
-            // Step 7: Get today's progress
-            const todayProgress = await dbService.getUserTodayProgress(userProfile.id)
-
-            // Step 8: Add to local state
+            // Step 7: Add to local state
             const newFriend: Friend = {
                 id: userProfile.id,
                 username: userProfile.username,
                 avatar: userProfile.avatar || '🧑',
-                streak: streakData?.count || 0,
-                todayProgress
+                streak: streakData?.count || 0
             }
 
             setFriends(prev => [...prev, newFriend])
@@ -201,7 +192,7 @@ export function FriendsList() {
     }
 
     return (
-        <Card className="p-6 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-all duration-300 hover:shadow-xl">
+        <Card className="p-6 rounded-[2rem] border-none shadow-soft bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] transition-all duration-300 hover:shadow-xl">
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Friends</h3>
                 {!isAdding && (
@@ -224,7 +215,7 @@ export function FriendsList() {
                         exit={{ height: 0, opacity: 0 }}
                         className="mb-4 overflow-hidden"
                     >
-                        <div className="flex flex-col gap-2 bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl">
+                        <div className="flex flex-col gap-2 bg-white/20 dark:bg-gray-800/20 p-3 rounded-xl">
                             <div className="flex gap-2">
                                 <Input
                                     value={username}
@@ -236,7 +227,7 @@ export function FriendsList() {
                                     onKeyDown={(e) => e.key === 'Enter' && handleAddFriend()}
                                     autoFocus
                                     disabled={loading}
-                                    className="bg-white dark:bg-gray-900 dark:text-white dark:border-gray-700"
+                                    className="bg-white/30 dark:bg-gray-900/30 dark:text-white dark:border-gray-700/50"
                                 />
                                 <Button size="sm" onClick={handleAddFriend} disabled={loading}>
                                     {loading ? (
@@ -302,26 +293,7 @@ export function FriendsList() {
                                         </span>
                                     </div>
 
-                                    {/* Progress Bar */}
-                                    <div className="w-full mt-3">
-                                        <div className="flex justify-between items-center mb-1">
-                                            <span className="text-[10px] text-gray-400">Today</span>
-                                            <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
-                                                {friend.todayProgress}%
-                                            </span>
-                                        </div>
-                                        <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                                            <div
-                                                className={cn(
-                                                    "h-full rounded-full transition-all duration-500",
-                                                    friend.todayProgress >= 80 ? "bg-emerald-500" :
-                                                        friend.todayProgress >= 50 ? "bg-yellow-500" :
-                                                            "bg-red-500"
-                                                )}
-                                                style={{ width: `${friend.todayProgress}%` }}
-                                            />
-                                        </div>
-                                    </div>
+
                                 </div>
                             </motion.div>
                         ))}

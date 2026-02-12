@@ -38,7 +38,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             )}
 
             <aside className={cn(
-                "fixed left-6 top-6 bottom-6 w-64 bg-white/30 dark:bg-[#1f2937]/30 backdrop-blur-sm dark:border-gray-800 rounded-[2rem] border border-gray-100 shadow-xl flex flex-col justify-between p-6 transition-all duration-300 z-50",
+                "fixed left-6 top-6 bottom-6 w-64 bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] dark:border-gray-800 rounded-[2rem] border border-gray-100 shadow-xl flex flex-col justify-between p-6 transition-all duration-300 z-50",
                 // Visibility
                 isOpen ? "translate-x-0" : "-translate-x-[200%] lg:translate-x-0",
                 // On large screens, always show and reset transform

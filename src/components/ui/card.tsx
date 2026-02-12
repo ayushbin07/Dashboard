@@ -15,7 +15,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
                 className={cn(
-                    "rounded-2xl border border-white/50 bg-white shadow-soft",
+                    "rounded-2xl border border-white/20 dark:border-gray-700/30 bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] shadow-soft",
                     variant === "glass" && "glass shadow-none",
                     variant === "interactive" && "hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer",
                     className

@@ -69,7 +69,7 @@ export default function Signup() {
                 animate={{ opacity: 1, y: 0 }}
                 className="w-full max-w-2xl"
             >
-                <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8">
+                <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-3xl shadow-2xl p-8">
                     {/* Header */}
                     <div className="text-center mb-8">
                         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">

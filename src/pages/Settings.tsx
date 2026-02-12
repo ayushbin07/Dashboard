@@ -162,7 +162,7 @@ export default function Settings() {
 
             <div className="space-y-6">
                 {/* Profile Section */}
-                <Card className="p-8 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300">
+                <Card className="p-8 rounded-[2rem] border-none shadow-soft bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] transition-colors duration-300">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
                         <div className="flex items-center gap-6">
                             <div className="h-24 w-24 rounded-full bg-gray-50 dark:bg-gray-700 flex items-center justify-center text-5xl border-4 border-white dark:border-gray-600 shadow-sm relative group">
@@ -210,7 +210,7 @@ export default function Settings() {
                                             "h-14 w-14 rounded-2xl flex items-center justify-center text-3xl transition-all hover:scale-110",
                                             avatar === emoji
                                                 ? "bg-[#0F5132] text-white shadow-lg shadow-[#0F5132]/20 scale-110 ring-2 ring-offset-2 ring-[#0F5132] dark:ring-offset-[#1f2937]"
-                                                : "bg-gray-50 dark:bg-gray-800 text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                : "bg-white/20 dark:bg-gray-800/20 text-gray-900 hover:bg-white/30 dark:hover:bg-gray-700/30"
                                         )}
                                     >
                                         {emoji}
@@ -229,7 +229,7 @@ export default function Settings() {
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     placeholder="Enter your name"
-                                    className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:ring-[#0F5132] dark:focus:ring-[#0F5132] dark:text-white h-11"
+                                    className="bg-white/20 dark:bg-gray-800/20 border-gray-200/30 dark:border-gray-700/50 focus:ring-[#0F5132] dark:focus:ring-[#0F5132] dark:text-white h-11"
                                 />
                             </div>
                         </div>
@@ -239,7 +239,7 @@ export default function Settings() {
                 {/* Preferences Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Dark Mode */}
-                    <Card className="p-6 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300 flex flex-col justify-between min-h-[160px]">
+                    <Card className="p-6 rounded-[2rem] border-none shadow-soft bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] transition-colors duration-300 flex flex-col justify-between min-h-[160px]">
                         <div>
                             <div className="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4 text-gray-900 dark:text-white">
                                 <Palette size={20} />
@@ -261,7 +261,7 @@ export default function Settings() {
                     </Card>
 
                     {/* Push Notifications */}
-                    < Card className="p-6 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300 flex flex-col justify-between min-h-[180px]" >
+                    < Card className="p-6 rounded-[2rem] border-none shadow-soft bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] transition-colors duration-300 flex flex-col justify-between min-h-[180px]" >
                         <div>
                             <div className="h-10 w-10 rounded-full bg-[#E8F5E9] dark:bg-[#0F5132]/20 flex items-center justify-center mb-4 text-[#0F5132] dark:text-[#4ade80]">
                                 <Bell size={20} />
@@ -282,7 +282,7 @@ export default function Settings() {
                     </Card >
 
                     {/* Audio Alarms */}
-                    < Card className="p-6 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300 flex flex-col justify-between min-h-[180px]" >
+                    < Card className="p-6 rounded-[2rem] border-none shadow-soft bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] transition-colors duration-300 flex flex-col justify-between min-h-[180px]" >
                         <div>
                             <div className="h-10 w-10 rounded-full bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center mb-4 text-amber-600 dark:text-amber-500">
                                 <Bell size={20} />
@@ -303,7 +303,7 @@ export default function Settings() {
                     </Card >
 
                     {/* Data Management */}
-                    < Card className="p-6 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300 flex flex-col justify-between min-h-[160px]" >
+                    < Card className="p-6 rounded-[2rem] border-none shadow-soft bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] transition-colors duration-300 flex flex-col justify-between min-h-[160px]" >
                         <div>
                             <div className="h-10 w-10 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center mb-4 text-red-500">
                                 <Database size={20} />
@@ -342,7 +342,7 @@ export default function Settings() {
                                 animate={{ scale: 1, opacity: 1 }}
                                 exit={{ scale: 0.9, opacity: 0 }}
                                 onClick={(e) => e.stopPropagation()}
-                                className="bg-white dark:bg-[#1f2937] rounded-[2rem] p-8 max-w-md w-full shadow-2xl"
+                                className="bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] rounded-[2rem] p-8 max-w-md w-full shadow-2xl"
                             >
                                 <div className="flex justify-between items-center mb-4">
                                     <div className="flex items-center gap-3 text-red-600 dark:text-red-500">
@@ -369,7 +369,7 @@ export default function Settings() {
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             placeholder="Your Password"
-                                            className="bg-gray-50 dark:bg-gray-700 dark:text-white"
+                                            className="bg-white/20 dark:bg-gray-700/30 dark:text-white"
                                         />
                                         {resetError && (
                                             <p className="text-xs text-red-500 mt-1">{resetError}</p>

@@ -64,7 +64,7 @@ export function AnalyticsGraph({ habits }: { habits: Habit[] }) {
     }, [habits])
 
     return (
-        <Card className="p-8 h-full flex flex-col justify-between rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-all duration-300 hover:shadow-xl">
+        <Card className="p-8 h-full flex flex-col justify-between rounded-[2rem] border-none shadow-soft bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] transition-all duration-300 hover:shadow-xl">
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Habit Analytics</h3>
                 <div className="bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-xs px-3 py-1.5 rounded-lg font-medium">

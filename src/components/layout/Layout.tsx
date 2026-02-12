@@ -5,6 +5,8 @@ import { Sidebar } from './Sidebar'
 import { localService } from '@/services/localService'
 import { Menu } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { FloatingBackground } from './FloatingBackground'
+import { BackgroundBlobs } from './BackgroundBlobs'
 
 interface LayoutProps {
     children: React.ReactNode
@@ -33,7 +35,9 @@ export function Layout({ children }: LayoutProps) {
 
 
     return (
-        <div className="min-h-screen bg-[#F8F9FA] dark:bg-[#111827] text-primary dark:text-gray-100 font-sans transition-colors duration-300">
+        <div className="min-h-screen text-primary dark:text-gray-100 font-sans transition-colors duration-300">
+            <FloatingBackground />
+            <BackgroundBlobs />
             {/* Mobile Menu Toggle - Hide on Dashboard as Header handles it */}
             {!isDashboard && (
                 <div className="lg:hidden fixed top-6 left-6 z-50">
@@ -50,9 +54,9 @@ export function Layout({ children }: LayoutProps) {
 
             <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-            <div className="lg:pl-64 min-h-screen flex flex-col transition-all duration-300">
+            <div className="lg:pl-64 min-h-screen flex flex-col transition-all duration-300 relative z-[1]">
                 {isDashboard && <Header onOpenSidebar={() => setIsSidebarOpen(true)} />}
-                <main className={`flex-1 p-8 ${isDashboard ? 'pt-24' : 'pt-20'} pb-32`}>
+                <main className={`flex-1 p-8 ${isDashboard ? 'pt-24' : 'pt-20'} pb-8`}>
                     <div className="max-w-7xl mx-auto">
                         {children}
                     </div>

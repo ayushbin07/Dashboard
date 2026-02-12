@@ -41,7 +41,7 @@ export function StatCards({ habits }: { habits: Habit[] }) {
 
             {/* Card 2: Completed - Links to Tasks */}
             <Link to="/tasks" className="block">
-                <Card className="p-6 rounded-[2rem] border-none shadow-soft bg-gradient-to-br from-white to-gray-50 dark:from-[#1f2937] dark:to-[#18212f] dark:border-gray-800 aspect-square flex flex-col justify-between group h-full w-full transition-all hover:shadow-xl cursor-pointer">
+                <Card className="p-6 rounded-[2rem] border border-white/30 dark:border-gray-700/50 shadow-soft bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] aspect-square flex flex-col justify-between group h-full w-full transition-all hover:shadow-xl cursor-pointer">
                     <div className="flex justify-between items-start">
                         <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">Completed</h3>
                         <div className="w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center group-hover:bg-gray-50 dark:group-hover:bg-gray-700/50 transition-colors">
@@ -57,7 +57,7 @@ export function StatCards({ habits }: { habits: Habit[] }) {
 
             {/* Card 3: Pending - Links to Tasks */}
             <Link to="/tasks" className="block">
-                <Card className="p-6 rounded-[2rem] border-none shadow-soft bg-gradient-to-br from-white to-gray-50 dark:from-[#1f2937] dark:to-[#18212f] dark:border-gray-800 aspect-square flex flex-col justify-between group h-full w-full transition-all hover:shadow-xl cursor-pointer">
+                <Card className="p-6 rounded-[2rem] border border-white/30 dark:border-gray-700/50 shadow-soft bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] aspect-square flex flex-col justify-between group h-full w-full transition-all hover:shadow-xl cursor-pointer">
                     <div className="flex justify-between items-start">
                         <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">Pending</h3>
                         <div className="w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center group-hover:bg-gray-50 dark:group-hover:bg-gray-700/50 transition-colors">
@@ -75,7 +75,7 @@ export function StatCards({ habits }: { habits: Habit[] }) {
 
             {/* Card 4: Daily Progress - Links to Calendar */}
             <Link to="/calendar" className="block">
-                <Card className="p-6 rounded-[2rem] border-none shadow-soft bg-gradient-to-br from-[#0F5132]/5 via-white to-gray-50 dark:from-[#0F5132]/10 dark:via-[#1f2937] dark:to-[#18212f] dark:border-gray-800 aspect-square flex flex-col justify-between group relative overflow-hidden h-full w-full transition-all hover:shadow-xl cursor-pointer">
+                <Card className="p-6 rounded-[2rem] border border-white/30 dark:border-gray-700/50 shadow-soft bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] aspect-square flex flex-col justify-between group relative overflow-hidden h-full w-full transition-all hover:shadow-xl cursor-pointer">
                     <div className="flex justify-between items-start z-10">
                         <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">Daily Progress</h3>
                         <div className="w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center group-hover:bg-gray-50 dark:group-hover:bg-gray-700/50 transition-colors">

@@ -209,7 +209,7 @@ export default function Calendar() {
                         exit={{ opacity: 0, scale: 0.98 }}
                         transition={{ duration: 0.2 }}
                     >
-                        <Card className="p-8 md:p-12 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300">
+                        <Card className="p-8 md:p-12 rounded-[2rem] border-none shadow-soft bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] transition-colors duration-300">
                             {/* Week days header */}
                             <div className="grid grid-cols-7 gap-2 md:gap-4 mb-6">
                                 {weekDays.map(day => (
@@ -309,15 +309,15 @@ export default function Calendar() {
                         transition={{ duration: 0.2 }}
                         className="space-y-6"
                     >
-                        <div className="rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300 overflow-hidden">
+                        <div className="rounded-[2rem] border-none shadow-soft bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] transition-colors duration-300 overflow-hidden">
                             <div className="overflow-auto max-h-[700px] scrollbar-hide">
                                 <div className="min-w-max">
                                     {/* Header */}
-                                    <div className="flex sticky top-0 z-20 bg-gray-50/90 dark:bg-gray-800/90 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
-                                        <div className="w-[200px] p-4 font-bold text-gray-500 dark:text-gray-400 uppercase text-[10px] tracking-widest border-r border-gray-200 dark:border-gray-700 sticky left-0 bg-[#f9fafb] dark:bg-[#1f2937] z-30">
+                                    <div className="flex sticky top-0 z-20 bg-white/20 dark:bg-gray-800/20 backdrop-blur-sm border-b border-gray-200/30 dark:border-gray-700/50">
+                                        <div className="w-[200px] p-4 font-bold text-gray-500 dark:text-gray-400 uppercase text-[10px] tracking-widest border-r border-gray-200/30 dark:border-gray-700/50 sticky left-0 bg-white/20 dark:bg-[#1f2937]/20 backdrop-blur-sm z-30">
                                             Daily Rituals
                                         </div>
-                                        <div className="w-[60px] p-4 font-bold text-gray-500 dark:text-gray-400 uppercase text-[10px] tracking-widest text-center border-r border-gray-200 dark:border-gray-700 sticky left-[200px] bg-[#f9fafb] dark:bg-[#1f2937] z-30">
+                                        <div className="w-[60px] p-4 font-bold text-gray-500 dark:text-gray-400 uppercase text-[10px] tracking-widest text-center border-r border-gray-200/30 dark:border-gray-700/50 sticky left-[200px] bg-white/20 dark:bg-[#1f2937]/20 backdrop-blur-sm z-30">
                                             XP
                                         </div>
                                         <div className="flex">
@@ -333,17 +333,17 @@ export default function Calendar() {
                                     </div>
 
                                     {/* Rows */}
-                                    <div className="bg-white dark:bg-[#1f2937]">
+                                    <div>
                                         {habits.map((habit, idx) => (
                                             <div key={habit.id} className={cn(
-                                                "flex border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors group",
+                                                "flex border-b border-gray-200/30 dark:border-gray-700/50 hover:bg-white/10 dark:hover:bg-gray-800/10 transition-colors group",
                                                 idx === habits.length - 1 && "border-none"
                                             )}>
-                                                <div className="w-[200px] p-4 font-semibold text-gray-900 dark:text-white truncate border-r border-gray-200 dark:border-gray-700 sticky left-0 bg-white dark:bg-[#1f2937] z-10 group-hover:bg-inherit transition-colors">
+                                                <div className="w-[200px] p-4 font-semibold text-gray-900 dark:text-white truncate border-r border-gray-200/30 dark:border-gray-700/50 sticky left-0 bg-white/20 dark:bg-[#1f2937]/20 backdrop-blur-sm z-10 group-hover:bg-inherit transition-colors">
                                                     {habit.title}
                                                     <div className="text-[10px] font-normal text-gray-500">{habit.category}</div>
                                                 </div>
-                                                <div className="w-[60px] p-4 flex items-center justify-center font-mono text-xs text-gray-500 dark:text-gray-400 border-r border-gray-200 dark:border-gray-700 sticky left-[200px] bg-white dark:bg-[#1f2937] z-10 group-hover:bg-inherit transition-colors">
+                                                <div className="w-[60px] p-4 flex items-center justify-center font-mono text-xs text-gray-500 dark:text-gray-400 border-r border-gray-200/30 dark:border-gray-700/50 sticky left-[200px] bg-white/20 dark:bg-[#1f2937]/20 backdrop-blur-sm z-10 group-hover:bg-inherit transition-colors">
                                                     {habit.category.toLowerCase().includes('workout') ? '20' : '10'}
                                                 </div>
                                                 <div className="flex">
@@ -377,7 +377,7 @@ export default function Calendar() {
                         </div>
 
                         {/* Progress Summary Table */}
-                        <Card className="rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-colors duration-300 overflow-hidden">
+                        <Card className="rounded-[2rem] border-none shadow-soft bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] transition-colors duration-300 overflow-hidden">
                             <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex justify-between items-center">
                                 <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Overall Progress</h3>
                                 <div className="flex items-center gap-2">
@@ -457,7 +457,7 @@ export default function Calendar() {
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-white dark:bg-[#1f2937] rounded-[2rem] p-8 max-w-md w-full shadow-2xl"
+                            className="bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] rounded-[2rem] p-8 max-w-md w-full shadow-2xl"
                         >
                             <div className="flex justify-between items-center mb-6">
                                 <div>
@@ -534,7 +534,7 @@ export default function Calendar() {
                                                 {completedTasks.map(task => (
                                                     <div
                                                         key={task.id}
-                                                        className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700"
+                                                        className="p-3 rounded-lg bg-white/20 dark:bg-gray-800/20 border border-gray-200/30 dark:border-gray-700/50"
                                                     >
                                                         <div className="flex items-center gap-3">
                                                             <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center">

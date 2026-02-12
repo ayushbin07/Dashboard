@@ -14,7 +14,7 @@ export function Reminders({ tasks }: { tasks: Task[] }) {
         .slice(0, 3) // Show top 3
 
     return (
-        <Card className="p-6 bg-white dark:bg-[#1f2937] rounded-[2rem] shadow-soft h-full flex flex-col justify-between transition-colors duration-300">
+        <Card className="p-6 bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] rounded-[2rem] shadow-soft h-full flex flex-col justify-between transition-colors duration-300">
             <div>
                 <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Reminders</h3>
                 <div className="space-y-3">
@@ -24,7 +24,7 @@ export function Reminders({ tasks }: { tasks: Task[] }) {
                         </div>
                     )}
                     {upcomingTasks.map(task => (
-                        <div key={task.id} className="p-3 rounded-2xl bg-gray-50 dark:bg-gray-800 border-l-4 border-[#0F5132]">
+                        <div key={task.id} className="p-3 rounded-2xl bg-white/20 dark:bg-gray-800/20 border-l-4 border-[#0F5132]">
                             <h4 className="font-semibold text-gray-900 dark:text-gray-200 truncate">{task.title}</h4>
                             <div className="flex items-center gap-1.5 mt-1 text-xs text-gray-500">
                                 <CalendarClock size={12} />

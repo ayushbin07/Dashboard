@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { format } from 'date-fns'
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -26,6 +26,20 @@ export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
     const [priority, setPriority] = useState(false)
     const [dueDate, setDueDate] = useState('')
     const [category, setCategory] = useState('')
+
+    // Derive unique previously-used tags from all tasks
+    const existingTags = useMemo(() => {
+        const tags = new Set<string>()
+        tasks.forEach(t => { if (t.category && t.category.trim()) tags.add(t.category.trim()) })
+        return Array.from(tags).sort((a, b) => a.localeCompare(b))
+    }, [tasks])
+
+    // Filter suggestions based on current input
+    const tagSuggestions = useMemo(() => {
+        const query = category.trim().toLowerCase()
+        if (!query) return existingTags
+        return existingTags.filter(tag => tag.toLowerCase().includes(query) && tag.toLowerCase() !== query)
+    }, [category, existingTags])
 
     const startAdd = () => {
         setEditingTask(null)
@@ -95,7 +109,7 @@ export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
     const completedTasks = tasks.filter(t => t.status === 'completed') // Use original tasks for completed to avoid filter interference
 
     return (
-        <Card className="p-8 flex flex-col max-h-[350px] rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-all duration-300 hover:shadow-xl">
+        <Card className="p-8 flex flex-col max-h-[350px] rounded-[2rem] border-none shadow-soft bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] transition-all duration-300 hover:shadow-xl">
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Execution List</h3>
@@ -115,7 +129,7 @@ export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        className="mb-4 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl space-y-3 border border-gray-200 dark:border-gray-700"
+                        className="mb-4 bg-white/20 dark:bg-gray-800/20 p-4 rounded-xl space-y-3 border border-gray-200/30 dark:border-gray-700/50"
                         onSubmit={handleSubmit}
                     >
                         <Input
@@ -123,7 +137,7 @@ export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
                             onChange={e => setTitle(e.target.value)}
                             placeholder="Task description..."
                             autoFocus
-                            className="bg-white dark:bg-gray-900 dark:text-white dark:border-gray-700"
+                            className="bg-white/30 dark:bg-gray-900/30 dark:text-white dark:border-gray-700/50"
                         />
 
                         {/* Tag Input */}
@@ -132,12 +146,33 @@ export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
                                 value={category}
                                 onChange={e => setCategory(e.target.value)}
                                 placeholder="Add tag (e.g. Work, Health)..."
-                                className="bg-white dark:bg-gray-900 dark:text-white dark:border-gray-700 pl-8"
+                                className="bg-white/30 dark:bg-gray-900/30 dark:text-white dark:border-gray-700/50 pl-8"
                             />
                             <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z" /><path d="M7 7h.01" /></svg>
                             </div>
                         </div>
+
+                        {/* Previously Used Tag Suggestions */}
+                        {tagSuggestions.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5">
+                                {tagSuggestions.map(tag => (
+                                    <button
+                                        key={tag}
+                                        type="button"
+                                        onClick={() => setCategory(tag)}
+                                        className={cn(
+                                            "text-[11px] px-2.5 py-1 rounded-full border transition-all",
+                                            "bg-gray-100 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600",
+                                            "text-gray-600 dark:text-gray-300 hover:bg-[#0F5132]/10 hover:border-[#0F5132]/30 hover:text-[#0F5132] dark:hover:text-emerald-400",
+                                            "cursor-pointer font-medium"
+                                        )}
+                                    >
+                                        {tag}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
 
                         <div className="flex gap-2">
                             <Button
@@ -156,7 +191,7 @@ export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
                                 type="date"
                                 value={dueDate}
                                 onChange={e => setDueDate(e.target.value)}
-                                className="h-9 rounded-md border border-input bg-white dark:bg-gray-900 dark:text-white dark:border-gray-700 px-3 py-1 text-sm shadow-sm"
+                                className="h-9 rounded-md border border-input bg-white/30 dark:bg-gray-900/30 dark:text-white dark:border-gray-700/50 px-3 py-1 text-sm shadow-sm"
                             />
                             <Button type="submit" size="sm" className="bg-[#0F5132] hover:bg-[#156a42] text-white">
                                 {editingTask ? 'Save' : 'Add'}
@@ -206,9 +241,9 @@ function TaskItem({ task, onToggle, startEdit, isCompleted }: { task: Task, onTo
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: isCompleted ? 0.6 : 1, y: 0 }}
             className={cn(
-                "group flex items-start gap-3 p-3 rounded-xl border bg-white dark:bg-gray-800 dark:border-gray-700 hover:shadow-sm transition-all relative",
-                task.priority && !isCompleted ? "border-l-4 border-l-red-500" : "border-gray-100 dark:border-gray-700",
-                isCompleted && "bg-gray-50 dark:bg-gray-900 grayscale opacity-80"
+                "group flex items-start gap-3 p-3 rounded-xl border bg-white/20 dark:bg-gray-800/20 dark:border-gray-700/50 hover:bg-white/40 dark:hover:bg-gray-800/40 hover:shadow-sm transition-all relative",
+                task.priority && !isCompleted ? "border-l-4 border-l-red-500" : "border-gray-200/30 dark:border-gray-700/50",
+                isCompleted && "bg-gray-100/20 dark:bg-gray-900/20 grayscale opacity-80"
             )}
         >
             <button

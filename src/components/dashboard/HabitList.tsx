@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -35,6 +35,20 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
     const [priority, setPriority] = useState(false)
     const [target, setTarget] = useState(30)
     const [color, setColor] = useState('#0F5132')
+
+    // Derive unique previously-used tags from all habits
+    const existingTags = useMemo(() => {
+        const tags = new Set<string>()
+        habits.forEach(h => { if (h.category && h.category.trim()) tags.add(h.category.trim()) })
+        return Array.from(tags).sort((a, b) => a.localeCompare(b))
+    }, [habits])
+
+    // Filter suggestions based on current input
+    const tagSuggestions = useMemo(() => {
+        const query = category.trim().toLowerCase()
+        if (!query) return existingTags
+        return existingTags.filter(tag => tag.toLowerCase().includes(query) && tag.toLowerCase() !== query)
+    }, [category, existingTags])
 
     const startAdd = () => {
         setEditingId(null)
@@ -83,7 +97,7 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
     }
 
     return (
-        <Card className="p-8 flex flex-col rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] transition-all duration-300 hover:shadow-xl">
+        <Card className="p-8 flex flex-col rounded-[2rem] border-none shadow-soft bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] transition-all duration-300 hover:shadow-xl">
             <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Daily Rituals</h3>
                 <Button size="sm" variant="ghost" onClick={isFormOpen ? () => setIsFormOpen(false) : startAdd}>
@@ -97,7 +111,7 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        className="mb-4 space-y-3 overflow-hidden bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-dashed border-gray-200 dark:border-gray-700"
+                        className="mb-4 space-y-3 overflow-hidden bg-white/20 dark:bg-gray-800/20 p-4 rounded-xl border border-dashed border-gray-200/30 dark:border-gray-700/50"
                         onSubmit={handleSubmit}
                     >
                         <Input
@@ -105,7 +119,7 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="Ritual name..."
                             autoFocus
-                            className="bg-white dark:bg-gray-900 dark:text-white dark:border-gray-700"
+                            className="bg-white/30 dark:bg-gray-900/30 dark:text-white dark:border-gray-700/50"
                         />
 
                         {/* Tag & Target Row */}
@@ -115,14 +129,14 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
                                     value={category}
                                     onChange={(e) => setCategory(e.target.value)}
                                     placeholder="Add tag (e.g. Health, Zen)..."
-                                    className="bg-white dark:bg-gray-900 dark:text-white dark:border-gray-700 pl-8"
+                                    className="bg-white/30 dark:bg-gray-900/30 dark:text-white dark:border-gray-700/50 pl-8"
                                 />
                                 <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z" /><path d="M7 7h.01" /></svg>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-2 bg-white dark:bg-gray-900 border dark:border-gray-700 rounded-md px-3 h-9 shadow-sm">
+                            <div className="flex items-center gap-2 bg-white/30 dark:bg-gray-900/30 border dark:border-gray-700/50 rounded-md px-3 h-9 shadow-sm">
                                 <span className="text-xs text-gray-400 whitespace-nowrap">Target:</span>
                                 <input
                                     type="number" min="1" max="31"
@@ -132,6 +146,27 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
                                 />
                             </div>
                         </div>
+
+                        {/* Previously Used Tag Suggestions */}
+                        {tagSuggestions.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5">
+                                {tagSuggestions.map(tag => (
+                                    <button
+                                        key={tag}
+                                        type="button"
+                                        onClick={() => setCategory(tag)}
+                                        className={cn(
+                                            "text-[11px] px-2.5 py-1 rounded-full border transition-all",
+                                            "bg-gray-100 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600",
+                                            "text-gray-600 dark:text-gray-300 hover:bg-[#0F5132]/10 hover:border-[#0F5132]/30 hover:text-[#0F5132] dark:hover:text-emerald-400",
+                                            "cursor-pointer font-medium"
+                                        )}
+                                    >
+                                        {tag}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
 
                         {/* Priority Toggle */}
                         <Button
@@ -195,7 +230,7 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
                         animate={{ opacity: 1, y: 0 }}
                         className={cn(
                             "group flex items-center justify-between p-3 rounded-xl border transition-all relative overflow-hidden",
-                            habit.completedToday ? "bg-opacity-10 border-opacity-20" : "bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600",
+                            habit.completedToday ? "bg-opacity-10 border-opacity-20" : "bg-transparent border-gray-200/30 dark:border-gray-700/40 hover:bg-white/10 dark:hover:bg-gray-800/10",
                             habit.priority && !habit.completedToday && "border-l-4 border-l-red-400"
                         )}
                         style={{

@@ -83,22 +83,22 @@ export default function Tasks() {
 
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white dark:bg-[#1f2937] p-6 rounded-[2rem] border-none shadow-soft">
+                <div className="bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] p-6 rounded-[2rem] border-none shadow-soft">
                     <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Pending Tasks</div>
                     <div className="text-4xl font-bold text-gray-900 dark:text-white">{pendingTasks.length}</div>
                 </div>
-                <div className="bg-white dark:bg-[#1f2937] p-6 rounded-[2rem] border-none shadow-soft">
+                <div className="bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] p-6 rounded-[2rem] border-none shadow-soft">
                     <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Completed Tasks</div>
                     <div className="text-4xl font-bold text-[#0F5132] dark:text-[#4ade80]">{completedTasks.length}</div>
                 </div>
-                <div className="bg-white dark:bg-[#1f2937] p-6 rounded-[2rem] border-none shadow-soft">
+                <div className="bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] p-6 rounded-[2rem] border-none shadow-soft">
                     <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Habits</div>
                     <div className="text-4xl font-bold text-gray-900 dark:text-white">{habits.length}</div>
                 </div>
             </div>
 
             {/* Tasks Section */}
-            <div className="bg-white dark:bg-[#1f2937] p-8 rounded-[2rem] border-none shadow-soft">
+            <div className="bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] p-8 rounded-[2rem] border-none shadow-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Tasks</h3>
 
                 {tasks.length === 0 ? (
@@ -119,9 +119,9 @@ export default function Tasks() {
                                             key={task.id}
                                             whileHover={{ scale: 1.01 }}
                                             onClick={() => toggleTask(task.id)}
-                                            className="p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border-l-4 border-l-[#0F5132] cursor-pointer"
+                                            className="p-4 rounded-xl bg-white/20 dark:bg-gray-800/20 border-l-4 border-l-[#0F5132] cursor-pointer relative overflow-hidden"
                                         >
-                                            <div className="flex items-start gap-3">
+                                            <div className="flex items-start gap-3 relative z-10">
                                                 <div className="w-6 h-6 rounded-full border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center mt-0.5 flex-shrink-0" />
                                                 <div className="flex-1">
                                                     <h5 className="font-semibold text-gray-900 dark:text-white">
@@ -136,12 +136,25 @@ export default function Tasks() {
                                                         )}
                                                     </div>
                                                 </div>
-                                                {task.priority && (
-                                                    <span className="text-xs font-bold text-red-500 dark:text-red-400">
-                                                        HIGH
-                                                    </span>
-                                                )}
                                             </div>
+                                            {task.priority && (
+                                                <motion.div
+                                                    className="absolute right-2 top-1/2 -translate-y-1/2"
+                                                    animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }}
+                                                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                                                >
+                                                    <svg width="56" height="56" viewBox="0 0 24 24" className="drop-shadow-lg">
+                                                        <defs>
+                                                            <linearGradient id="taskStarGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                                <stop offset="0%" stopColor="#ffffff" stopOpacity="0.3" />
+                                                                <stop offset="40%" stopColor="#fef3c7" stopOpacity="0.7" />
+                                                                <stop offset="100%" stopColor="#fbbf24" stopOpacity="1" />
+                                                            </linearGradient>
+                                                        </defs>
+                                                        <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" fill="url(#taskStarGrad)" />
+                                                    </svg>
+                                                </motion.div>
+                                            )}
                                         </motion.div>
                                     ))}
                                 </div>
@@ -187,7 +200,7 @@ export default function Tasks() {
             </div>
 
             {/* Habits Section */}
-            <div className="bg-white dark:bg-[#1f2937] p-8 rounded-[2rem] border-none shadow-soft">
+            <div className="bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] p-8 rounded-[2rem] border-none shadow-soft">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Daily Rituals</h3>
 
                 {habits.length === 0 ? (
@@ -201,12 +214,12 @@ export default function Tasks() {
                                 key={habit.id}
                                 whileHover={{ scale: 1.02 }}
                                 onClick={() => toggleHabit(habit.id)}
-                                className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${habit.completedToday
+                                className={`p-4 rounded-xl border-2 transition-all cursor-pointer relative overflow-hidden ${habit.completedToday
                                     ? 'bg-[#0F5132]/10 dark:bg-[#0F5132]/20 border-[#0F5132]'
-                                    : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                                    : 'bg-transparent border-l-4 border-l-[#0F5132] border-gray-300/40 dark:border-gray-600/40 hover:bg-white/10 dark:hover:bg-gray-800/10'
                                     }`}
                             >
-                                <div className="flex items-start justify-between mb-2">
+                                <div className="flex items-start justify-between mb-2 relative z-10">
                                     <div className="flex items-center gap-3">
                                         <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${habit.completedToday ? 'bg-[#0F5132]' : 'bg-gray-200 dark:bg-gray-700'
                                             }`}>
@@ -219,19 +232,34 @@ export default function Tasks() {
                                             {habit.title}
                                         </h5>
                                     </div>
-                                    {habit.priority && (
-                                        <span className="text-xs font-bold text-red-500 dark:text-red-400">★</span>
-                                    )}
                                 </div>
-                                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 ml-9">
+                                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 ml-9 relative z-10">
                                     <span className="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800">
                                         {habit.category}
                                     </span>
                                     <span>Streak: {habit.streak} days</span>
                                 </div>
-                                <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 ml-9">
+                                <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 ml-9 relative z-10">
                                     Target: {habit.targetPerMonth} times/month
                                 </div>
+                                {habit.priority && (
+                                    <motion.div
+                                        className="absolute right-1 top-1/2 -translate-y-1/2"
+                                        animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }}
+                                        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                                    >
+                                        <svg width="64" height="64" viewBox="0 0 24 24" className="drop-shadow-lg">
+                                            <defs>
+                                                <linearGradient id="habitStarGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0.3" />
+                                                    <stop offset="40%" stopColor="#fef3c7" stopOpacity="0.7" />
+                                                    <stop offset="100%" stopColor="#fbbf24" stopOpacity="1" />
+                                                </linearGradient>
+                                            </defs>
+                                            <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" fill="url(#habitStarGrad)" />
+                                        </svg>
+                                    </motion.div>
+                                )}
                             </motion.div>
                         ))}
                     </div>

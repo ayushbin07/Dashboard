@@ -138,11 +138,11 @@ export default function Notes() {
                 </Button>
             </div>
 
-            <div className="grid grid-cols-12 gap-6 h-[calc(100vh-200px)]">
+            <div className="grid grid-cols-12 gap-6 h-[calc(100vh-180px)]">
                 {/* Sidebar List */}
                 <div className={`col-span-12 md:col-span-4 lg:col-span-3 h-full ${isMobileListVisible ? 'block' : 'hidden'
                     } md:block`}>
-                    <Card className="h-full rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] overflow-hidden flex flex-col">
+                    <Card className="h-full rounded-[2rem] border-none shadow-soft bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] overflow-hidden flex flex-col">
                         <div className="p-4 border-b border-gray-100 dark:border-gray-800">
                             <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400">
                                 SAVED ({notes.length})
@@ -162,7 +162,7 @@ export default function Notes() {
                                         onClick={() => handleSelectNote(note)}
                                         className={`group p-3 rounded-xl cursor-pointer transition-all border ${selectedNote?.id === note.id
                                             ? 'bg-[#0F5132]/10 border-[#0F5132] dark:border-[#0F5132]'
-                                            : 'bg-gray-50 dark:bg-gray-800 border-transparent hover:bg-gray-100 dark:hover:bg-gray-700'
+                                            : 'bg-white/20 dark:bg-gray-800/20 border-transparent hover:bg-white/30 dark:hover:bg-gray-700/30'
                                             }`}
                                     >
                                         <div className="flex justify-between items-start">
@@ -191,7 +191,7 @@ export default function Notes() {
                 {/* Editor Area */}
                 <div className={`col-span-12 md:col-span-8 lg:col-span-9 h-full ${!isMobileListVisible ? 'block' : 'hidden'
                     } md:block`}>
-                    <Card className="h-full p-6 rounded-[2rem] border-none shadow-soft bg-white dark:bg-[#1f2937] flex flex-col">
+                    <Card className="h-full p-6 rounded-[2rem] border-none shadow-soft bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] flex flex-col">
                         {selectedNote ? (
                             <>
                                 <div className="flex justify-between items-center mb-4">

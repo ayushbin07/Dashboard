@@ -34,3 +34,75 @@
     @apply bg-white/70 backdrop-blur-lg border border-white/20;
   }
 }
+
+/* Blob floating animation */
+@keyframes blob-float {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  25% {
+    transform: translate(var(--dx, 10vw), var(--dy, -8vh)) scale(1.08);
+  }
+
+  50% {
+    transform: translate(calc(var(--dx, 10vw) * -0.6), calc(var(--dy, -8vh) * 1.2)) scale(0.95);
+  }
+
+  75% {
+    transform: translate(calc(var(--dx, 10vw) * 0.4), calc(var(--dy, -8vh) * -0.5)) scale(1.04);
+  }
+}
+
+@keyframes blob-transport-h {
+  0% {
+    transform: translateX(-120vw) rotate(0deg);
+  }
+
+  100% {
+    transform: translateX(120vw) rotate(360deg);
+  }
+}
+
+@keyframes blob-transport-h-reverse {
+  0% {
+    transform: translateX(120vw) rotate(0deg);
+  }
+
+  100% {
+    transform: translateX(-120vw) rotate(360deg);
+  }
+}
+
+@keyframes blob-transport-v {
+  0% {
+    transform: translateY(-120vh) rotate(0deg);
+  }
+
+  100% {
+    transform: translateY(120vh) rotate(360deg);
+  }
+}
+
+@keyframes blob-transport-d {
+  0% {
+    transform: translate(-120vw, -120vh) rotate(0deg);
+  }
+
+  100% {
+    transform: translate(120vw, 120vh) rotate(360deg);
+  }
+}
+
+.blob-float {
+  /* Default animation, will be overridden by specific blob inline styles or classes */
+  animation: blob-float 22s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blob-float {
+    animation: none;
+  }
+}
