@@ -12,7 +12,7 @@ import { AIChat } from '@/components/dashboard/AIChat';
 import { InsightCard } from '@/components/dashboard/InsightCard'
 import { motion, type Variants } from 'framer-motion'
 import { dbService } from '@/services/dbService'
-import type { Task, Habit } from '@/types'
+import type { Task, Habit, TaskStatus } from '@/types'
 import { triggerConfetti } from '@/utils/confetti';
 
 export default function Dashboard() {
@@ -59,7 +59,7 @@ export default function Dashboard() {
     const handleToggleTask = async (id: string) => {
         const task = tasks.find(t => t.id === id)
         if (task) {
-            const newStatus = task.status === 'pending' ? 'completed' : 'pending';
+            const newStatus: TaskStatus = task.status === 'pending' ? 'completed' : 'pending';
             // Optimistic update
             const updatedTasks = tasks.map(t => t.id === id ? { ...t, status: newStatus } : t);
             setTasks(updatedTasks);
