@@ -5,7 +5,6 @@ import { Sidebar } from './Sidebar'
 import { localService } from '@/services/localService'
 import { Menu } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { FloatingBackground } from './FloatingBackground'
 import { BackgroundBlobs } from './BackgroundBlobs'
 
 interface LayoutProps {
@@ -36,7 +35,6 @@ export function Layout({ children }: LayoutProps) {
 
     return (
         <div className="min-h-screen text-primary dark:text-gray-100 font-sans transition-colors duration-300">
-            <FloatingBackground />
             <BackgroundBlobs />
             {/* Mobile Menu Toggle - Hide on Dashboard as Header handles it */}
             {!isDashboard && (

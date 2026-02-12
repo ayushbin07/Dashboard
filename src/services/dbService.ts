@@ -355,7 +355,7 @@ export const dbService = {
 
         const { data, error } = await supabase
             .from('profiles')
-            .select('username, avatar, theme')
+            .select('username, avatar, theme, gemini_api_key')
             .eq('id', user.id)
             .single()
 
@@ -366,7 +366,7 @@ export const dbService = {
         return data
     },
 
-    async updateProfile(updates: { username?: string; avatar?: string; theme?: string }): Promise<void> {
+    async updateProfile(updates: { username?: string; avatar?: string; theme?: string; gemini_api_key?: string }): Promise<void> {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) throw new Error('Not authenticated')
 

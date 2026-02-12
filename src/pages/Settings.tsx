@@ -9,11 +9,14 @@ import { Palette, Bell, Database, ChevronRight, LogOut, AlertTriangle, X, Save, 
 import { localService } from "@/services/localService"
 import { dbService } from "@/services/dbService"
 import { supabase } from "@/services/authService"
+import { geminiService } from "@/services/geminiService"
 import { motion, AnimatePresence } from "framer-motion"
 
 export default function Settings() {
     const [name, setName] = useState('')
     const [avatar, setAvatar] = useState('👨‍💻')
+    const [geminiKey, setGeminiKey] = useState('')
+    const [isVerifying, setIsVerifying] = useState(false)
     const [streak, setStreak] = useState(0)
 
     // Preferences
@@ -38,6 +41,8 @@ export default function Settings() {
                 if (profile) {
                     setName(profile.username || '')
                     setAvatar(profile.avatar || '👨‍💻')
+                    // @ts-ignore - profile type might not be updated in IDE yet but DB returns it
+                    setGeminiKey(profile.gemini_api_key || '')
                 } else {
                     // Fallback to local if no DB profile found (unlikely if authorized)
                     const localProfile = localService.getUserProfile()
@@ -72,7 +77,8 @@ export default function Settings() {
         try {
             await dbService.updateProfile({
                 username: name,
-                avatar: avatar
+                avatar: avatar,
+                gemini_api_key: geminiKey
             })
 
             // Update local cache too for immediate feel elsewhere if used
@@ -231,6 +237,44 @@ export default function Settings() {
                                     placeholder="Enter your name"
                                     className="bg-white/20 dark:bg-gray-800/20 border-gray-200/30 dark:border-gray-700/50 focus:ring-[#0F5132] dark:focus:ring-[#0F5132] dark:text-white h-11"
                                 />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                    <span className="w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-xs">✨</span>
+                                    Gemini API Key
+                                </label>
+                                <Input
+                                    value={geminiKey}
+                                    onChange={(e) => setGeminiKey(e.target.value)}
+                                    placeholder="Enter your Gemini API Key"
+                                    type="password"
+                                    className="bg-white/20 dark:bg-gray-800/20 border-gray-200/30 dark:border-gray-700/50 focus:ring-[#0F5132] dark:focus:ring-[#0F5132] dark:text-white h-11"
+                                />
+                                <div className="flex gap-2 mt-2">
+                                    <Button
+                                        size="sm"
+                                        variant="secondary"
+                                        onClick={async () => {
+                                            if (!geminiKey) return
+                                            setIsVerifying(true)
+                                            const { valid, error } = await geminiService.verifyKey(geminiKey)
+                                            setIsVerifying(false)
+                                            if (valid) {
+                                                alert("API Key Verified Successfully! 🚀")
+                                            } else {
+                                                console.error(error)
+                                                alert(`Verification Failed: ${error}\n\nPlease check your key and try again.`)
+                                            }
+                                        }}
+                                        disabled={!geminiKey || isVerifying}
+                                        className="text-xs h-8"
+                                    >
+                                        {isVerifying ? "Verifying..." : "Verify Key"}
+                                    </Button>
+                                </div>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    Add Gemini API key for extra functionality. Use <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="underline text-[#0F5132] dark:text-[#4ade80]">Gemini 3 Flash Preview</a> or compatible key.
+                                </p>
                             </div>
                         </div>
                     </div>

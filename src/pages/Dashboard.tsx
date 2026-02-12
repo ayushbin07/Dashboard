@@ -8,24 +8,34 @@ import { Reminders } from '@/components/dashboard/Reminders'
 import { Timer } from '@/components/dashboard/Timer'
 import { QuoteCard } from '@/components/dashboard/QuoteCard'
 import { FriendsList } from '@/components/dashboard/FriendsList'
+import { AIChat } from '@/components/dashboard/AIChat';
+import { InsightCard } from '@/components/dashboard/InsightCard'
 import { motion, type Variants } from 'framer-motion'
 import { dbService } from '@/services/dbService'
 import type { Task, Habit } from '@/types'
+import { triggerConfetti } from '@/utils/confetti';
 
 export default function Dashboard() {
     const [tasks, setTasks] = useState<Task[]>([])
     const [habits, setHabits] = useState<Habit[]>([])
+    const [apiKey, setApiKey] = useState<string | null>(null)
+    const [userAvatar, setUserAvatar] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
 
     const refreshData = async () => {
         try {
             console.log('Refreshing Dashboard Data (Tasks/Habits)...')
-            const [fetchedTasks, fetchedHabits] = await Promise.all([
+            const [fetchedTasks, fetchedHabits, profile] = await Promise.all([
                 dbService.getTasks(),
-                dbService.getHabits()
+                dbService.getHabits(),
+                dbService.getProfile()
             ])
             setTasks(fetchedTasks)
             setHabits(fetchedHabits)
+            // @ts-ignore - profile type might not be updated yet
+            const userProfile = profile as any;
+            setApiKey(userProfile?.gemini_api_key || null)
+            setUserAvatar(userProfile?.avatar || null)
 
             // Sync to local service for search availability
             const { localService } = await import('@/services/localService')
@@ -49,8 +59,17 @@ export default function Dashboard() {
     const handleToggleTask = async (id: string) => {
         const task = tasks.find(t => t.id === id)
         if (task) {
+            const newStatus = task.status === 'pending' ? 'completed' : 'pending';
             // Optimistic update
-            setTasks(prev => prev.map(t => t.id === id ? { ...t, status: t.status === 'pending' ? 'completed' : 'pending' } : t))
+            const updatedTasks = tasks.map(t => t.id === id ? { ...t, status: newStatus } : t);
+            setTasks(updatedTasks);
+
+            if (newStatus === 'completed') {
+                const allCompleted = updatedTasks.every(t => t.status === 'completed');
+                if (allCompleted && updatedTasks.length > 0) {
+                    triggerConfetti();
+                }
+            }
 
             await dbService.toggleTask(id, task.status)
             refreshData()
@@ -83,8 +102,17 @@ export default function Dashboard() {
         const habit = habits.find(h => h.id === id)
         if (habit) {
             const today = format(new Date(), 'yyyy-MM-dd')
+            const newCompleted = !habit.completedToday;
             // Optimistic update
-            setHabits(prev => prev.map(h => h.id === id ? { ...h, completedToday: !h.completedToday } : h))
+            const updatedHabits = habits.map(h => h.id === id ? { ...h, completedToday: newCompleted } : h);
+            setHabits(updatedHabits);
+
+            if (newCompleted) {
+                const allCompleted = updatedHabits.every(h => h.completedToday);
+                if (allCompleted && updatedHabits.length > 0) {
+                    triggerConfetti();
+                }
+            }
 
             await dbService.toggleHabit(id, today, habit.completedToday)
             refreshData()
@@ -138,7 +166,7 @@ export default function Dashboard() {
             <motion.div variants={itemVariants} className="flex justify-between items-end mb-2">
                 <div>
                     <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                        Dashboard <span className="text-xs font-mono text-gray-400 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">v 1.26</span>
+                        Dashboard <span className="text-xs font-mono text-gray-400 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">v 2.0.2</span>
                     </h2>
                     <p className="text-gray-500 dark:text-gray-400 text-sm">Plan, prioritize, and accomplish your tasks with ease.</p>
                 </div>
@@ -172,7 +200,11 @@ export default function Dashboard() {
                             />
                         </motion.div>
                         <motion.div variants={itemVariants} className="h-full">
-                            <Reminders tasks={tasks} />
+                            {apiKey ? (
+                                <InsightCard apiKey={apiKey} tasks={tasks} habits={habits} />
+                            ) : (
+                                <Reminders tasks={tasks} />
+                            )}
                         </motion.div>
                     </div>
                 </div>
@@ -190,6 +222,12 @@ export default function Dashboard() {
                     <motion.div variants={itemVariants}>
                         <FriendsList />
                     </motion.div>
+                    {/* AI Chat */}
+                    {apiKey && (
+                        <motion.div variants={itemVariants} className="h-[400px]">
+                            <AIChat apiKey={apiKey} tasks={tasks} habits={habits} onRefresh={refreshData} userAvatar={userAvatar || undefined} />
+                        </motion.div>
+                    )}
                 </div>
             </div>
 
