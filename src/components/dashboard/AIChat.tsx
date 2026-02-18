@@ -200,8 +200,8 @@ export function AIChat({ apiKey, tasks, habits, className, onRefresh, userAvatar
         <Card className={`flex flex-col h-full rounded-[2rem] border-none shadow-soft bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] overflow-hidden ${className}`}>
             {/* Header */}
             <div className="p-4 flex items-center gap-2">
-                <div className="p-1.5 rounded-lg bg-[#0F5132]/10 dark:bg-[#4ade80]/10">
-                    <Sparkles size={16} className="text-[#0F5132] dark:text-[#4ade80]" />
+                <div className="p-1.5 rounded-lg bg-[#0F5132] dark:bg-[#4ade80]/10 dark:bg-[#4ade80]/10">
+                    <Sparkles size={16} className="text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)] dark:text-[#4ade80]" />
                 </div>
                 <h3 className="font-bold text-gray-900 dark:text-white text-sm">
                     Vimars AI
@@ -220,7 +220,7 @@ export function AIChat({ apiKey, tasks, habits, className, onRefresh, userAvatar
                     >
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${message.role === 'user'
                             ? 'bg-[#E8F5E9] border border-white dark:border-gray-700 shadow-sm'
-                            : 'bg-[#0F5132] dark:bg-[#4ade80]'
+                            : 'bg-[#0F5132] dark:bg-[#4ade80] dark:bg-[#4ade80]'
                             }`}>
                             {message.role === 'user' ? (
                                 <span className="text-sm">{userAvatar || '👨‍💻'}</span>
@@ -243,7 +243,7 @@ export function AIChat({ apiKey, tasks, habits, className, onRefresh, userAvatar
                         animate={{ opacity: 1 }}
                         className="flex items-start gap-2.5"
                     >
-                        <div className="w-8 h-8 rounded-full bg-[#0F5132] dark:bg-[#4ade80] flex items-center justify-center flex-shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-[#0F5132] dark:bg-[#4ade80] dark:bg-[#4ade80] flex items-center justify-center flex-shrink-0">
                             <Bot size={14} className="text-white dark:text-black" />
                         </div>
                         <div className="p-3 bg-white/60 dark:bg-gray-800/60 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-1">
@@ -271,7 +271,7 @@ export function AIChat({ apiKey, tasks, habits, className, onRefresh, userAvatar
                         size="icon"
                         onClick={handleSend}
                         disabled={!input.trim() || isLoading}
-                        className="absolute right-1 top-1 h-8 w-8 rounded-lg bg-[#0F5132] hover:bg-[#0a3622] dark:bg-[#4ade80] dark:hover:bg-[#32b665] text-white dark:text-black transition-colors"
+                        className="absolute right-1 top-1 h-8 w-8 rounded-lg bg-[#0F5132] dark:bg-[#4ade80] hover:bg-[#0a3622] dark:bg-[#4ade80] dark:hover:bg-[#32b665] text-white dark:text-black transition-colors"
                     >
                         {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
                     </Button>

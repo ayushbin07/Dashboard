@@ -119,7 +119,7 @@ export default function Login() {
                             Don't have an account?{' '}
                             <Link
                                 to="/signup"
-                                className="text-[#0F5132] dark:text-[#4ade80] font-medium hover:underline"
+                                className="text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)] dark:text-[#4ade80] font-medium hover:underline"
                             >
                                 Sign up
                             </Link>

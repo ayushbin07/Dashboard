@@ -102,7 +102,7 @@ export function StatCards({ habits }: { habits: Habit[] }) {
                                 />
                             </svg>
                             <div className="absolute bottom-0 left-0 right-0 text-center mb-[-2px]">
-                                <span className="text-2xl font-bold text-[#0F5132] dark:text-[#4ade80]">
+                                <span className="text-2xl font-bold text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)] dark:text-[#4ade80]">
                                     {habits.length > 0 ? Math.round((habits.filter(h => h.completedToday).length / habits.length) * 100) : 0}%
                                 </span>
                             </div>

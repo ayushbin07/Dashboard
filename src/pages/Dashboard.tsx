@@ -1,16 +1,15 @@
 import { useEffect, useState } from 'react'
 import { format } from 'date-fns'
-import { StatCards } from '@/components/dashboard/StatCards'
 import { AnalyticsGraph } from '@/components/dashboard/AnalyticsGraph'
 import { TaskList } from '@/components/dashboard/TaskList'
 import { HabitList } from '@/components/dashboard/HabitList'
 import { Reminders } from '@/components/dashboard/Reminders'
-import { Timer } from '@/components/dashboard/Timer'
 import { QuoteCard } from '@/components/dashboard/QuoteCard'
 import { FriendsList } from '@/components/dashboard/FriendsList'
 import { AIChat } from '@/components/dashboard/AIChat';
 import { InsightCard } from '@/components/dashboard/InsightCard'
-import { motion, type Variants } from 'framer-motion'
+import { motion, AnimatePresence, type Variants } from 'framer-motion'
+import { Bot, X } from 'lucide-react'
 import { dbService } from '@/services/dbService'
 import type { Task, Habit, TaskStatus } from '@/types'
 import { triggerConfetti } from '@/utils/confetti';
@@ -21,6 +20,7 @@ export default function Dashboard() {
     const [apiKey, setApiKey] = useState<string | null>(null)
     const [userAvatar, setUserAvatar] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
+    const [isChatOpen, setIsChatOpen] = useState(false)
 
     const refreshData = async () => {
         try {
@@ -162,21 +162,7 @@ export default function Dashboard() {
             animate="show"
             className="space-y-4 max-w-[1600px] mx-auto p-2 pb-20"
         >
-            {/* Header Area */}
-            <motion.div variants={itemVariants} className="flex justify-between items-end mb-2">
-                <div>
-                    <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                        Dashboard <span className="text-xs font-mono text-gray-400 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">v 2.0.2</span>
-                    </h2>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">Plan, prioritize, and accomplish your tasks with ease.</p>
-                </div>
-            </motion.div>
 
-            {/* Top Cards Row: 5 Columns (4 Stats + 1 Timer) */}
-            <motion.div variants={itemVariants} className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <StatCards habits={habits} />
-                <Timer />
-            </motion.div>
 
             {/* Main Content Grid: 2 Columns */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
@@ -222,12 +208,6 @@ export default function Dashboard() {
                     <motion.div variants={itemVariants}>
                         <FriendsList />
                     </motion.div>
-                    {/* AI Chat */}
-                    {apiKey && (
-                        <motion.div variants={itemVariants} className="h-[400px]">
-                            <AIChat apiKey={apiKey} tasks={tasks} habits={habits} onRefresh={refreshData} userAvatar={userAvatar || undefined} />
-                        </motion.div>
-                    )}
                 </div>
             </div>
 
@@ -235,6 +215,49 @@ export default function Dashboard() {
             <motion.div variants={itemVariants} className="pt-6">
                 <QuoteCard />
             </motion.div>
+
+            {/* Floating AI Chat Button & Interface */}
+            {apiKey && (
+                <>
+                    {/* Floating Toggle Button */}
+                    <motion.button
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => setIsChatOpen(!isChatOpen)}
+                        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[#0F5132] dark:bg-[#4ade80] dark:shadow-[0_0_8px_rgba(74,222,128,0.6)] dark:bg-[#4ade80] text-white dark:text-gray-900 dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)] shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow"
+                    >
+                        {isChatOpen ? (
+                            <X size={24} />
+                        ) : (
+                            <Bot size={24} />
+                        )}
+                    </motion.button>
+
+                    {/* Chat Interface Overlay */}
+                    <AnimatePresence>
+                        {isChatOpen && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 20, scale: 0.95 }}
+                                transition={{ duration: 0.2 }}
+                                className="fixed bottom-24 right-6 z-50 w-[90vw] md:w-[400px] h-[600px] max-h-[80vh] shadow-2xl rounded-[2rem] overflow-hidden"
+                            >
+                                <AIChat
+                                    apiKey={apiKey}
+                                    tasks={tasks}
+                                    habits={habits}
+                                    onRefresh={refreshData}
+                                    userAvatar={userAvatar || undefined}
+                                    className="h-full border-none rounded-none"
+                                />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </>
+            )}
         </motion.div>
     )
 }

@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils"
 import { authService } from '@/services/authService'
 import { Button } from '@/components/ui/button'
 
+import logo from '@/assets/img/logo.png'
+
 interface SidebarProps {
     isOpen?: boolean
     onClose?: () => void
@@ -48,10 +50,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     {/* Logo & Close */}
                     <div className="flex items-center justify-between mb-10">
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-xl bg-[#0F5132] flex items-center justify-center">
-                                <div className="w-4 h-4 border-2 border-white rounded-full" />
-                            </div>
-                            <span className="text-xl font-bold tracking-tight text-[#0F5132]">Dashboard</span>
+                            <img src={logo} alt="Vimars Logo" className="w-10 h-10 object-contain" />
+                            <span className="text-xl font-bold tracking-tight text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)]">Vimars</span>
                         </div>
                         {/* Mobile Close Button */}
                         <Button
@@ -109,14 +109,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                             rel="noopener noreferrer"
                             className="block w-full"
                         >
-                            <button className="w-full py-2 bg-[#0F5132] rounded-xl text-xs font-medium hover:bg-[#156a42] transition-colors">
+                            <button className="w-full py-2 bg-[#0F5132] dark:bg-[#4ade80] dark:shadow-[0_0_8px_rgba(74,222,128,0.6)] rounded-xl text-xs font-medium hover:bg-[#156a42] transition-colors">
                                 Contact
                             </button>
                         </a>
                     </div>
                     {/* Decoration */}
-                    <div className="absolute top-0 right-0 w-20 h-20 bg-[#0F5132] rounded-full blur-2xl -mr-10 -mt-10 opacity-50" />
-                    <div className="absolute bottom-0 left-0 w-20 h-20 bg-[#0F5132] rounded-full blur-2xl -ml-10 -mb-10 opacity-50" />
+                    <div className="absolute top-0 right-0 w-20 h-20 bg-[#0F5132] dark:bg-[#4ade80] dark:shadow-[0_0_8px_rgba(74,222,128,0.6)] rounded-full blur-2xl -mr-10 -mt-10 opacity-50" />
+                    <div className="absolute bottom-0 left-0 w-20 h-20 bg-[#0F5132] dark:bg-[#4ade80] dark:shadow-[0_0_8px_rgba(74,222,128,0.6)] rounded-full blur-2xl -ml-10 -mb-10 opacity-50" />
                 </div>
             </aside>
         </>
@@ -140,9 +140,9 @@ function NavItem({ icon: Icon, label, active, badge, to, onClick, className }: N
                 <Icon size={20} className={cn(active ? "stroke-[2.5px]" : "stroke-2")} />
                 <span className={cn("text-sm font-medium", active && "font-bold")}>{label}</span>
             </div>
-            {active && <div className="w-1 h-6 bg-[#0F5132] rounded-full absolute left-0" />}
+            {active && <div className="w-1 h-6 bg-[#0F5132] dark:bg-[#4ade80] dark:shadow-[0_0_8px_rgba(74,222,128,0.6)] dark:bg-[#4ade80] dark:shadow-[0_0_8px_rgba(74,222,128,0.6)] rounded-full absolute left-0" />}
             {badge && (
-                <span className="text-[10px] font-bold bg-[#0F5132] text-white px-1.5 py-0.5 rounded-md">
+                <span className="text-[10px] font-bold bg-[#0F5132] dark:bg-[#4ade80] dark:shadow-[0_0_8px_rgba(74,222,128,0.6)] text-white px-1.5 py-0.5 rounded-md">
                     {badge}
                 </span>
             )}
@@ -156,7 +156,7 @@ function NavItem({ icon: Icon, label, active, badge, to, onClick, className }: N
                 onClick={onClick}
                 className={cn(
                     "w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all group relative",
-                    active ? "text-[#0F5132]" : "text-gray-400 hover:text-gray-600 hover:bg-gray-50",
+                    active ? "text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_5px_rgba(74,222,128,0.5)]" : "text-gray-400 hover:text-gray-600 hover:bg-gray-50",
                     className
                 )}
             >

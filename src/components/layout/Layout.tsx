@@ -34,7 +34,7 @@ export function Layout({ children }: LayoutProps) {
 
 
     return (
-        <div className="min-h-screen text-primary dark:text-gray-100 font-sans transition-colors duration-300">
+        <div className="min-h-screen bg-[#F8F9FA] dark:bg-[#111827] text-primary dark:text-gray-100 font-sans transition-colors duration-300">
             <BackgroundBlobs />
             {/* Mobile Menu Toggle - Hide on Dashboard as Header handles it */}
             {!isDashboard && (

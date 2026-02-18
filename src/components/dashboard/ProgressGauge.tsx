@@ -38,18 +38,18 @@ export function ProgressGauge({ habits }: { habits: Habit[] }) {
                         strokeLinecap="round"
                         strokeDasharray="126" // Approx length of arc
                         strokeDashoffset={126 - (126 * percentage) / 100}
-                        className="transition-all duration-1000 ease-out"
+                        className="transition-all duration-1000 ease-out stroke-[#0F5132] dark:stroke-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)]"
                     />
                 </svg>
             </div>
 
             <div className="text-center mt-[-5px]">
-                <div className="text-4xl font-bold text-[#0F5132]">{percentage}%</div>
+                <div className="text-4xl font-bold text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)]">{percentage}%</div>
                 <div className="text-xs text-gray-400">Goals Reached</div>
             </div>
 
             <div className="flex gap-4 mt-6 text-xs font-medium">
-                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-[#0F5132]" />Done ({completed})</div>
+                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-[#0F5132] dark:bg-[#4ade80] dark:shadow-[0_0_8px_rgba(74,222,128,0.6)]" />Done ({completed})</div>
                 <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-gray-200" />TBD ({total - completed})</div>
             </div>
         </Card>

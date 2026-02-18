@@ -87,7 +87,7 @@ export default function Calendar() {
         const opacity = Math.round((completedCount / habits.length) * 100)
         const opacityStep = Math.ceil(opacity / 20) * 20 // Round to nearest 20
 
-        return `bg-[#0F5132]/${opacityStep}`
+        return `bg-[#0F5132]/${opacityStep} dark:bg-[#4ade80]/${opacityStep} dark:shadow-[0_0_8px_rgba(74,222,128,${opacityStep / 100 * 0.5})]`
     }
 
     // Toggle habit for specific date
@@ -155,7 +155,7 @@ export default function Calendar() {
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
                 <div className="flex items-center gap-4">
                     <div>
-                        <h2 className="text-3xl font-bold bg-gradient-to-r from-[#0F5132] to-[#4ade80] bg-clip-text text-transparent">Calendar</h2>
+                        <h2 className="text-3xl font-bold bg-gradient-to-r from-[#0F5132] to-[#4ade80] dark:from-[#4ade80] dark:to-[#0F5132] bg-clip-text text-transparent dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.4)]">Calendar</h2>
                         <p className="text-gray-500 dark:text-gray-400">Track your progress and rituals</p>
                     </div>
                     <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-xl">
@@ -163,7 +163,7 @@ export default function Calendar() {
                             variant={view === 'heatmap' ? 'primary' : 'ghost'}
                             size="sm"
                             onClick={() => setView('heatmap')}
-                            className={cn("rounded-lg h-8 w-8 p-0", view === 'heatmap' && "bg-[#0F5132] hover:bg-[#0F5132]/90")}
+                            className={cn("rounded-lg h-8 w-8 p-0", view === 'heatmap' && "bg-[#0F5132] dark:bg-[#4ade80] dark:text-gray-900 dark:shadow-[0_0_8px_rgba(74,222,128,0.6)] hover:bg-[#0F5132]/90 dark:hover:bg-[#4ade80]/90")}
                         >
                             <LayoutGrid size={16} />
                         </Button>
@@ -171,7 +171,7 @@ export default function Calendar() {
                             variant={view === 'rituals' ? 'primary' : 'ghost'}
                             size="sm"
                             onClick={() => setView('rituals')}
-                            className={cn("rounded-lg h-8 w-8 p-0", view === 'rituals' && "bg-[#0F5132] hover:bg-[#0F5132]/90")}
+                            className={cn("rounded-lg h-8 w-8 p-0", view === 'rituals' && "bg-[#0F5132] dark:bg-[#4ade80] dark:text-gray-900 dark:shadow-[0_0_8px_rgba(74,222,128,0.6)] hover:bg-[#0F5132]/90 dark:hover:bg-[#4ade80]/90")}
                         >
                             <ListTodo size={16} />
                         </Button>
@@ -243,7 +243,7 @@ export default function Calendar() {
                                                 className={`
                                                     aspect-square rounded-lg md:rounded-xl p-1 md:p-2 flex flex-col justify-end items-end
                                                     ${heatmapColor}
-                                                    ${isCurrentDay ? 'ring-2 ring-[#0F5132] dark:ring-[#4ade80]' : ''}
+                                                    ${isCurrentDay ? 'ring-2 ring-[#0F5132] dark:ring-[#4ade80] dark:shadow-[0_0_8px_rgba(74,222,128,0.4)]' : ''}
                                                     ${!isCurrentMonth ? 'opacity-30' : ''}
                                                     transition-all cursor-pointer
                                                     hover:shadow-lg
@@ -251,7 +251,7 @@ export default function Calendar() {
                                             >
                                                 <div className={`text-xl md:text-4xl font-bold ${heatmapColor.includes('#0F5132')
                                                     ? 'bg-gradient-to-br from-white to-gray-200 bg-clip-text text-transparent'
-                                                    : 'bg-gradient-to-br from-[#0F5132] to-[#4ade80] bg-clip-text text-transparent dark:from-[#4ade80] dark:to-[#0F5132]'
+                                                    : 'bg-gradient-to-br from-[#0F5132] to-[#4ade80] dark:from-[#4ade80] dark:to-[#0F5132] bg-clip-text text-transparent'
                                                     }`}>
                                                     {format(date, 'd')}
                                                 </div>
@@ -290,11 +290,11 @@ export default function Calendar() {
                                 <span className="text-xs text-gray-500 dark:text-gray-400">Less</span>
                                 <div className="flex gap-1">
                                     <div className="w-4 h-4 md:w-6 md:h-6 rounded bg-gray-100 dark:bg-gray-800" />
-                                    <div className="w-4 h-4 md:w-6 md:h-6 rounded bg-[#0F5132]/20" />
-                                    <div className="w-4 h-4 md:w-6 md:h-6 rounded bg-[#0F5132]/40" />
-                                    <div className="w-4 h-4 md:w-6 md:h-6 rounded bg-[#0F5132]/60" />
-                                    <div className="w-4 h-4 md:w-6 md:h-6 rounded bg-[#0F5132]/80" />
-                                    <div className="w-4 h-4 md:w-6 md:h-6 rounded bg-[#0F5132]/100" />
+                                    <div className="w-4 h-4 md:w-6 md:h-6 rounded bg-[#0F5132]/20 dark:bg-[#4ade80]/20" />
+                                    <div className="w-4 h-4 md:w-6 md:h-6 rounded bg-[#0F5132]/40 dark:bg-[#4ade80]/40" />
+                                    <div className="w-4 h-4 md:w-6 md:h-6 rounded bg-[#0F5132]/60 dark:bg-[#4ade80]/60" />
+                                    <div className="w-4 h-4 md:w-6 md:h-6 rounded bg-[#0F5132]/80 dark:bg-[#4ade80]/80" />
+                                    <div className="w-4 h-4 md:w-6 md:h-6 rounded bg-[#0F5132]/100 dark:bg-[#4ade80]/100" />
                                 </div>
                                 <span className="text-xs text-gray-500 dark:text-gray-400">More</span>
                             </div>
@@ -359,7 +359,7 @@ export default function Calendar() {
                                                                     className={cn(
                                                                         "w-6 h-6 rounded-md border-2 transition-all flex items-center justify-center",
                                                                         isCompleted
-                                                                            ? "bg-[#0F5132] border-[#0F5132] text-white"
+                                                                            ? "bg-[#0F5132] border-[#0F5132] dark:bg-[#4ade80] dark:border-[#4ade80] dark:shadow-[0_0_8px_rgba(74,222,128,0.6)] text-white dark:text-gray-900"
                                                                             : "border-gray-200 dark:border-gray-700 hover:border-[#4ade80]/50"
                                                                     )}
                                                                 >
@@ -419,7 +419,7 @@ export default function Calendar() {
                                                     <td className="p-4 text-center font-mono text-sm text-gray-600 dark:text-gray-300">
                                                         {left}
                                                     </td>
-                                                    <td className="p-4 text-center font-mono text-sm font-bold text-[#0F5132] dark:text-[#4ade80]">
+                                                    <td className="p-4 text-center font-mono text-sm font-bold text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)] dark:text-[#4ade80]">
                                                         {percentage}%
                                                     </td>
                                                     <td className="p-4 w-1/3">
@@ -427,7 +427,7 @@ export default function Calendar() {
                                                             <motion.div
                                                                 initial={{ width: 0 }}
                                                                 animate={{ width: `${percentage}%` }}
-                                                                className="h-full bg-gradient-to-r from-[#0F5132] to-[#4ade80] rounded-full"
+                                                                className="h-full bg-gradient-to-r from-[#0F5132] to-[#4ade80] dark:from-[#4ade80] dark:to-[#0F5132] dark:shadow-[0_0_8px_rgba(74,222,128,0.4)] rounded-full"
                                                             />
                                                         </div>
                                                     </td>
@@ -496,19 +496,19 @@ export default function Calendar() {
                                                     className={`
                                                         p-4 rounded-xl border-2 cursor-pointer transition-all
                                                         ${isCompleted
-                                                            ? 'bg-[#0F5132]/10 border-[#0F5132] dark:bg-[#0F5132]/20'
+                                                            ? 'bg-[#0F5132]/10 border-[#0F5132] dark:bg-[#4ade80]/10 dark:border-[#4ade80] dark:shadow-[0_0_8px_rgba(74,222,128,0.2)]'
                                                             : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}
                                                     `}
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         <div className={`
                                                             w-6 h-6 rounded-full flex items-center justify-center
-                                                            ${isCompleted ? 'bg-[#0F5132]' : 'bg-gray-200 dark:bg-gray-700'}
+                                                            ${isCompleted ? 'bg-[#0F5132] dark:bg-[#4ade80] dark:text-gray-900' : 'bg-gray-200 dark:bg-gray-700'}
                                                         `}>
                                                             {isCompleted && <Check size={16} className="text-white" />}
                                                         </div>
                                                         <div className="flex-1">
-                                                            <div className={`font-semibold ${isCompleted ? 'text-[#0F5132] dark:text-[#4ade80]' : 'text-gray-900 dark:text-white'}`}>
+                                                            <div className={`font-semibold ${isCompleted ? 'text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)] dark:text-[#4ade80]' : 'text-gray-900 dark:text-white'}`}>
                                                                 {habit.title}
                                                             </div>
                                                             <div className="text-xs text-gray-500 dark:text-gray-400">

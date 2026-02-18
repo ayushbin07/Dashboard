@@ -92,8 +92,8 @@ export default function Help() {
         {
             title: "Habit Calendar",
             icon: CalendarIcon,
-            color: "text-[#0F5132]",
-            bg: "bg-[#0F5132]/10 dark:bg-[#0F5132]/20",
+            color: "text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)]",
+            bg: "bg-[#0F5132]/10 dark:bg-[#4ade80]/10",
             instructions: [
                 "The Heatmap visualization shows your consistency over the month.",
                 "Darker green indicates higher completion rates for that specific day.",
@@ -136,7 +136,7 @@ export default function Help() {
             {/* Header */}
             <div className="flex justify-between items-start">
                 <div>
-                    <h2 className="text-3xl font-bold bg-gradient-to-r from-[#0F5132] to-[#4ade80] bg-clip-text text-transparent">
+                    <h2 className="text-3xl font-bold bg-gradient-to-r from-[#0F5132] to-[#4ade80] dark:from-[#4ade80] dark:to-[#0F5132] bg-clip-text text-transparent dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.4)]">
                         How to use Dashboard
                     </h2>
                     <p className="text-gray-500 dark:text-gray-400">Complete guide to mastering your productivity ritual</p>
@@ -157,7 +157,7 @@ export default function Help() {
                         <ul className="space-y-3">
                             {section.instructions.map((inst, i) => (
                                 <li key={i} className="flex gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                    <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#0F5132] flex-shrink-0" />
+                                    <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#0F5132] dark:bg-[#4ade80] dark:shadow-[0_0_5px_rgba(74,222,128,0.8)] flex-shrink-0" />
                                     {inst}
                                 </li>
                             ))}
@@ -197,10 +197,10 @@ export default function Help() {
 
 
             {/* Coming Soon Section */}
-            <Card className="p-8 rounded-[3rem] border-none shadow-soft bg-gradient-to-br from-[#0F5132] to-[#0a3d24] text-white relative overflow-hidden">
+            <Card className="p-8 rounded-[3rem] border-none shadow-soft bg-gradient-to-br from-[#0F5132] to-[#0a3d24] dark:from-[#4ade80]/20 dark:to-[#0F5132]/40 dark:border dark:border-[#4ade80]/30 text-white relative overflow-hidden">
                 <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
-                    <div className="w-20 h-20 bg-white/10 rounded-[2rem] flex items-center justify-center shrink-0">
-                        <Zap className="w-10 h-10 text-emerald-400" />
+                    <div className="w-20 h-20 bg-white/10 dark:bg-[#4ade80]/20 rounded-[2rem] flex items-center justify-center shrink-0">
+                        <Zap className="w-10 h-10 text-emerald-400 dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)]" />
                     </div>
                     <div>
                         <div className="inline-block px-3 py-1 bg-emerald-500/20 border border-emerald-500/30 rounded-full text-xs font-bold mb-3 uppercase tracking-widest text-emerald-400">
@@ -230,13 +230,13 @@ export default function Help() {
                 <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Pro Tips</h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="text-sm">
-                        <span className="font-bold text-[#0F5132]">Theme:</span> Use the Settings page to toggle between Light and Dark mode. Dark mode is optimized for "Deep Work" focus.
+                        <span className="font-bold text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)]">Theme:</span> Use the Settings page to toggle between Light and Dark mode. Dark mode is optimized for "Deep Work" focus.
                     </div>
                     <div className="text-sm">
-                        <span className="font-bold text-[#0F5132]">Persistence:</span> Your data is securely synced to the cloud ☁️. You can access your dashboard from any device by logging in.
+                        <span className="font-bold text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)]">Persistence:</span> Your data is securely synced to the cloud ☁️. You can access your dashboard from any device by logging in.
                     </div>
                     <div className="text-sm">
-                        <span className="font-bold text-[#0F5132]">Shortcuts:</span> Navigation is built for speed. Use the Sidebar for quick context switching between planning (Notes) and doing (Tasks).
+                        <span className="font-bold text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)]">Shortcuts:</span> Navigation is built for speed. Use the Sidebar for quick context switching between planning (Notes) and doing (Tasks).
                     </div>
                 </div>
             </div>

@@ -109,7 +109,7 @@ export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
     const completedTasks = tasks.filter(t => t.status === 'completed') // Use original tasks for completed to avoid filter interference
 
     return (
-        <Card className="p-8 flex flex-col max-h-[350px] rounded-[2rem] border-none shadow-soft bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] transition-all duration-300 hover:shadow-xl">
+        <Card className="p-8 flex flex-col min-h-[600px] rounded-[2rem] border-none shadow-soft bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] transition-all duration-300 hover:shadow-xl">
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Execution List</h3>
@@ -164,7 +164,7 @@ export function TaskList({ tasks, onToggle, onAdd, onUpdate }: TaskListProps) {
                                         className={cn(
                                             "text-[11px] px-2.5 py-1 rounded-full border transition-all",
                                             "bg-gray-100 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600",
-                                            "text-gray-600 dark:text-gray-300 hover:bg-[#0F5132]/10 hover:border-[#0F5132]/30 hover:text-[#0F5132] dark:hover:text-emerald-400",
+                                            "text-gray-600 dark:text-gray-300 hover:bg-[#0F5132]/10 hover:border-[#0F5132]/30 hover:text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)] dark:hover:text-emerald-400",
                                             "cursor-pointer font-medium"
                                         )}
                                     >

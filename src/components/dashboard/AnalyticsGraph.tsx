@@ -72,13 +72,13 @@ export function AnalyticsGraph({ habits }: { habits: Habit[] }) {
                 </div>
             </div>
 
-            <div className="flex-1 w-full min-h-0 relative">
+            <div className="flex-1 w-full min-h-0 relative text-[#0F5132] dark:text-[#4ade80]">
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={data} barSize={12}>
                         <defs>
                             <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="#0F5132" stopOpacity={0.9} />
-                                <stop offset="100%" stopColor="#0F5132" stopOpacity={0.6} />
+                                <stop offset="0%" stopColor="currentColor" stopOpacity={0.9} />
+                                <stop offset="100%" stopColor="currentColor" stopOpacity={0.6} />
                             </linearGradient>
                         </defs>
                         <XAxis
@@ -125,9 +125,9 @@ export function AnalyticsGraph({ habits }: { habits: Habit[] }) {
                             {
                                 data.map((entry, index) => (
                                     <Cell
-                                        key={`cell - ${index} `}
+                                        key={`cell-${index}`}
                                         fill={entry.completed > 0 ? "url(#barGradient)" : "#E5E7EB"}
-                                        className={entry.completed === 0 ? "dark:fill-gray-700" : ""}
+                                        className={entry.completed > 0 ? "dark:filter dark:drop-shadow-[0_0_4px_rgba(74,222,128,0.5)]" : "dark:fill-gray-700"}
                                     />
                                 ))
                             }

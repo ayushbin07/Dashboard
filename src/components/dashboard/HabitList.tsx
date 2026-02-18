@@ -158,7 +158,7 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
                                         className={cn(
                                             "text-[11px] px-2.5 py-1 rounded-full border transition-all",
                                             "bg-gray-100 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600",
-                                            "text-gray-600 dark:text-gray-300 hover:bg-[#0F5132]/10 hover:border-[#0F5132]/30 hover:text-[#0F5132] dark:hover:text-emerald-400",
+                                            "text-gray-600 dark:text-gray-300 hover:bg-[#0F5132] dark:bg-[#4ade80]/10 hover:border-[#0F5132]/30 hover:text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)] dark:hover:text-emerald-400",
                                             "cursor-pointer font-medium"
                                         )}
                                     >
@@ -211,7 +211,7 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
                         </div>
 
                         <div className="flex justify-end pt-2 border-t border-gray-200/50 dark:border-gray-700/50 mt-2">
-                            <Button type="submit" size="sm" className="w-full sm:w-auto bg-[#0F5132] hover:bg-[#156a42] text-white">
+                            <Button type="submit" size="sm" className="w-full sm:w-auto bg-[#0F5132] dark:bg-[#4ade80] hover:bg-[#156a42] text-white">
                                 {editingId ? 'Update Ritual' : 'Create Ritual'}
                             </Button>
                         </div>

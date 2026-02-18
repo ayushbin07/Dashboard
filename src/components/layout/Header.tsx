@@ -150,8 +150,8 @@ export function Header({ onOpenSidebar }: HeaderProps) {
                     </Button>
 
                     <div className="relative w-full group">
-                        <div className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 bg-gray-100 dark:bg-gray-700/50 rounded-full flex items-center justify-center transition-colors group-focus-within:bg-[#0F5132]/10 dark:group-focus-within:bg-[#4ade80]/20">
-                            <Search className="h-4 w-4 text-gray-500 dark:text-gray-400 group-focus-within:text-[#0F5132] dark:group-focus-within:text-[#4ade80]" />
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 bg-gray-100 dark:bg-gray-700/50 rounded-full flex items-center justify-center transition-colors group-focus-within:bg-[#0F5132] dark:bg-[#4ade80]/10 dark:group-focus-within:bg-[#4ade80]/20">
+                            <Search className="h-4 w-4 text-gray-500 dark:text-gray-400 group-focus-within:text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)] dark:group-focus-within:text-[#4ade80]" />
                         </div>
                         <Input
                             ref={searchInputRef}
@@ -177,7 +177,7 @@ export function Header({ onOpenSidebar }: HeaderProps) {
                                                 onClick={() => handleResultClick(task.dueDate)}
                                                 className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer flex flex-col transition-colors group"
                                             >
-                                                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-[#0F5132] dark:group-hover:text-[#4ade80]">{task.title}</span>
+                                                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)] dark:group-hover:text-[#4ade80]">{task.title}</span>
                                                 <span className="text-[10px] text-gray-400">{new Date(task.dueDate).toLocaleDateString()}</span>
                                             </div>
                                         ))}
@@ -207,7 +207,7 @@ export function Header({ onOpenSidebar }: HeaderProps) {
                             variant="ghost"
                             size="icon"
                             onClick={() => setShowNotifications(!showNotifications)}
-                            className="rounded-full h-10 w-10 bg-gray-50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-700 hover:shadow-md hover:text-[#0F5132] dark:hover:text-[#4ade80] transition-all relative text-gray-500 dark:text-gray-400"
+                            className="rounded-full h-10 w-10 bg-gray-50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-700 hover:shadow-md hover:text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)] dark:hover:text-[#4ade80] transition-all relative text-gray-500 dark:text-gray-400"
                         >
                             <Bell className="h-5 w-5" />
                             {hasNotifications && (
@@ -286,7 +286,7 @@ export function Header({ onOpenSidebar }: HeaderProps) {
                             {profile.avatar}
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-sm font-bold text-gray-900 dark:text-gray-200 leading-none group-hover:text-[#0F5132] dark:group-hover:text-[#4ade80] transition-colors">{profile.name || "Guest User"}</span>
+                            <span className="text-sm font-bold text-gray-900 dark:text-gray-200 leading-none group-hover:text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)] dark:group-hover:text-[#4ade80] transition-colors">{profile.name || "Guest User"}</span>
                             <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium leading-tight">View Profile</span>
                         </div>
 

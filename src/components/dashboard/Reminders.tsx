@@ -24,7 +24,7 @@ export function Reminders({ tasks }: { tasks: Task[] }) {
                         </div>
                     )}
                     {upcomingTasks.map(task => (
-                        <div key={task.id} className="p-3 rounded-2xl bg-white/20 dark:bg-gray-800/20 border-l-4 border-[#0F5132]">
+                        <div key={task.id} className="p-3 rounded-2xl bg-white/20 dark:bg-gray-800/20 border-l-4 border-[#0F5132] dark:border-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)]">
                             <h4 className="font-semibold text-gray-900 dark:text-gray-200 truncate">{task.title}</h4>
                             <div className="flex items-center gap-1.5 mt-1 text-xs text-gray-500">
                                 <CalendarClock size={12} />

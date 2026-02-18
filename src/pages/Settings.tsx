@@ -180,7 +180,7 @@ export default function Settings() {
                             <div>
                                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">{name || 'Guest User'}</h3>
                                 <div className="flex items-center gap-2 mt-1">
-                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#0F5132]/10 text-[#0F5132] dark:text-[#4ade80]">
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#0F5132] dark:bg-[#4ade80]/10 text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)] dark:text-[#4ade80]">
                                         <Flame size={12} className="fill-current" />
                                         {streak} Day Streak
                                     </span>
@@ -190,7 +190,7 @@ export default function Settings() {
                         <Button
                             onClick={handleSaveProfile}
                             disabled={isSaving}
-                            className="bg-[#0F5132] hover:bg-[#0F5132]/90 text-white rounded-full px-8 self-start md:self-center"
+                            className="bg-[#0F5132] dark:bg-[#4ade80] dark:text-gray-900 dark:shadow-[0_0_8px_rgba(74,222,128,0.6)] hover:bg-[#0F5132]/90 dark:hover:bg-[#4ade80]/90 text-white rounded-full px-8 self-start md:self-center"
                         >
                             {isSaving ? 'Saving...' : (
                                 <>
@@ -215,7 +215,7 @@ export default function Settings() {
                                         className={cn(
                                             "h-14 w-14 rounded-2xl flex items-center justify-center text-3xl transition-all hover:scale-110",
                                             avatar === emoji
-                                                ? "bg-[#0F5132] text-white shadow-lg shadow-[#0F5132]/20 scale-110 ring-2 ring-offset-2 ring-[#0F5132] dark:ring-offset-[#1f2937]"
+                                                ? "bg-[#0F5132] dark:bg-[#4ade80] dark:text-gray-900 text-white shadow-lg shadow-[#0F5132]/20 dark:shadow-[#4ade80]/40 dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)] scale-110 ring-2 ring-offset-2 ring-[#0F5132] dark:ring-[#4ade80] dark:ring-offset-[#1f2937]"
                                                 : "bg-white/20 dark:bg-gray-800/20 text-gray-900 hover:bg-white/30 dark:hover:bg-gray-700/30"
                                         )}
                                     >
@@ -273,7 +273,7 @@ export default function Settings() {
                                     </Button>
                                 </div>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                    Add Gemini API key for extra functionality. Use <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="underline text-[#0F5132] dark:text-[#4ade80]">Gemini 3 Flash Preview</a> or compatible key.
+                                    Add Gemini API key for extra functionality. Use <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="underline text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)] dark:text-[#4ade80]">Gemini 3 Flash Preview</a> or compatible key.
                                 </p>
                             </div>
                         </div>

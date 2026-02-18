@@ -75,7 +75,7 @@ export default function Tasks() {
         >
             {/* Header */}
             <div className="mb-6">
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-[#0F5132] to-[#4ade80] bg-clip-text text-transparent">
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-[#0F5132] to-[#4ade80] dark:from-[#4ade80] dark:to-[#0F5132] bg-clip-text text-transparent dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.4)]">
                     Tasks & Habits
                 </h2>
                 <p className="text-gray-500 dark:text-gray-400">Manage all your tasks and daily rituals</p>
@@ -89,7 +89,7 @@ export default function Tasks() {
                 </div>
                 <div className="bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] p-6 rounded-[2rem] border-none shadow-soft">
                     <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Completed Tasks</div>
-                    <div className="text-4xl font-bold text-[#0F5132] dark:text-[#4ade80]">{completedTasks.length}</div>
+                    <div className="text-4xl font-bold text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)] dark:text-[#4ade80]">{completedTasks.length}</div>
                 </div>
                 <div className="bg-white/40 dark:bg-[#1f2937]/40 backdrop-blur-[50px] p-6 rounded-[2rem] border-none shadow-soft">
                     <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Habits</div>
@@ -113,13 +113,13 @@ export default function Tasks() {
                                 <h4 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
                                     PENDING ({pendingTasks.length})
                                 </h4>
-                                <div className="space-y-2">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {pendingTasks.map(task => (
                                         <motion.div
                                             key={task.id}
                                             whileHover={{ scale: 1.01 }}
                                             onClick={() => toggleTask(task.id)}
-                                            className="p-4 rounded-xl bg-white/20 dark:bg-gray-800/20 border-l-4 border-l-[#0F5132] cursor-pointer relative overflow-hidden"
+                                            className="p-4 rounded-xl bg-white/20 dark:bg-gray-800/20 border-l-4 border-l-[#0F5132] dark:border-l-[#4ade80] cursor-pointer relative overflow-hidden"
                                         >
                                             <div className="flex items-start gap-3 relative z-10">
                                                 <div className="w-6 h-6 rounded-full border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center mt-0.5 flex-shrink-0" />
@@ -167,16 +167,16 @@ export default function Tasks() {
                                 <h4 className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">
                                     COMPLETED ({completedTasks.length})
                                 </h4>
-                                <div className="space-y-2">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {completedTasks.map(task => (
                                         <motion.div
                                             key={task.id}
                                             whileHover={{ scale: 1.01 }}
                                             onClick={() => toggleTask(task.id)}
-                                            className="p-4 rounded-xl bg-[#0F5132]/10 dark:bg-[#0F5132]/20 cursor-pointer"
+                                            className="p-4 rounded-xl bg-[#0F5132] dark:bg-[#4ade80]/20 cursor-pointer"
                                         >
                                             <div className="flex items-start gap-3">
-                                                <div className="w-6 h-6 rounded-full bg-[#0F5132] flex items-center justify-center mt-0.5 flex-shrink-0">
+                                                <div className="w-6 h-6 rounded-full bg-[#0F5132] dark:bg-[#4ade80] flex items-center justify-center mt-0.5 flex-shrink-0">
                                                     <Check size={16} className="text-white" />
                                                 </div>
                                                 <div className="flex-1">
@@ -215,18 +215,18 @@ export default function Tasks() {
                                 whileHover={{ scale: 1.02 }}
                                 onClick={() => toggleHabit(habit.id)}
                                 className={`p-4 rounded-xl border-2 transition-all cursor-pointer relative overflow-hidden ${habit.completedToday
-                                    ? 'bg-[#0F5132]/10 dark:bg-[#0F5132]/20 border-[#0F5132]'
-                                    : 'bg-transparent border-l-4 border-l-[#0F5132] border-gray-300/40 dark:border-gray-600/40 hover:bg-white/10 dark:hover:bg-gray-800/10'
+                                    ? 'bg-[#0F5132] dark:bg-[#4ade80]/10 dark:bg-[#4ade80]/20 border-[#0F5132] dark:border-[#4ade80] dark:shadow-[0_0_8px_rgba(74,222,128,0.3)]'
+                                    : 'bg-transparent border-l-4 border-l-[#0F5132] dark:border-l-[#4ade80] border-gray-300/40 dark:border-gray-600/40 hover:bg-white/10 dark:hover:bg-gray-800/10'
                                     }`}
                             >
                                 <div className="flex items-start justify-between mb-2 relative z-10">
                                     <div className="flex items-center gap-3">
-                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${habit.completedToday ? 'bg-[#0F5132]' : 'bg-gray-200 dark:bg-gray-700'
+                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${habit.completedToday ? 'bg-[#0F5132] dark:bg-[#4ade80]' : 'bg-gray-200 dark:bg-gray-700'
                                             }`}>
                                             {habit.completedToday && <Check size={16} className="text-white" />}
                                         </div>
                                         <h5 className={`font-semibold ${habit.completedToday
-                                            ? 'text-[#0F5132] dark:text-[#4ade80]'
+                                            ? 'text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)] dark:text-[#4ade80]'
                                             : 'text-gray-900 dark:text-white'
                                             }`}>
                                             {habit.title}

@@ -22,8 +22,7 @@ export function InsightCard({ apiKey, tasks, habits }: InsightCardProps) {
     // Filter for Reminders Logic (Embedded)
     const upcomingTasks = tasks
         .filter(t => t.status === 'pending' && t.dueDate)
-        .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
-        .slice(0, 3); // Show top 3
+        .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
 
     const generateNewInsight = async () => {
         setLoading(true);
@@ -66,7 +65,7 @@ export function InsightCard({ apiKey, tasks, habits }: InsightCardProps) {
             <div className="mb-6 relative z-10">
                 <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-2">
-                        <Sparkles className="text-[#0F5132] dark:text-[#4ade80]" size={18} />
+                        <Sparkles className="text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)]" size={18} />
                         <h3 className="font-bold text-gray-900 dark:text-white text-sm uppercase tracking-wider">
                             Daily Insight
                         </h3>
@@ -92,7 +91,7 @@ export function InsightCard({ apiKey, tasks, habits }: InsightCardProps) {
                             </div>
                         </div>
                     ) : (
-                        <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed italic border-l-2 border-[#0F5132]/30 dark:border-[#4ade80]/30 pl-3">
+                        <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed italic border-l-2 border-[#0F5132]/30 dark:border-[#4ade80]/30 dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)] pl-3">
                             "{insight || error || "Initializing..."}"
                         </p>
                     )}

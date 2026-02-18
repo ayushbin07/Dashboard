@@ -123,7 +123,7 @@ export default function Notes() {
                     </Button>
 
                     <div>
-                        <h2 className="text-3xl font-bold bg-gradient-to-r from-[#0F5132] to-[#4ade80] bg-clip-text text-transparent">
+                        <h2 className="text-3xl font-bold bg-gradient-to-r from-[#0F5132] to-[#4ade80] dark:from-[#4ade80] dark:to-[#0F5132] bg-clip-text text-transparent dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.4)]">
                             Raw Notes
                         </h2>
                         <p className="text-gray-500 dark:text-gray-400">Simple text notes</p>
@@ -131,7 +131,7 @@ export default function Notes() {
                 </div>
                 <Button
                     onClick={handleCreateNote}
-                    className="bg-[#0F5132] hover:bg-[#0F5132]/90 text-white rounded-full"
+                    className="bg-[#0F5132] dark:bg-[#4ade80] dark:text-gray-900 dark:shadow-[0_0_8px_rgba(74,222,128,0.6)] hover:bg-[#0F5132]/90 dark:hover:bg-[#4ade80]/90 text-white rounded-full"
                 >
                     <Plus size={20} className="mr-2" />
                     New
@@ -161,13 +161,13 @@ export default function Notes() {
                                         key={note.id}
                                         onClick={() => handleSelectNote(note)}
                                         className={`group p-3 rounded-xl cursor-pointer transition-all border ${selectedNote?.id === note.id
-                                            ? 'bg-[#0F5132]/10 border-[#0F5132] dark:border-[#0F5132]'
+                                            ? 'bg-[#0F5132]/10 border-[#0F5132] dark:bg-[#4ade80]/10 dark:border-[#4ade80] dark:shadow-[0_0_8px_rgba(74,222,128,0.2)]'
                                             : 'bg-white/20 dark:bg-gray-800/20 border-transparent hover:bg-white/30 dark:hover:bg-gray-700/30'
                                             }`}
                                     >
                                         <div className="flex justify-between items-start">
                                             <div className="flex-1 min-w-0 pr-2">
-                                                <div className={`font-semibold text-sm truncate ${selectedNote?.id === note.id ? 'text-[#0F5132] dark:text-[#4ade80]' : 'text-gray-900 dark:text-white'}`}>
+                                                <div className={`font-semibold text-sm truncate ${selectedNote?.id === note.id ? 'text-[#0F5132] dark:text-[#4ade80] dark:drop-shadow-[0_0_8px_rgba(74,222,128,0.6)] dark:text-[#4ade80]' : 'text-gray-900 dark:text-white'}`}>
                                                     {getDisplayTitle(note.content)}
                                                 </div>
                                                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -201,7 +201,7 @@ export default function Notes() {
                                     <Button
                                         onClick={handleSave}
                                         disabled={isSaving}
-                                        className="bg-[#0F5132] hover:bg-[#0F5132]/90 text-white rounded-full px-6"
+                                        className="bg-[#0F5132] dark:bg-[#4ade80] dark:text-gray-900 dark:shadow-[0_0_8px_rgba(74,222,128,0.6)] hover:bg-[#0F5132]/90 dark:hover:bg-[#4ade80]/90 text-white rounded-full px-6"
                                     >
                                         <Save size={18} className="mr-2" />
                                         {isSaving ? 'Saving...' : 'Save Work'}
