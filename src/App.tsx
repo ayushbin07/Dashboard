@@ -11,8 +11,7 @@ import Notes from '@/pages/Notes'
 import Help from '@/pages/Help'
 import Settings from '@/pages/Settings'
 import TaskDetails from '@/pages/TaskDetails'
-import Login from '@/pages/Login'
-import Signup from '@/pages/Signup'
+import Welcome from '@/pages/Welcome'
 
 function App() {
   const [showOnboarding, setShowOnboarding] = useState(false)
@@ -88,8 +87,9 @@ function App() {
     <Router>
       <Routes>
         {/* Public Routes */}
-        <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <Login />} />
-        <Route path="/signup" element={isAuthenticated ? <Navigate to="/" replace /> : <Signup />} />
+        <Route path="/login" element={<Navigate to="/welcome" replace />} />
+        <Route path="/signup" element={<Navigate to="/welcome" replace />} />
+        <Route path="/welcome" element={isAuthenticated ? <Navigate to="/" replace /> : <Welcome />} />
 
         {/* Protected Routes */}
         <Route
