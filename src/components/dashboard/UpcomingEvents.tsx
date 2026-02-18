@@ -1,6 +1,5 @@
-import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
-import { Clock, Briefcase, ChevronRight } from 'lucide-react';
+import { Clock, Briefcase } from 'lucide-react';
 import type { Task } from '@/types';
 import { format, isToday, isTomorrow, isPast } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
