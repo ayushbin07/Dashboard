@@ -1,86 +1,113 @@
-import { useState, useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { Layout } from '@/components/layout/Layout'
-import { Onboarding } from '@/components/Onboarding'
-import { ProtectedRoute } from '@/components/ProtectedRoute'
-import { authService, supabase } from '@/services/authService'
-import Dashboard from '@/pages/Dashboard'
-import Calendar from '@/pages/Calendar'
-import Tasks from '@/pages/Tasks'
-import Notes from '@/pages/Notes'
-import Help from '@/pages/Help'
-import Settings from '@/pages/Settings'
-import TaskDetails from '@/pages/TaskDetails'
-import Welcome from '@/pages/Welcome'
+import { Layout } from '@/components/layout/Layout';
+import { Onboarding } from '@/components/Onboarding';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import Calendar from '@/pages/Calendar';
+import Dashboard from '@/pages/Dashboard';
+import Help from '@/pages/Help';
+import Notes from '@/pages/Notes';
+import Settings from '@/pages/Settings';
+import TaskDetails from '@/pages/TaskDetails';
+import Tasks from '@/pages/Tasks';
+import Welcome from '@/pages/Welcome';
+import { authService, supabase } from '@/services/authService';
+import { useEffect, useState } from 'react';
+import {
+  Navigate,
+  Route,
+  BrowserRouter as Router,
+  Routes,
+} from 'react-router-dom';
 
 function App() {
-  const [showOnboarding, setShowOnboarding] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    checkAuthAndOnboarding()
+    checkAuthAndOnboarding();
 
     // Listen for auth state changes
-    const { data: { subscription } } = authService.onAuthStateChange((_event, session) => {
-      setIsAuthenticated(!!session)
-    })
+    const {
+      data: { subscription },
+    } = authService.onAuthStateChange((event, session) => {
+      console.log(
+        'Auth state update:',
+        event,
+        session ? 'Session active' : 'No session'
+      );
+      setIsAuthenticated(!!session);
+
+      // If the event is SIGNED_IN, re-run our onboarding check.
+      if (event === 'SIGNED_IN') {
+        checkAuthAndOnboarding();
+      }
+    });
 
     return () => {
-      subscription.unsubscribe()
-    }
-  }, [])
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const checkAuthAndOnboarding = async () => {
     try {
-      const session = await authService.getSession()
-      setIsAuthenticated(!!session)
+      const session = await authService.getSession();
+      setIsAuthenticated(!!session);
 
       // Check onboarding only if authenticated
       if (session) {
-        // Check if user has completed onboarding by checking if they have a username in profile
-        // standard onboarding saves username to profile
+        // Check if user has completed onboarding by checking if they have a profile
         const { data: profile } = await supabase
           .from('profiles')
-          .select('username')
+          .select('id, username')
           .eq('id', session.user.id)
-          .single()
+          .single();
+
+        // If no profile exists at all, it's a first-time login (likely OAuth)
+        if (!profile) {
+          setShowOnboarding(true);
+          localStorage.removeItem('antigravity_onboarding_complete');
+          return;
+        }
 
         if (profile?.username) {
-          setShowOnboarding(false)
+          setShowOnboarding(false);
           // Sync local storage just in case
-          localStorage.setItem('antigravity_onboarding_complete', 'true')
+          localStorage.setItem('antigravity_onboarding_complete', 'true');
         } else {
           // Fallback to local storage or show onboarding
-          const localCompleted = localStorage.getItem('antigravity_onboarding_complete')
-          setShowOnboarding(!localCompleted)
+          const localCompleted = localStorage.getItem(
+            'antigravity_onboarding_complete'
+          );
+          setShowOnboarding(!localCompleted);
         }
       }
     } catch {
-      setIsAuthenticated(false)
+      setIsAuthenticated(false);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleOnboardingComplete = () => {
-    setShowOnboarding(false)
-  }
+    setShowOnboarding(false);
+  };
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0F5132] to-[#1e7e34] dark:from-gray-900 dark:to-gray-800">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-white text-lg font-medium">Connecting to NASA satellites...</p>
+          <p className="text-white text-lg font-medium">
+            Connecting to NASA satellites...
+          </p>
         </div>
       </div>
-    )
+    );
   }
 
   // Show onboarding if authenticated but hasn't completed it
   if (isAuthenticated && showOnboarding) {
-    return <Onboarding onComplete={handleOnboardingComplete} />
+    return <Onboarding onComplete={handleOnboardingComplete} />;
   }
 
   return (
@@ -89,7 +116,10 @@ function App() {
         {/* Public Routes */}
         <Route path="/login" element={<Navigate to="/welcome" replace />} />
         <Route path="/signup" element={<Navigate to="/welcome" replace />} />
-        <Route path="/welcome" element={isAuthenticated ? <Navigate to="/" replace /> : <Welcome />} />
+        <Route
+          path="/welcome"
+          element={isAuthenticated ? <Navigate to="/" replace /> : <Welcome />}
+        />
 
         {/* Protected Routes */}
         <Route
@@ -112,7 +142,7 @@ function App() {
         />
       </Routes>
     </Router>
-  )
+  );
 }
 
-export default App
+export default App;

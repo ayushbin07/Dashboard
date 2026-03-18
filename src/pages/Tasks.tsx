@@ -1,9 +1,16 @@
 import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
-import { Check } from 'lucide-react'
+import { Clock, Check } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { dbService } from '@/services/dbService'
 import type { Task, Habit } from '@/types'
+
+// Generate hours for timeboxing 
+const HOURS = Array.from({ length: 24 }, (_, i) => {
+    const period = i >= 12 ? 'PM' : 'AM'
+    const displayHour = i % 12 || 12
+    return { hour: i, display: `${displayHour}:00 ${period}` }
+})
 
 export default function Tasks() {
     const [tasks, setTasks] = useState<Task[]>([])
@@ -160,6 +167,31 @@ export default function Tasks() {
                                 </div>
                             </div>
                         )}
+
+                        {/* Time Boxing Schedule */}
+                        <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
+                            <h4 className="flex items-center gap-2 text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wider">
+                                <Clock className="w-4 h-4" /> Time Boxing Schedule
+                            </h4>
+                            <div className="bg-white/30 dark:bg-gray-800/20 backdrop-blur-md rounded-2xl p-4 h-[400px] overflow-y-auto w-full custom-scrollbar">
+                                <div className="space-y-2">
+                                    {HOURS.map(({ hour, display }) => {
+                                        // Find any tasks assigned roughly to this hour (demo logic based on dueDate timestamp if available, otherwise empty)
+                                        // In a real app we'd map this to a specific task.scheduled_time field
+                                        return (
+                                            <div key={hour} className="flex gap-4 items-start group">
+                                                <div className="w-16 text-right flex-shrink-0 text-xs text-gray-400 dark:text-gray-500 font-mono py-2">
+                                                    {display}
+                                                </div>
+                                                <div className="flex-1 relative border-t border-gray-100 dark:border-gray-700/50 py-1 min-h-[40px] group-hover:bg-gray-50/50 dark:group-hover:bg-gray-800/30 transition-colors rounded-r-md">
+                                                    {/* Drop zone / Task box */}
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        </div>
 
                         {/* Completed Tasks */}
                         {completedTasks.length > 0 && (
