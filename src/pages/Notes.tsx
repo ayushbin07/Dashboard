@@ -13,6 +13,7 @@ export default function Notes() {
     const [isLoading, setIsLoading] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
     const [isMobileListVisible, setIsMobileListVisible] = useState(true)
+    const [lastSavedContent, setLastSavedContent] = useState('')
 
     // Load notes on mount
     useEffect(() => {
@@ -65,8 +66,21 @@ export default function Notes() {
     const handleSelectNote = (note: Note) => {
         setSelectedNote(note)
         setContent(note.content || '')
+        setLastSavedContent(note.content || '')
         setIsMobileListVisible(false) // Switch to editor on mobile
     }
+
+    // Auto-Save Effect (1000ms delay)
+    useEffect(() => {
+        // Don't save if there's no note selected, or if content hasn't changed from last save
+        if (!selectedNote || content === lastSavedContent) return
+
+        const saveTimeout = setTimeout(() => {
+            handleSave()
+        }, 1000)
+
+        return () => clearTimeout(saveTimeout)
+    }, [content, selectedNote, lastSavedContent])
 
     const handleSave = async () => {
         if (!selectedNote) return
@@ -82,7 +96,9 @@ export default function Notes() {
                     : n
             )
             setNotes(updatedNotes)
-            // Update selected note reference so we don't lose sync
+
+            // Sync saved states
+            setLastSavedContent(content)
             setSelectedNote({ ...selectedNote, content, updatedAt: new Date().toISOString() })
         } catch (error) {
             console.error('Failed to save note', error)
@@ -195,16 +211,26 @@ export default function Notes() {
                         {selectedNote ? (
                             <>
                                 <div className="flex justify-between items-center mb-4">
-                                    <span className="text-sm text-gray-400">
-                                        Last saved: {new Date(selectedNote.updatedAt).toLocaleString()}
+                                    <span className="text-sm text-gray-400 flex items-center gap-2">
+                                        {isSaving ? (
+                                            <>
+                                                <div className="w-3 h-3 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
+                                                Saving...
+                                            </>
+                                        ) : content !== lastSavedContent ? (
+                                            'Unsaved changes...'
+                                        ) : (
+                                            `Saved: ${new Date(selectedNote.updatedAt).toLocaleTimeString()}`
+                                        )}
                                     </span>
+                                    {/* Manual Save Button - kept for explicit action if user wants it, but not strictly necessary with auto-save */}
                                     <Button
                                         onClick={handleSave}
-                                        disabled={isSaving}
-                                        className="bg-[#0F5132] dark:bg-[#4ade80] dark:text-gray-900 dark:shadow-[0_0_8px_rgba(74,222,128,0.6)] hover:bg-[#0F5132]/90 dark:hover:bg-[#4ade80]/90 text-white rounded-full px-6"
+                                        disabled={isSaving || content === lastSavedContent}
+                                        className="bg-[#0F5132] dark:bg-[#4ade80] dark:text-gray-900 dark:shadow-[0_0_8px_rgba(74,222,128,0.6)] hover:bg-[#0F5132]/90 dark:hover:bg-[#4ade80]/90 text-white rounded-full px-6 transition-opacity disabled:opacity-50"
                                     >
                                         <Save size={18} className="mr-2" />
-                                        {isSaving ? 'Saving...' : 'Save Work'}
+                                        Save
                                     </Button>
                                 </div>
                                 <textarea

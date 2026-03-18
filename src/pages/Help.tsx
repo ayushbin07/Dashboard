@@ -191,7 +191,10 @@ export default function Help() {
                         <MessageCircle className="w-5 h-5 text-emerald-500" />
                         Recent Feedback
                     </h4>
-                    <FeedbackMarquee feedbackItems={feedbackItems} />
+                    <FeedbackMarquee
+                        feedbackItems={feedbackItems}
+                        onAddFeedback={() => setShowModal(true)}
+                    />
                 </Card>
             )}
 

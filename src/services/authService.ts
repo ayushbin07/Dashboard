@@ -1,97 +1,132 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase environment variables')
+  throw new Error('Missing Supabase environment variables');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export const authService = {
-    // Sign up with email and password
-    async signUp(email: string, password: string, username: string, avatar: string) {
-        const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-                data: {
-                    username,
-                    avatar
-                },
-                emailRedirectTo: window.location.origin
-            }
-        })
+  // Sign up with email and password
+  async signUp(
+    email: string,
+    password: string,
+    username: string,
+    avatar: string
+  ) {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          username,
+          avatar,
+        },
+        emailRedirectTo: window.location.origin,
+      },
+    });
 
-        if (error) throw error
+    if (error) throw error;
 
-        // Auto sign in after signup (bypass email confirmation)
-        if (data.user && !data.session) {
-            // If no session was created, sign in anyway
-            return await this.signIn(email, password)
-        }
-
-        return data
-    },
-
-    // Sign in with email or username
-    async signIn(loginIdentifier: string, password: string) {
-        let email = loginIdentifier
-
-        // Check if input looks like an email using simple regex
-        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginIdentifier)
-
-        if (!isEmail) {
-            // It's a username, look up the email
-            const { data: emailData, error: lookupError } = await supabase
-                .rpc('get_email_by_username', { username_input: loginIdentifier })
-
-            if (lookupError || !emailData) {
-                // Return a generic error to avoid user enumeration if possible, 
-                // or just let the downstream auth fail (but we need email to proceed).
-                throw new Error('Username not found or invalid')
-            }
-            email = emailData as string
-        }
-
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password
-        })
-
-        if (error) throw error
-        return data
-    },
-
-    // Sign out
-    async signOut() {
-        const { error } = await supabase.auth.signOut()
-        if (error) throw error
-    },
-
-    // Get current user
-    async getCurrentUser() {
-        const { data: { user }, error } = await supabase.auth.getUser()
-        if (error) throw error
-        return user
-    },
-
-    // Get current session
-    async getSession() {
-        const { data: { session }, error } = await supabase.auth.getSession()
-        if (error) throw error
-        return session
-    },
-
-    // Listen for auth state changes
-    onAuthStateChange(callback: (event: string, session: any) => void) {
-        return supabase.auth.onAuthStateChange(callback)
-    },
-
-    // Reset password
-    async resetPassword(email: string) {
-        const { error } = await supabase.auth.resetPasswordForEmail(email)
-        if (error) throw error
+    // Auto sign in after signup (bypass email confirmation)
+    if (data.user && !data.session) {
+      // If no session was created, sign in anyway
+      return await this.signIn(email, password);
     }
-}
+
+    return data;
+  },
+
+  // Sign in with email or username
+  async signIn(loginIdentifier: string, password: string) {
+    let email = loginIdentifier;
+
+    // Check if input looks like an email using simple regex
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginIdentifier);
+
+    if (!isEmail) {
+      // It's a username, look up the email
+      const { data: emailData, error: lookupError } = await supabase.rpc(
+        'get_email_by_username',
+        { username_input: loginIdentifier }
+      );
+
+      if (lookupError || !emailData) {
+        // Return a generic error to avoid user enumeration if possible,
+        // or just let the downstream auth fail (but we need email to proceed).
+        throw new Error('Username not found or invalid');
+      }
+      email = emailData as string;
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Sign in with Google
+  async signInWithGoogle() {
+    console.log('Initiating Google OAuth login...');
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin,
+        },
+      });
+      if (error) {
+        console.error('Supabase OAuth error:', error);
+        throw error;
+      }
+      console.log('OAuth redirecting to:', data.url);
+      return data;
+    } catch (err) {
+      console.error('Catch error in signInWithGoogle:', err);
+      throw err;
+    }
+  },
+
+  // Sign out
+  async signOut() {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+  },
+
+  // Get current user
+  async getCurrentUser() {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    if (error) throw error;
+    return user;
+  },
+
+  // Get current session
+  async getSession() {
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession();
+    if (error) throw error;
+    return session;
+  },
+
+  // Listen for auth state changes
+  onAuthStateChange(callback: (event: string, session: any) => void) {
+    return supabase.auth.onAuthStateChange(callback);
+  },
+
+  // Reset password
+  async resetPassword(email: string) {
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    if (error) throw error;
+  },
+};

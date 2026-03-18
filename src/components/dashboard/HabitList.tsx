@@ -268,8 +268,33 @@ export function HabitList({ habits, onToggle, onAdd, onUpdate, onDelete }: Habit
 
                         <div className="flex items-center gap-3 relative z-10">
                             {habit.streak > 0 && (
-                                <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ backgroundColor: `${habit.color || '#F59E0B'}15` }}>
-                                    <Flame className="h-3 w-3" style={{ fill: habit.color || '#F59E0B', color: habit.color || '#F59E0B' }} />
+                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border shadow-sm transition-all"
+                                    style={{
+                                        backgroundColor: habit.completedToday ? `${habit.color || '#F59E0B'}20` : 'white',
+                                        borderColor: `${habit.color || '#F59E0B'}40`
+                                    }}>
+                                    <motion.div
+                                        animate={{
+                                            scale: [1, 1.1, 1],
+                                            rotate: [0, Math.min(habit.streak * 2, 10), Math.max(-habit.streak * 2, -10), 0]
+                                        }}
+                                        transition={{
+                                            duration: Math.max(0.5, 2 - (habit.streak * 0.1)),
+                                            repeat: Infinity,
+                                            ease: "easeInOut"
+                                        }}
+                                    >
+                                        <Flame
+                                            className="transition-all"
+                                            style={{
+                                                fill: habit.color || '#F59E0B',
+                                                color: habit.color || '#F59E0B',
+                                                width: `${Math.min(12 + (habit.streak * 1.5), 24)}px`,
+                                                height: `${Math.min(12 + (habit.streak * 1.5), 24)}px`,
+                                                filter: `drop-shadow(0 0 ${Math.min(habit.streak, 8)}px ${habit.color || '#F59E0B'})`
+                                            }}
+                                        />
+                                    </motion.div>
                                     <span className="text-xs font-bold" style={{ color: habit.color || '#F59E0B' }}>{habit.streak}</span>
                                 </div>
                             )}
